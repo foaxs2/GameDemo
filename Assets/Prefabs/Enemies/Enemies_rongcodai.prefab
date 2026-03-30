@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5231079873454795653
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 477756688946630307}
+  - component: {fileID: 7607792079480044514}
+  m_Layer: 0
+  m_Name: Enemies_rongcodai
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &477756688946630307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231079873454795653}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1435.0099, y: 1573.0095, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7607792079480044514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231079873454795653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  maxHP: 3060
+  currentHP: 580
+  baseDefense: 0
+  currentDefense: 0
+  baseSpeed: 18
+  currentSpeed: 0
+  currentAP: 0
+  debuffs: []
+  isImmuneToStun: 1
+  immuneToBleed: 1
+  weakToPoison: 1
+  weakToBurn: 0
+  weakToBleed: 0
+  enemyName: "R\u1ED3ng c\u1ED5 \u0111\u1EA1i"
+  enemySprite: {fileID: 8634788764221147592, guid: 458b2fdf1899e8b4ca0d860272393a63, type: 3}
+  attack: 16
+  critChance: 7
+  evasion: 5
+  skillName: 
+  skillDescription: 
+  maxCooldown: 6
+  currentCooldown: 0
+  goldDrop: 350
+  expDrop: 2250

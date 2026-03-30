@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5361841355304791106
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2396807603461085728}
+  - component: {fileID: 403494359491678710}
+  m_Layer: 0
+  m_Name: Enemies_nhen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2396807603461085728
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5361841355304791106}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1435.0099, y: 1573.0095, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &403494359491678710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5361841355304791106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  maxHP: 16
+  currentHP: 16
+  baseDefense: 0
+  currentDefense: 0
+  baseSpeed: 7
+  currentSpeed: 0
+  currentAP: 0
+  debuffs: []
+  isImmuneToStun: 0
+  immuneToBleed: 0
+  weakToPoison: 0
+  weakToBurn: 1
+  weakToBleed: 0
+  enemyName: "Nh\u1EC7n"
+  enemySprite: {fileID: -2508200064674889143, guid: 457744e37f925a44080ecf384f129b44, type: 3}
+  attack: 1
+  critChance: 5
+  evasion: 5
+  skillName: "T\u01A1 d\xEDnh"
+  skillDescription: "T\u1EF1 c\u01B0\u1EDDng h\xF3a b\u1EA3n th\xE2n ph\xF3ng t\u01A1
+    c\xF3 th\u1EC3 g\xE2y hi\u1EC7u \u1EE9ng \u0111\u1EADp v\u1EE1 x\u01B0\u01A1ng"
+  maxCooldown: 4
+  currentCooldown: 0
+  goldDrop: 6
+  expDrop: 14

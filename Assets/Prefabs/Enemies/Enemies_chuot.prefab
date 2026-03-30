@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1611573764929447969
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2708230865196240990}
+  - component: {fileID: 8956435626122505591}
+  m_Layer: 0
+  m_Name: Enemies_chuot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2708230865196240990
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1753.5039, y: 1566.0249, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8956435626122505591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  maxHP: 12
+  currentHP: 12
+  baseDefense: 0
+  currentDefense: 0
+  baseSpeed: 6
+  currentSpeed: 0
+  currentAP: 0
+  debuffs: []
+  isImmuneToStun: 0
+  immuneToBleed: 0
+  weakToPoison: 1
+  weakToBurn: 0
+  weakToBleed: 1
+  enemyName: "Chu\u1ED9t"
+  enemySprite: {fileID: 7555002680000336513, guid: 79a6e99606182eb4490ef68ee21d5eba, type: 3}
+  attack: 1
+  critChance: 5
+  evasion: 5
+  skillName: 
+  skillDescription: '
+
+'
+  maxCooldown: 0
+  currentCooldown: 0
+  goldDrop: 4
+  expDrop: 10
