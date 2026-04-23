@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: lee-enfield
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: lee-enfield
+  description: "M\u1ED9t lo\u1EA1i s\xFAng tr\u01B0\u1EDDng kh\xF4ng t\u1EF1 \u0111\u1ED9ng,
+    l\xEAn \u0111\u1EA1n t\u1EEBng vi\xEAn \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng
+    b\u1EDFi nh\u1EEFng ng\u01B0\u1EDDi b\u1EA3o v\u1EC7 tr\u1EF1c t\u1EF1 khu v\u1EF1c
+    c\xF3 kh\u1EA3 n\u0103ng b\u1EAFn xuy\xEAn v\u1EDBi s\u1EE9c s\xE1t th\u01B0\u01A1ng
+    cao."
+  itemType: 1
+  icon: {fileID: 5841735900960495379, guid: 41ca9fe5b76db9b4bb31b0751d7a8c51, type: 3}
+  buyPrice: 350
+  sellPrice: 80
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 0
+  damageBonus: 2
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 3
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

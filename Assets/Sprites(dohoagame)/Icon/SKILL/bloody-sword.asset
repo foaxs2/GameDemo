@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23ee4b28ed945b342ace801e94d51d8f, type: 3}
+  m_Name: bloody-sword
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillID: Sword_Skill_4
+  skillName: "Huy\u1EBFt Ki\u1EBFm"
+  icon: {fileID: -3090492944733084095, guid: ef5263588db27d54fbbcbbfd72291461, type: 3}
+  description: "Bao ph\u1EE7 vu kh\xED v\u1EDBi hi\u1EC7u \u1EE9ng ch\u1EA3y m\xE1u,
+    +{1}% t\u1EC9 l\u1EC7 g\xE2y ch\u1EA3y m\xE1u. T\u1ED3n t\u1EA1i trong 4 gi\xE2y. "
+  targetType: 2
+  maxLevel: 5
+  baseCost: 100
+  cooldown: 4
+  buffDuration: 4
+  damageBonusPerLevel:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  effectChancePerLevel:
+  - 20
+  - 25
+  - 30
+  - 35
+  - 40

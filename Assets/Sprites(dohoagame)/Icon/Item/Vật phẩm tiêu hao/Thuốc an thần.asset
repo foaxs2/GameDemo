@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: "Thu\u1ED1c an th\u1EA7n"
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: "Thu\u1ED1c an th\u1EA7n"
+  description: "Gi\xFAp tr\u1EA5n t\u1EC9nh t\u1EA1m th\u1EDDi, h\u1ED3i 2 SEN"
+  itemType: 0
+  icon: {fileID: 6907782872049694950, guid: a54c04a2eb1a79a4ca7747fe799c666a, type: 3}
+  buyPrice: 50
+  sellPrice: 15
+  consumableType: 1
+  healAmount: 2
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 99
+  equipmentSlot: 0
+  damageBonus: 0
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 1
+  maxStackSize: 99
+  usableInCombat: 1

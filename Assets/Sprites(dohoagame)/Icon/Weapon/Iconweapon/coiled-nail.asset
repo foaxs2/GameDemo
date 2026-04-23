@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: coiled-nail
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: coiled-nail
+  description: "M\u1ED9t chi\u1EBFc \u0111\u1ECBnh c\xF3 \u0111\u1EA7u nh\u1ECDn
+    xo\u1EAFn, c\xF3 th\u1EC3 b\u1ECF qua ph\xF2ng ng\u1EF1 k\u1EBB th\xF9."
+  itemType: 1
+  icon: {fileID: -4559800005950045625, guid: 54fb4c98715daeb4d91efb09a92fe2c1, type: 3}
+  buyPrice: 180
+  sellPrice: 54
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 0
+  damageBonus: 1
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 3
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

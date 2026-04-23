@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: stiletto
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: Stiletto
+  description: "Dao g\u0103m chuy\xEAn d\u1EE5ng c\xF3 l\u01B0\u1EE1i d\xE0i m\u1EA3nh
+    v\xE0 \u0111\u1EA7u nh\u1ECDn gi\u1ED1ng nh\u01B0 kim, ch\u1EE7 y\u1EBFu d\xF9ng
+    l\xE0m v\u0169 kh\xED \u0111\xE2m v\xE0 \u0111\xE2m"
+  itemType: 1
+  icon: {fileID: -7624912508301638476, guid: be16a7c0cb194714ea4f8918b37279dc, type: 3}
+  buyPrice: 240
+  sellPrice: 64
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 0
+  damageBonus: 2
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 1
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

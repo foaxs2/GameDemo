@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: pirate-hat
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: pirate-hat
+  description: "M\u1ED9t chi\u1EBFc m\u0169 c\xF3 bi\u1EC3u t\u01B0\u1EE3ng \u0111\u1EA7u
+    l\xE2u c\u1EE7a m\u1ED9t h\u1ED9i nh\xF3m n\xE0o \u0111\xF3"
+  itemType: 1
+  icon: {fileID: 9028498059037675981, guid: 1367ae2a4ed8cec4c986f228cdacd088, type: 3}
+  buyPrice: 85
+  sellPrice: 20
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 1
+  damageBonus: 0
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 2
+  critBonus: 0
+  evasionBonus: 1
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

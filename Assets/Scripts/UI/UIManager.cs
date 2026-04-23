@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI senText;
     public TextMeshProUGUI foodText;
 
+    private Canvas myCanvas;
+
     void Awake()
     {
         if (Instance == null)
@@ -17,11 +20,28 @@ public class UIManager : MonoBehaviour
             //Đưa nội dung vào DDOL để lưu dữ liệu
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            myCanvas = GetComponent<Canvas>();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (myCanvas != null)
+        {
+            // Tự động tắt bảng HUD khi đang ở màn Combat hoặc Town, hiện lại ở Dungeon
+            myCanvas.enabled = (scene.name != "Combat" && scene.name != "Town");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     void Update()

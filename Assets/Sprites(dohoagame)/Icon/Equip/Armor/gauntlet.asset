@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: gauntlet
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: Gaunlet
+  description: "Chi\u1EBFn g\u0103ng tay kim lo\u1EA1i mang l\u1EA1i s\u1EF1 b\u1EA3o
+    v\u1EC7 ch\u1EAFc ch\u1EAFn."
+  itemType: 1
+  icon: {fileID: -9089117484026251138, guid: f0102290f495f1341af6dc4ac764d693, type: 3}
+  buyPrice: 110
+  sellPrice: 35
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 1
+  damageBonus: 0
+  defenseBonus: 1
+  speedBonus: 0
+  hpBonus: 1
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

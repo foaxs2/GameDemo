@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: pirate-coat
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: pirate-coat
+  description: "\xC1o cho\xE0ng g\u1EAFn n\xFAt d\xE0nh cho m\u1ED9t s\u1ED1 ng\u01B0\u1EDDi
+    \u0111\u1EB7c bi\u1EC7t"
+  itemType: 1
+  icon: {fileID: -3107741818354835375, guid: 3c7b36c3740f1b548adb7445ae867200, type: 3}
+  buyPrice: 100
+  sellPrice: 24
+  consumableType: 0
+  healAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  equipmentSlot: 1
+  damageBonus: 0
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 3
+  critBonus: 0
+  evasionBonus: 1
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23ee4b28ed945b342ace801e94d51d8f, type: 3}
+  m_Name: striped-sword
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillID: Sword_Skill_2
+  skillName: "Ch\xE9m M\u1EA1nh"
+  icon: {fileID: -6633126962211740463, guid: ea74d16ee5aa94b4f9f23917e289d378, type: 3}
+  description: "Ch\xE9m 1 \u0111\xF2n th\u1EADt m\u1EA1nh ch0 1 k\u1EBB d\u1ECBch
+    \u0111\u01B0\u1EE3c ch\u1ECDn c\xF3 th\u1EC3 ch\xED m\u1EA1ng, +{0} s\xE1t th\u01B0\u01A1ng
+    th\u01B0\u1EDFng, +{1}% t\u1EC9 l\u1EC7 ch\xED m\u1EA1ng\r\n"
+  targetType: 1
+  maxLevel: 5
+  baseCost: 100
+  cooldown: 3
+  buffDuration: 0
+  damageBonusPerLevel:
+  - 5
+  - 6
+  - 8
+  - 10
+  - 12
+  effectChancePerLevel:
+  - 30
+  - 35
+  - 40
+  - 45
+  - 60

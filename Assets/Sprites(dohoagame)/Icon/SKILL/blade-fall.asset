@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23ee4b28ed945b342ace801e94d51d8f, type: 3}
+  m_Name: blade-fall
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillID: Sword_Skill_1
+  skillName: "Ch\xE9m Nhi\u1EC1u Nh\xE1t"
+  icon: {fileID: 412842708545245901, guid: 4dce4a5c70bc858469e569850606a1bd, type: 3}
+  description: "Ch\xE9m 4 \u0111\xF2n li\xEAn ti\u1EBFp g\xE2y s\xE1t th\u01B0\u01A1ng
+    k\u1EBB \u0111\u1ECBch ng\u1EABu nhi\xEAn m\u1ED7i \u0111\xF2n ph\xEDa sau gi\u1EA3m
+    15% s\xE1t th\u01B0\u01A1ng, + {0} s\xE1t th\u01B0\u01A1ng th\u01B0\u1EDFng. "
+  targetType: 0
+  maxLevel: 5
+  baseCost: 100
+  cooldown: 4
+  buffDuration: 0
+  damageBonusPerLevel:
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  effectChancePerLevel:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
