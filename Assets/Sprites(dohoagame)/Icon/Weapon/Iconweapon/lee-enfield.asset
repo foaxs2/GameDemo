@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: lee-enfield
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: lee-enfield
+  itemName: K98
   description: "M\u1ED9t lo\u1EA1i s\xFAng tr\u01B0\u1EDDng kh\xF4ng t\u1EF1 \u0111\u1ED9ng,
     l\xEAn \u0111\u1EA1n t\u1EEBng vi\xEAn \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng
     b\u1EDFi nh\u1EEFng ng\u01B0\u1EDDi b\u1EA3o v\u1EC7 tr\u1EF1c t\u1EF1 khu v\u1EF1c
@@ -22,8 +22,10 @@ MonoBehaviour:
   icon: {fileID: 5841735900960495379, guid: 41ca9fe5b76db9b4bb31b0751d7a8c51, type: 3}
   buyPrice: 350
   sellPrice: 80
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

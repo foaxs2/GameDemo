@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 887313519880839858}
   - component: {fileID: 337012660072143838}
+  - component: {fileID: -4229398512082593781}
   m_Layer: 0
   m_Name: Enemies_nhenhang
   m_TagString: Untagged
@@ -46,12 +47,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   maxHP: 20
   currentHP: 20
-  baseDefense: 0
-  currentDefense: 0
+  baseDefense: 1
+  currentDefense: 1
   baseSpeed: 10
   currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 0
   immuneToBleed: 0
   weakToPoison: 0
@@ -59,13 +61,51 @@ MonoBehaviour:
   weakToBleed: 0
   enemyName: "Nh\u1EC7n hang"
   enemySprite: {fileID: -3551646705651467984, guid: 27ab64fc9d0c3aa45b078b2593815925, type: 3}
+  enemyType: 1
   attack: 2
   critChance: 8
   evasion: 10
+  skillID: 4
   skillName: "C\u1EAFn"
   skillDescription: "C\u0103n m\u1EA1nh m\u1EBD v\xE0o m\u1EE5c ti\xEAu g\xE2y 1
     l\u01B0\u1EE3ng s\xE1t th\u01B0\u01A1ng v\u1EEBa ph\u1EA3i"
   maxCooldown: 3
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 10
   expDrop: 19
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 0
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 3
+  enrageSPDBonus: 5
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: 
+--- !u!114 &-4229398512082593781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1872697947418551732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: sai
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: sai
-  description: "L\xE0 M\u1ED9t c\xE2y v\u0169 khi c\xF3 \u0111\u1EA7u nh\u1ECDn c\xF3
+  itemName: "Dao g\u0103m 3 l\u01B0\u1EE1i"
+  description: "L\xE0 m\u1ED9t c\xE2y v\u0169 khi c\xF3 \u0111\u1EA7u nh\u1ECDn c\xF3
     th\u1EC3 \u0111\xE2m xuy\xEAn qua k\u1EBB th\xF9 c\xF3 gi\xE1p m\u1ECFng."
   itemType: 1
   icon: {fileID: -7518716307887507317, guid: aae678cc61b77f34b9970fa5ad8d4958, type: 3}
   buyPrice: 90
   sellPrice: 28
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

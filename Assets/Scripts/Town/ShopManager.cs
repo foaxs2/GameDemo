@@ -12,13 +12,17 @@ public class ShopManager : MonoBehaviour
     [Header("Kho Dữ Liệu (Kéo tất cả Item vào đây)")]
     public List<ItemData> allPossibleItems;
 
+    [Header("Cấu hình Gold Shop (Chỉnh được trong Inspector)")]
+    [SerializeField] private int shopGoldMin = 70;
+    [SerializeField] private int shopGoldMax = 250;
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            RefreshShop(); // Tạo hàng hóa lần đầu khi mới vào game
+            RefreshShop();
         }
         else
         {
@@ -26,25 +30,34 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // Hàm tung ngẫu nhiên lại shop khi về làng
+    /// <summary>Tung ngẫu nhiên lại shop. Gọi khi về làng.</summary>
     public void RefreshShop()
     {
-        // Random vàng của chủ shop từ 70 - 250
-        shopGold = Random.Range(70, 251);
-
+        shopGold = Random.Range(shopGoldMin, shopGoldMax + 1);
         currentShopItems.Clear();
 
-        // Nếu danh sách tổng rỗng thì báo lỗi
         if (allPossibleItems == null || allPossibleItems.Count == 0)
         {
-            Debug.LogWarning("Chưa có item nào trong kho dữ liệu của ShopManager!");
+            Debug.LogWarning("[ShopManager] Chưa có item nào trong kho dữ liệu!");
             return;
         }
 
-        // Bốc ngẫu nhiên 12 món đồ (không stack)
         for (int i = 0; i < 12; i++)
         {
             ItemData randomItem = allPossibleItems[Random.Range(0, allPossibleItems.Count)];
+            
+            // Theo ý người chơi: Shop không bán bình máu (HP)
+            if (randomItem.itemType == ItemType.Consumable && randomItem.consumableType == ConsumableType.HP)
+            {
+                // Bốc lại món khác
+                for (int retry = 0; retry < 10; retry++)
+                {
+                    randomItem = allPossibleItems[Random.Range(0, allPossibleItems.Count)];
+                    if (!(randomItem.itemType == ItemType.Consumable && randomItem.consumableType == ConsumableType.HP))
+                        break;
+                }
+            }
+
             currentShopItems.Add(randomItem);
         }
 

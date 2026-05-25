@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2719336940651743475}
   - component: {fileID: 9057789345886092430}
+  - component: {fileID: 8889641127602775166}
   m_Layer: 0
   m_Name: 'Enemies_chuotnhay '
   m_TagString: Untagged
@@ -44,13 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 18
-  currentHP: 18
+  maxHP: 22
+  currentHP: 22
   baseDefense: 0
   currentDefense: 0
   baseSpeed: 15
   currentSpeed: 0
-  currentAP: 0
+  currentAP: 30
   debuffs: []
   isImmuneToStun: 0
   immuneToBleed: 0
@@ -59,12 +60,32 @@ MonoBehaviour:
   weakToBleed: 1
   enemyName: "Chu\u1ED9t nh\u1EA3y"
   enemySprite: {fileID: -6047802178459748283, guid: e0db7401889b3c245bfea7e2b6c79610, type: 3}
+  enemyType: 1
   attack: 2
   critChance: 8
   evasion: 10
+  skillID: 5
   skillName: "T\u0103ng T\u1ED1c"
   skillDescription: "T\u1EF1 t\u0103ng t\u1ED1c \u0111\u1ED9 c\u1EE7a b\u1EA3n th\xE2n"
   maxCooldown: 4
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 9
   expDrop: 17
+--- !u!114 &8889641127602775166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3390324824006970933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

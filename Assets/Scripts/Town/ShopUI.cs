@@ -197,6 +197,7 @@ public class ShopUI : MonoBehaviour
             selectedIndex = -1; // Reset lựa chọn
             RefreshAll();
             Debug.Log($"Đã mua {itemToBuy.itemName}");
+            SaveSystem.Instance?.Save();
         }
     }
 

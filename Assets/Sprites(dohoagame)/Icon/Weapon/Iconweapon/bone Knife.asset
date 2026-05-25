@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: bone Knife
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: bone Knife
+  itemName: "Dao X\u01B0\u01A1ng"
   description: "Dao l\xE0m t\u1EEB x\u01B0\u01A1ng, nh\u1EB9 v\xE0 s\u1EAFc. T\u0103ng
     t\u1EC9 l\u1EC7 ch\xED m\u1EA1ng"
   itemType: 1
   icon: {fileID: -1328438012234519505, guid: 83ff8d2e46002bf448c6eab30959f668, type: 3}
   buyPrice: 80
   sellPrice: 20
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

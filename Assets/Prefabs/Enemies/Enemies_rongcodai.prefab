@@ -44,14 +44,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 3060
-  currentHP: 580
-  baseDefense: 0
+  maxHP: 590
+  currentHP: 590
+  baseDefense: 6
   currentDefense: 0
   baseSpeed: 18
   currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 1
   immuneToBleed: 1
   weakToPoison: 1
@@ -59,12 +60,36 @@ MonoBehaviour:
   weakToBleed: 0
   enemyName: "R\u1ED3ng c\u1ED5 \u0111\u1EA1i"
   enemySprite: {fileID: 8634788764221147592, guid: 458b2fdf1899e8b4ca0d860272393a63, type: 3}
+  enemyType: 1
   attack: 16
-  critChance: 7
+  critChance: 8
   evasion: 5
-  skillName: 
-  skillDescription: 
+  skillID: 8
+  skillName: "H\u01A1i th\u1EDF l\u1EE5i t\xE0n"
+  skillDescription: "Do cu\u1ED1ng h\u1ECDng \u0111\xE3 r\xE1ch n\xE1t, ng\u1ECDn
+    l\u1EEDa c\u1ED5 \u0111\u1EA1i phun ra \u0111\u1EE9t \u0111o\u1EA1n nh\u01B0ng
+    mang nhi\u1EC7t l\u01B0\u1EE3ng nung ch\u1EA3y v\u1EA1n v\u1EADt."
   maxCooldown: 6
+  initialCooldown: 3
   currentCooldown: 0
-  goldDrop: 350
+  goldDrop: 780
   expDrop: 2250
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 1
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 5
+  enrageSPDBonus: 8
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 1
+  hasRoarPassive: 1
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: "\"B\u1EA1n c\u1EA3m th\u1EA5y s\u1EE9c m\u1EA1nh kh\u1EE7ng
+    khi\u1EBFp...\""

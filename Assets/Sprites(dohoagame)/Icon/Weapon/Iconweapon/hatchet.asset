@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: hatchet
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: hatchet
+  itemName: "R\xECu s\u1EAFt"
   description: "Chi\u1EBFc r\xECu kim lo\u1EA1i \u0111\u01B0\u1EE3c d\xF9ng \u0111\u1EC3
     \u0111\u1ED1n g\u1ED7 r\u1EA5t ch\u1EAFc ch\u1EAFn."
   itemType: 1
   icon: {fileID: -1803434991992368380, guid: 86f250cccd5db93468454f06f1f037bf, type: 3}
   buyPrice: 175
   sellPrice: 38
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1021415566288286147}
   - component: {fileID: 6845582783164054089}
+  - component: {fileID: 1674279595182069748}
   m_Layer: 0
   m_Name: Enemies_nhentinhanh
   m_TagString: Untagged
@@ -44,28 +45,67 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 28
-  currentHP: 28
-  baseDefense: 0
-  currentDefense: 0
-  baseSpeed: 14
+  maxHP: 26
+  currentHP: 26
+  baseDefense: 2
+  currentDefense: 2
+  baseSpeed: 13
   currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 0
   immuneToBleed: 0
   weakToPoison: 0
   weakToBurn: 1
   weakToBleed: 0
-  enemyName: "Nh\xEAn tinh anh"
+  enemyName: "Nh\u1EC7n tinh anh"
   enemySprite: {fileID: -9078640495151671516, guid: 471fa456d7ad6034a91f443fee505775, type: 3}
+  enemyType: 1
   attack: 3
   critChance: 12
   evasion: 5
+  skillID: 1
   skillName: "G\u1ECDi \u0111\xE0n"
   skillDescription: "G\u1ECDi th\xEAm 1 c\xE1 th\u1EC3 nh\u1EC7n hang chi\u1EBFn
     \u0111\u1EA5u c\xF9ng"
   maxCooldown: 5
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 16
   expDrop: 27
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 0
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 3
+  enrageSPDBonus: 5
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: 
+--- !u!114 &1674279595182069748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4601414764919578917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

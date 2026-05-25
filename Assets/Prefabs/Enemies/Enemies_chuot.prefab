@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2708230865196240990}
   - component: {fileID: 8956435626122505591}
+  - component: {fileID: -8066137676633717236}
   m_Layer: 0
   m_Name: Enemies_chuot
   m_TagString: Untagged
@@ -44,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 12
-  currentHP: 12
+  maxHP: 15
+  currentHP: 15
   baseDefense: 0
   currentDefense: 0
   baseSpeed: 6
@@ -59,14 +60,33 @@ MonoBehaviour:
   weakToBleed: 1
   enemyName: "Chu\u1ED9t"
   enemySprite: {fileID: 7555002680000336513, guid: 79a6e99606182eb4490ef68ee21d5eba, type: 3}
+  enemyType: 1
   attack: 1
   critChance: 5
   evasion: 5
-  skillName: 
-  skillDescription: '
-
-'
+  skillID: 0
+  skillName: "Chu\u1ED9t"
+  skillDescription: "M\u1ED9t con chu\u1ED9t to x\xE1c v\xF4 h\u1EA1i kh\xF4ng \u0111\u1EE7
+    kh\u1EA3 n\u0103ng \u0111\u1EC3 c\xF3 b\u1EA5t k\xEC k\u0129 n\u0103ng n\xE0o."
   maxCooldown: 0
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 4
   expDrop: 10
+--- !u!114 &-8066137676633717236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

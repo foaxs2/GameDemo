@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8859437172993130833}
   - component: {fileID: 6883375666755822215}
+  - component: {fileID: -907668015405350078}
   m_Layer: 0
   m_Name: Enemies_thanlanden
   m_TagString: Untagged
@@ -59,13 +60,33 @@ MonoBehaviour:
   weakToBleed: 1
   enemyName: "Th\u1EB1n l\u1EB1n \u0111en"
   enemySprite: {fileID: 6489905702713336516, guid: 161600d4f386d3c46850effc7b07a924, type: 3}
+  enemyType: 1
   attack: 1
   critChance: 8
   evasion: 8
+  skillID: 3
   skillName: "C\u1EAFn \u0111\u1ED9c"
   skillDescription: "G\xE2y 1 l\u01B0\u1EE3ng nh\u1ECF s\xE1t th\u01B0\u01A1ng v\xE0
     c\xF3 c\u01A1 h\u1ED9i g\xE2y \u0111\u1ED9c trong 3 l\u01B0\u1EE3t"
   maxCooldown: 4
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 12
   expDrop: 21
+--- !u!114 &-907668015405350078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5363363400359288145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

@@ -12,16 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: stiletto
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Stiletto
-  description: "Dao g\u0103m chuy\xEAn d\u1EE5ng c\xF3 l\u01B0\u1EE1i d\xE0i m\u1EA3nh
-    v\xE0 \u0111\u1EA7u nh\u1ECDn gi\u1ED1ng nh\u01B0 kim, ch\u1EE7 y\u1EBFu d\xF9ng
-    l\xE0m v\u0169 kh\xED \u0111\xE2m v\xE0 \u0111\xE2m"
+  itemName: "Ki\u1EBFm ng\u1EAFn"
+  description: "Lo\u1EA1i ki\u1EBFm chuy\xEAn d\u1EE5ng \u0111\u01B0\u1EE3c b\xE1n
+    tr\xE0n lan \u1EDF c\xE1c c\u1EEDa h\xE0ng, \u0111\u01B0\u1EE3c c\xE1c m\u1EA1o
+    hi\u1EC3m gi\u1EA3 tin d\xF9ng."
   itemType: 1
   icon: {fileID: -7624912508301638476, guid: be16a7c0cb194714ea4f8918b37279dc, type: 3}
   buyPrice: 240
   sellPrice: 64
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

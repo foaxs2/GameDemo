@@ -17,6 +17,9 @@ public abstract class Unit : MonoBehaviour
     [Header("Dữ liệu Debuff")]
     public List<DebuffInstance> debuffs = new List<DebuffInstance>();
 
+    [Header("Dữ liệu Buff")]
+    public List<BuffInstance> buffs = new List<BuffInstance>();
+
     [Header("Cờ Trạng Thái")]
     public bool isImmuneToStun;
     public bool immuneToBleed;

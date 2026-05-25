@@ -18,6 +18,7 @@ public enum ConsumableType
     Buff_SPD,        // Tăng tốc độ
     Buff_CRIT,       // Tăng chí mạng
     Buff_EVA,        // Tăng né tránh
+    WeaponCoating,   // Tẩm vũ khí (Bleed/Fire/Poison) — xem coatingType
     Cleanse          // Giải debuff
 }
 
@@ -49,10 +50,13 @@ public class ItemData : ScriptableObject
     public int healAmount;           // Lượng hồi cố định (HP, SEN)
     public int foodRestoreAmount;    // Lượng hồi Lương Thực riêng lẻ
     public float healPercentage;     // % hồi (0.4 = 40%)
-    public int buffValue;            // Giá trị buff cố định
+    public int buffValue;            // Giá trị buff cố định (ATK/DEF/SPD/CRIT/EVA)
     public float buffPercentage;     // Giá trị buff %
     public int buffDuration;         // Số lượt buff tồn tại
     public int maxStacks;            // Stack tối đa (1-3)
+    public WeaponCoatingType coatingType;   // Loại tẩm vũ khí (chỉ cho WeaponCoating)
+    [Range(0f, 100f)]
+    public float coatingChance;      // % áp dụng hiệu ứng tẩm khi đánh (0-100)
 
     [Header("Cho Equipment")]
     public EquipmentSlot equipmentSlot;

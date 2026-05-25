@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49861bc3019825b46b49eb8acf93935a, type: 3}
+  m_Name: "s\u1EF1 ki\u1EC7n 1"
+  m_EditorClassIdentifier: Assembly-CSharp::EventData
+  eventName: "K\u1EBB Lang Thang"
+  eventIcon: {fileID: -1869094363044610822, guid: 103f645d04e609242a29b7ad537c487d, type: 3}
+  description: "M\u1ED9t k\u1EBB lang thang m\u1EB7c \xE1o cho\xE0ng r\xE1ch r\u01B0\u1EDBi
+    t\u1EEB t\u1EEB ti\u1EBFn l\u1EA1i g\u1EA7n. Qua l\u1EDBp v\u1EA3i tr\xF9m \u0111\u1EA7u
+    x\u1ED9c x\u1EC7ch, \u0111\xF4i m\u1EAFt h\u1EAFn \u0111\u1EE5c ng\u1EA7u nh\u01B0ng
+    to\xE1t l\xEAn v\u1EBB ma m\u1ECB. H\u1EAFn l\u1EA9m b\u1EA9m nh\u1EEFng l\u1EDDi
+    c\u1EA7u nguy\u1EC7n c\u1ED5 x\u01B0a, h\u1EE9a h\u1EB9n s\u1EBD ban ph\u01B0\u1EDBc
+    l\xE0nh cho b\u1EA1n n\u1EBFu b\u1EA1n ch\u1ECBu qu\u1EF3 xu\u1ED1ng ti\u1EBFp
+    nh\u1EADn. Trong h\u1EA7m ng\u1EE5c t\u0103m t\u1ED1i n\xE0y, li\u1EC7u \u0111\xE2y
+    l\xE0 s\u1EF1 c\u1EE9u r\u1ED7i, hay ch\u1EC9 l\xE0 m\u1ED9t l\u1EDDi nguy\u1EC1n
+    r\u1EE7a?"
+  choices:
+  - choiceText: "Ch\u1EA5p nh\u1EADn "
+    baseSuccessChance: 40
+    rewardGold: 0
+    rewardExp: 0
+    rewardHP: 10
+    rewardFood: 0
+    rewardSanity: 2
+    rewardItem: {fileID: 11400000, guid: 33a28991122e4fb4cb18b2f6eba42a14, type: 2}
+    buffStatType: 
+    buffStatAmount: 0
+    successMessage: "B\u1EA1n nghe theo l\u1EDDi h\u1EAFn \u0111\u1ED9t nhi\xEAn
+      c\u01A1 th\u1EC3 b\u1EA1n s\xE1ng nh\u1EB9 v\xE0 khi\u1EBFn b\u1EA1n c\u1EA3m
+      th\u1EA5y s\u1EF1 m\u1EC7t m\u1ECFi c\u1EE7a b\u1EA1n d\u1EA7n tan bi\u1EBFn
+      hay l\xE0 t\u01B0\u1EDFng t\u01B0\u1EE3ng?."
+    penaltyHP: 0
+    penaltyFood: 0
+    penaltySanity: 2
+    penaltyGold: 0
+    failMessage: "B\u1EA1n th\u1EED l\xE0m theo l\u1EDDi h\xE1n nh\u01B0ng ch\u1EB3ng
+      c\xF3 g\xEC x\u1EA3y ra c\u1EA3."
+  - choiceText: "T\u1EEB ch\u1ED1i "
+    baseSuccessChance: 100
+    rewardGold: 0
+    rewardExp: 0
+    rewardHP: 0
+    rewardFood: 0
+    rewardSanity: 0
+    rewardItem: {fileID: 0}
+    buffStatType: 
+    buffStatAmount: 0
+    successMessage: "B\u1EA1n c\u1EA3m th\u1EA5y h\u1EAFn k\xEC qu\u1EB7c v\xE0 kh\xF4ng
+      mu\u1ED1n m\u1EA5t th\u1EDDi gian th\xEAm n\xEAn r\u1EDDi \u0111i."
+    penaltyHP: 0
+    penaltyFood: 0
+    penaltySanity: 0
+    penaltyGold: 0
+    failMessage: 

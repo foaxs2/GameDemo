@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: iron-trident
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: iron-trident
+  itemName: Kurinai
   description: "M\u1ED9t th\u1EE9 v\u0169 kh\xED \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng
     \u0111\u1EC3 \u0111\xE2m th\u1ECDc"
   itemType: 1
   icon: {fileID: -4469720579312196110, guid: 2066212b8568243459847ef5ae7dd9c7, type: 3}
   buyPrice: 220
   sellPrice: 52
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

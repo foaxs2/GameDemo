@@ -17,16 +17,26 @@ public class InventorySlot
     }
 }
 
+/// <summary>Một dòng trong danh sách đồ test.</summary>
+[Serializable]
+public class TestItemEntry
+{
+    public ItemData item;
+    [Range(1, 99)] public int quantity = 1;
+}
+
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
 
     [Header("Cấu hình Inventory")]
-    public int maxSlots = 20;
+    [Tooltip("Số ô tối đa của kho lưu trữ (Storage). Combat inventory không giới hạn.")]
+    public int storageMaxSlots = 20;
 
-    // 2 loại inventory
-    public List<InventorySlot> combatInventory = new List<InventorySlot>();  // Item dùng được trong combat
-    public List<InventorySlot> storageInventory = new List<InventorySlot>(); // Item chỉ dùng ở town
+    // Combat inventory: không giới hạn ô, item stack lên đến maxStackSize
+    public List<InventorySlot> combatInventory = new List<InventorySlot>();
+    // Storage inventory: giới hạn 20 ô, không stack (đồ vật phẩm loại 2)
+    public List<InventorySlot> storageInventory = new List<InventorySlot>();
 
     [Header("Trang bị hiện tại")]
     public ItemData equippedWeapon;
@@ -35,46 +45,31 @@ public class InventoryManager : MonoBehaviour
     public ItemData equippedAccessory2;
 
     public event Action OnInventoryChanged;
-    [Header("Đồ tặng sẵn để Test")]
-    public ItemData testWeapon;
-    public ItemData testArmor;
-    public ItemData basicPotion;
 
-    void Start()
-    {
-        // Tặng đồ cho người chơi ngay khi vào game
-        AddItem(testWeapon, 1);
-        AddItem(testArmor, 1);
-        if (basicPotion != null) AddItem(basicPotion, 3);
-    }
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            // Nếu đã tồn tại bản thể cũ, ta HỦY TOÀN BỘ CỤC DƯ THỪA NÀY,
-            // tránh việc tạo ra các trường hợp "GameManager (1)" chết trôi
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        InitializeInventories();
+        InitializeStorageInventory();
     }
+    [Header("Đồ Test (Dùng Context Menu — Không Tự Chạy)")]
+    [Tooltip("Thêm nhiều dòng, mỗi dòng kéo 1 ItemData và điền số lượng. Sau đó bấm ⟳ → Thêm Đồ Test Thủ Công.")]
+    public List<TestItemEntry> testItems = new List<TestItemEntry>();
 
-    void InitializeInventories()
+    private void InitializeStorageInventory()
     {
-        combatInventory.Clear();
         storageInventory.Clear();
-
-        for (int i = 0; i < maxSlots; i++)
-        {
-            combatInventory.Add(new InventorySlot());
+        for (int i = 0; i < storageMaxSlots; i++)
             storageInventory.Add(new InventorySlot());
-        }
 
-        Debug.Log($"[INVENTORY] Đã khởi tạo {maxSlots} slots.");
+        // Combat inventory bắt đầu rỗng, tự mở rộng khi cần
+        combatInventory.Clear();
+        Debug.Log($"[INVENTORY] Storage: {storageMaxSlots} ô. Combat: không giới hạn.");
     }
 
     // === THÊM ITEM ===
@@ -82,105 +77,120 @@ public class InventoryManager : MonoBehaviour
     {
         if (item == null) return false;
 
-        // Trang bị KHÔNG bao giờ gom stack - mỗi piece chiếm 1 slot riêng
         if (item.itemType == ItemType.Equipment)
-        {
-            return AddEquipmentToInventory(storageInventory, item);
-        }
+            return AddEquipmentToStorage(item);
 
-        // Vật phẩm tiêu hao: thêm vào combat inventory nếu dùng được trong combat
         if (item.usableInCombat || item.itemType == ItemType.Consumable)
-        {
-            return AddToInventory(combatInventory, item, quantity);
-        }
+            return AddToCombatInventory(item, quantity);
         else
-        {
-            return AddToInventory(storageInventory, item, quantity);
-        }
+            return AddToStorage(item, quantity);
     }
 
-    // Hàm riêng cho Equipment: mỗi item chiếm 1 slot dù trùng tên
-    private bool AddEquipmentToInventory(List<InventorySlot> inventory, ItemData item)
+    // Combat inventory: thêm vào slot hiện có hoặc tạo slot mới (không giới hạn)
+    private bool AddToCombatInventory(ItemData item, int quantity)
     {
-        for (int i = 0; i < inventory.Count; i++)
+        // Giới hạn đặc biệt: Bình máu (HP) tối đa chỉ 3 bình
+        if (item.itemType == ItemType.Consumable && item.consumableType == ConsumableType.HP)
         {
-            if (inventory[i].IsEmpty)
+            int currentQty = GetItemQuantity(item);
+            if (currentQty >= 3)
             {
-                inventory[i].item = item;
-                inventory[i].quantity = 1;
-                Debug.Log($"Đã thêm trang bị [{item.itemName}] vào slot {i}");
+                Debug.LogWarning("[INVENTORY] Bạn đã mang tối đa 3 bình máu (3/3)!");
+                return false;
+            }
+            quantity = Mathf.Min(quantity, 3 - currentQty);
+        }
+
+        int effectiveMaxStack = item.maxStackSize > 1 ? item.maxStackSize : 99;
+
+        // Tìm slot hiện có để gộp
+        foreach (var slot in combatInventory)
+        {
+            if (slot.item == item && slot.quantity < effectiveMaxStack)
+            {
+                int space = effectiveMaxStack - slot.quantity;
+                int toAdd = Mathf.Min(quantity, space);
+                slot.quantity += toAdd;
+                quantity -= toAdd;
+                if (quantity <= 0) { OnInventoryChanged?.Invoke(); return true; }
+            }
+        }
+
+        // Tạo slot mới (không giới hạn số slot)
+        if (quantity > 0)
+        {
+            combatInventory.Add(new InventorySlot { item = item, quantity = quantity });
+        }
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    private bool AddEquipmentToStorage(ItemData item)
+    {
+        for (int i = 0; i < storageInventory.Count; i++)
+        {
+            if (storageInventory[i].IsEmpty)
+            {
+                storageInventory[i].item = item;
+                storageInventory[i].quantity = 1;
                 OnInventoryChanged?.Invoke();
                 return true;
             }
         }
-        Debug.LogWarning("Kho đồ đầy, không thể thêm trang bị!");
+        Debug.LogWarning("[INVENTORY] Kho Storage đầy, không thêm được trang bị!");
         return false;
     }
 
-    private bool AddToInventory(List<InventorySlot> inventory, ItemData item, int quantity)
+    private bool AddToStorage(ItemData item, int quantity)
     {
-        // Luôn cho phép gộp đồ, nếu maxStackSize = 0 thì mặc định là 99
         int effectiveMaxStack = item.maxStackSize > 1 ? item.maxStackSize : 99;
 
-        // Tìm slot có item giống để cộng dồn
-        for (int i = 0; i < inventory.Count; i++)
+        for (int i = 0; i < storageInventory.Count; i++)
         {
-            if (inventory[i].item == item && inventory[i].quantity < effectiveMaxStack)
+            if (storageInventory[i].item == item && storageInventory[i].quantity < effectiveMaxStack)
             {
-                int spaceLeft = effectiveMaxStack - inventory[i].quantity;
-                int toAdd = Mathf.Min(quantity, spaceLeft);
-                inventory[i].quantity += toAdd;
+                int space = effectiveMaxStack - storageInventory[i].quantity;
+                int toAdd = Mathf.Min(quantity, space);
+                storageInventory[i].quantity += toAdd;
                 quantity -= toAdd;
-
-                if (quantity <= 0)
-                {
-                    OnInventoryChanged?.Invoke();
-                    return true;
-                }
+                if (quantity <= 0) { OnInventoryChanged?.Invoke(); return true; }
             }
         }
-
-        // Tìm slot trống
-        for (int i = 0; i < inventory.Count; i++)
+        for (int i = 0; i < storageInventory.Count; i++)
         {
-            if (inventory[i].IsEmpty)
+            if (storageInventory[i].IsEmpty)
             {
-                inventory[i].item = item;
-                inventory[i].quantity = quantity;
-                Debug.Log($"Đã thêm {item.itemName} x{quantity} vào inventory");
+                storageInventory[i].item = item;
+                storageInventory[i].quantity = quantity;
                 OnInventoryChanged?.Invoke();
                 return true;
             }
         }
-
-        Debug.LogWarning("Inventory đầy!");
+        Debug.LogWarning("[INVENTORY] Storage đầy!");
         return false;
     }
 
     // === XÓA ITEM ===
     public bool RemoveItem(ItemData item, int quantity = 1)
     {
-        // Thử xóa từ combat inventory trước
-        if (RemoveFromInventory(combatInventory, item, quantity))
-            return true;
-
-        // Nếu không có, thử xóa từ storage inventory
-        return RemoveFromInventory(storageInventory, item, quantity);
+        if (RemoveFromList(combatInventory, item, quantity)) return true;
+        return RemoveFromList(storageInventory, item, quantity);
     }
 
-    private bool RemoveFromInventory(List<InventorySlot> inventory, ItemData item, int quantity)
+    private bool RemoveFromList(List<InventorySlot> list, ItemData item, int quantity)
     {
-        for (int i = 0; i < inventory.Count; i++)
+        for (int i = 0; i < list.Count; i++)
         {
-            if (inventory[i].item == item)
+            if (list[i].item == item)
             {
-                inventory[i].quantity -= quantity;
-
-                if (inventory[i].quantity <= 0)
+                list[i].quantity -= quantity;
+                if (list[i].quantity <= 0)
                 {
-                    inventory[i].Clear();
+                    if (list == combatInventory)
+                        list.RemoveAt(i); // Combat: xóa slot hẳn
+                    else
+                        list[i].Clear();  // Storage: giữ slot rỗng
                 }
-
                 OnInventoryChanged?.Invoke();
                 return true;
             }
@@ -192,19 +202,12 @@ public class InventoryManager : MonoBehaviour
     public int GetItemQuantity(ItemData item)
     {
         int total = 0;
-        foreach (var slot in combatInventory)
-            if (slot.item == item) total += slot.quantity;
-
-        foreach (var slot in storageInventory)
-            if (slot.item == item) total += slot.quantity;
-
+        foreach (var s in combatInventory) if (s.item == item) total += s.quantity;
+        foreach (var s in storageInventory) if (s.item == item) total += s.quantity;
         return total;
     }
 
-    public bool HasItem(ItemData item, int quantity = 1)
-    {
-        return GetItemQuantity(item) >= quantity;
-    }
+    public bool HasItem(ItemData item, int quantity = 1) => GetItemQuantity(item) >= quantity;
 
     // === TRANG BỊ ===
     public bool EquipItem(ItemData item, EquipmentSlot? targetSlot = null)
@@ -214,52 +217,48 @@ public class InventoryManager : MonoBehaviour
         EquipmentSlot slotToEquip = targetSlot ?? item.equipmentSlot;
 
         if (slotToEquip == EquipmentSlot.Accessory1 && equippedAccessory2 == item && GetItemQuantity(item) < 2)
-        {
-            equippedAccessory2 = null; // Tự động tháo ở ô 2 ra
-        }
-        // Tương tự ngược lại cho ô 2
+            equippedAccessory2 = null;
         else if (slotToEquip == EquipmentSlot.Accessory2 && equippedAccessory1 == item && GetItemQuantity(item) < 2)
-        {
-            equippedAccessory1 = null; // Tự động tháo ở ô 1 ra
-        }
+            equippedAccessory1 = null;
 
         switch (slotToEquip)
         {
-            case EquipmentSlot.Weapon:
-                equippedWeapon = item;
-                break;
-            case EquipmentSlot.Armor:
-                equippedArmor = item;
-                break;
-            case EquipmentSlot.Accessory1:
-                equippedAccessory1 = item;
-                break;
-            case EquipmentSlot.Accessory2:
-                equippedAccessory2 = item;
-                break;
+            case EquipmentSlot.Weapon:     equippedWeapon     = item; break;
+            case EquipmentSlot.Armor:      equippedArmor      = item; break;
+            case EquipmentSlot.Accessory1: equippedAccessory1 = item; break;
+            case EquipmentSlot.Accessory2: equippedAccessory2 = item; break;
         }
 
         Debug.Log($"Đã trang bị {item.itemName}");
-        if (PlayerManager.Instance != null)
-        {
-            PlayerManager.Instance.UpdateEquipmentStats();
-        }
-        
-        // Ngay lập tức bắt thanh máu trong Combat cập nhật thay vì chờ bị đánh
-        if (CombatManager.Instance != null)
-        {
-            CombatManager.Instance.ForceUpdatePlayerUI();
-        }
-
+        PlayerManager.Instance?.UpdateEquipmentStats();
+        CombatManager.Instance?.ForceUpdatePlayerUI();
         OnInventoryChanged?.Invoke();
         return true;
     }
 
-    // === DEBUG: THÊM ITEM TEST ===
-    [ContextMenu("Add Test Items")]
-    public void AddTestItems()
+    // === TEST (ContextMenu — chỉ chạy khi right-click trong Inspector) ===
+    [ContextMenu("Thêm Đồ Test Thủ Công")]
+    public void AddTestItemsManual()
     {
-        // Tạo item test (sau này sẽ load từ ScriptableObject)
-        Debug.Log("Thêm item test... (cần tạo ScriptableObject trước)");
+        if (testItems == null || testItems.Count == 0)
+        {
+            Debug.LogWarning("[CONTEXTMENU] Danh sách 'Test Items' đang rỗng. Thêm ít nhất 1 dòng vào Inspector.");
+            return;
+        }
+
+        int added = 0;
+        foreach (var entry in testItems)
+        {
+            if (entry.item == null) continue;
+            bool success = AddItem(entry.item, entry.quantity);
+            if (success)
+            {
+                Debug.Log($"[CONTEXTMENU] ✓ Thêm {entry.quantity}x {entry.item.itemName}");
+                added++;
+            }
+            else
+                Debug.LogWarning($"[CONTEXTMENU] ✗ Không thể thêm {entry.item.itemName} (Storage có thể đầy).");
+        }
+        Debug.Log($"[CONTEXTMENU] Xong — đã thêm {added}/{testItems.Count} món vào inventory.");
     }
 }

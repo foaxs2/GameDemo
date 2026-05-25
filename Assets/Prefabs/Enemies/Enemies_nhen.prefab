@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2396807603461085728}
   - component: {fileID: 403494359491678710}
+  - component: {fileID: -955842613064369400}
   m_Layer: 0
   m_Name: Enemies_nhen
   m_TagString: Untagged
@@ -44,14 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 16
-  currentHP: 16
+  maxHP: 15
+  currentHP: 15
   baseDefense: 0
   currentDefense: 0
   baseSpeed: 7
   currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 0
   immuneToBleed: 0
   weakToPoison: 0
@@ -59,13 +61,51 @@ MonoBehaviour:
   weakToBleed: 0
   enemyName: "Nh\u1EC7n"
   enemySprite: {fileID: -2508200064674889143, guid: 457744e37f925a44080ecf384f129b44, type: 3}
+  enemyType: 1
   attack: 1
   critChance: 5
   evasion: 5
+  skillID: 6
   skillName: "T\u01A1 d\xEDnh"
   skillDescription: "T\u1EF1 c\u01B0\u1EDDng h\xF3a b\u1EA3n th\xE2n ph\xF3ng t\u01A1
     c\xF3 th\u1EC3 g\xE2y hi\u1EC7u \u1EE9ng \u0111\u1EADp v\u1EE1 x\u01B0\u01A1ng"
   maxCooldown: 4
+  initialCooldown: 2
   currentCooldown: 0
   goldDrop: 6
   expDrop: 14
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 0
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 3
+  enrageSPDBonus: 5
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: 
+--- !u!114 &-955842613064369400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5361841355304791106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

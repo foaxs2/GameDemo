@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.Rendering;
-
+using System.Collections.Generic;
 public class PlayerManager : Unit
 {
     public static PlayerManager Instance;
@@ -10,13 +9,13 @@ public class PlayerManager : Unit
     public int maxSen = 10;
     public int food = 50;
     public int maxFood = 50;
-    public int gold = 0;
+    public int gold = 50;
 
-    [Header("Chỉ số thuộc tính")]
-    public int str = 99;
-    public int dex = 99;
-    public int vit = 99;
-    public int agl = 99;
+    [Header("Chỉ số thuộc tính (Mặc định = 10)")]
+    public int str = 10;
+    public int dex = 10;
+    public int vit = 10;
+    public int agl = 10;
 
     [Header("Chỉ số chiến đấu bổ sung")]
     public float baseAttack = 1f;
@@ -28,6 +27,11 @@ public class PlayerManager : Unit
     public int currentExp = 0;
     public int expToNextLevel = 50;
     public int unspentStatPoints = 0;
+
+    [Header("Công thức EXP (Base + (L-1)*Linear + (L-1)^2*Quad)")]
+    [SerializeField] private int baseExpNeeded = 50;
+    [SerializeField] private int linearExpGrowth = 20;
+    [SerializeField] private int quadraticExpGrowth = 10;
 
     [Header("Equipment Bonuses")]
     public float equipmentDamageBonus;
@@ -45,6 +49,10 @@ public class PlayerManager : Unit
     public float equipmentBonusDamageVsNonHuman;
 
     [HideInInspector] public bool isDefending = false;
+    public Dictionary<string, int> killedMonsters = new Dictionary<string, int>();
+
+    private bool _isSanityCollapsing = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -56,6 +64,23 @@ public class PlayerManager : Unit
         {
             Destroy(gameObject);
         }
+    }
+
+    void OnEnable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        // Reset flag khi vào Town để lần sau ReduceSanity hoạt động bình thường
+        if (scene.name == "Town")
+            _isSanityCollapsing = false;
     }
 
     void Start()
@@ -71,39 +96,40 @@ public class PlayerManager : Unit
     {
         int oldMaxHP = maxHP;
         maxHP = 5 + Mathf.FloorToInt(vit * 1f) + Mathf.FloorToInt(equipmentHPBonus);
-        
-        // Game RPG: Khi Máu tối đa được cộng thêm từ trang bị, thì máu hiện tại cũng được buff lên tương ứng
-        if (maxHP > oldMaxHP && oldMaxHP > 0)
-        {
+
+        if (oldMaxHP > 0 && maxHP > oldMaxHP)
             currentHP += (maxHP - oldMaxHP);
-        }
 
         if (currentHP > maxHP) currentHP = maxHP;
     }
 
     public override float GetTotalAttack()
     {
-        float baseAtk = baseAttack + (str * 0.2f);
-        return baseAtk + equipmentDamageBonus;
+        float base_ = baseAttack + (str * 0.2f) + equipmentDamageBonus;
+        float buff  = BuffManager.Instance != null ? BuffManager.Instance.GetBuffValue(this, BuffType.ATK_Up) : 0f;
+        return base_ + buff;
     }
 
     public override float GetTotalSpeed()
     {
-        float baseSpd = baseSpeed + (agl * 0.5f);
-        return baseSpd + equipmentSpeedBonus;
+        float base_ = baseSpeed + (agl * 0.5f) + equipmentSpeedBonus;
+        float buff  = BuffManager.Instance != null ? BuffManager.Instance.GetBuffValue(this, BuffType.SPD_Up) : 0f;
+        return base_ + buff;
     }
 
     public override float GetTotalCrit()
     {
-        float baseCrit = this.baseCrit + (dex * 0.15f);
-        return baseCrit + equipmentCritBonus;
+        float base_ = baseCrit + (dex * 0.15f) + equipmentCritBonus;
+        float buff  = BuffManager.Instance != null ? BuffManager.Instance.GetBuffValue(this, BuffType.CRIT_Up) : 0f;
+        return base_ + buff;
     }
 
     public override float GetTotalEvasion()
     {
-        float baseEva = this.baseEvasion + (dex * 0.1f);
-        if (isDefending) baseEva += 25f;
-        return baseEva + equipmentEvasionBonus;
+        float eva  = baseEvasion + (dex * 0.1f) + equipmentEvasionBonus;
+        float buff = BuffManager.Instance != null ? BuffManager.Instance.GetBuffValue(this, BuffType.EVA_Up) : 0f;
+        if (isDefending) eva += 25f;
+        return eva + buff;
     }
 
     public void UpdateEquipmentStats()
@@ -117,7 +143,6 @@ public class PlayerManager : Unit
         equipmentCritBonus = 0;
         equipmentEvasionBonus = 0;
         equipmentArmorPenetration = 0;
-        
         equipmentBleedChance = 0;
         equipmentStunChance = 0;
         equipmentBonusDamageVsHuman = 0;
@@ -128,25 +153,22 @@ public class PlayerManager : Unit
         AddEquipmentStats(InventoryManager.Instance.equippedAccessory1);
         AddEquipmentStats(InventoryManager.Instance.equippedAccessory2);
 
-        // Update max HP
         UpdateMaxHP();
     }
 
-    void AddEquipmentStats(ItemData eq)
+    private void AddEquipmentStats(ItemData eq)
     {
         if (eq == null) return;
-
-        equipmentDamageBonus += eq.damageBonus;
-        equipmentDefenseBonus += eq.defenseBonus;
-        equipmentSpeedBonus += eq.speedBonus;
-        equipmentHPBonus += eq.hpBonus;
-        equipmentCritBonus += eq.critBonus;
-        equipmentEvasionBonus += eq.evasionBonus;
-        equipmentArmorPenetration += eq.armorPenetration;
-
-        equipmentBleedChance += eq.bleedChance;
-        equipmentStunChance += eq.stunChance;
-        equipmentBonusDamageVsHuman += eq.bonusDamageVsHuman;
+        equipmentDamageBonus       += eq.damageBonus;
+        equipmentDefenseBonus      += eq.defenseBonus;
+        equipmentSpeedBonus        += eq.speedBonus;
+        equipmentHPBonus           += eq.hpBonus;
+        equipmentCritBonus         += eq.critBonus;
+        equipmentEvasionBonus      += eq.evasionBonus;
+        equipmentArmorPenetration  += eq.armorPenetration;
+        equipmentBleedChance       += eq.bleedChance;
+        equipmentStunChance        += eq.stunChance;
+        equipmentBonusDamageVsHuman    += eq.bonusDamageVsHuman;
         equipmentBonusDamageVsNonHuman += eq.bonusDamageVsNonHuman;
     }
 
@@ -159,25 +181,66 @@ public class PlayerManager : Unit
     public void ReduceSanity(int amount)
     {
         sen -= amount;
-        if (sen <= 0)
+        if (sen < 0) sen = 0;
+
+        if (sen <= 0 && !_isSanityCollapsing)
+            OnSanityCollapse();
+    }
+
+    /// <summary>
+    /// SEN = 0: phân biệt scene hiện tại.
+    /// - Combat: hiện madnessPanel, không về Town ngay.
+    /// - Dungeon / khác: set DeathContext rồi về Town, SEN = 2, HP giữ nguyên.
+    /// </summary>
+    private void OnSanityCollapse()
+    {
+        _isSanityCollapsing = true;
+
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        if (sceneName == "Combat")
         {
-            sen = 0;
-            Debug.Log("Sanity đã cạn kiệt! Chuyến thám hiểm thất bại.");
+            // Pause combat và hiện bảng phát điên — CombatManager xử lý việc về Town
+            if (CombatManager.Instance != null)
+                CombatManager.Instance.ShowMadnessPanel();
+            else
+            {
+                // Fallback nếu không có CombatManager
+                sen = 2;
+                DeathContext.Pending = DeathContext.DeathType.CombatMadness;
+                SaveSystem.Instance?.Save();
+                UnityEngine.SceneManagement.SceneManager.LoadScene("Town");
+            }
+        }
+        else
+        {
+            // Dungeon hoặc bất kỳ scene nào khác — hiện bảng phát điên trong Dungeon
+            if (DungeonDeathUI.Instance != null)
+                DungeonDeathUI.Instance.ShowMadnessPanel();
+            else
+            {
+                // Fallback nếu không có DungeonDeathUI trong scene
+                sen = 2;
+                DeathContext.Pending = DeathContext.DeathType.DungeonMadness;
+                SaveSystem.Instance?.Save();
+                UnityEngine.SceneManagement.SceneManager.LoadScene("Town");
+            }
         }
     }
 
-    // Ghi đè hàm nhận sát thương từ Unit
+    public void RestoreSanityCollapse()
+    {
+        _isSanityCollapsing = false;
+    }
+
     public override void TakeDamage(float damage, bool isTrueDamage = false, bool ignoreFracture = false)
     {
         if (!ignoreFracture && DebuffManager.Instance != null)
             damage *= DebuffManager.Instance.GetDamageTakenMultiplier(this);
 
-        //PHÒNG THỦ ---
         float defToUse = currentDefense + equipmentDefenseBonus;
         if (isDefending)
-        {
             defToUse += 1f + Mathf.FloorToInt((baseDefense + equipmentDefenseBonus) * 0.5f);
-        }
 
         float finalDamage = isTrueDamage ? damage : Mathf.Max(1, damage - defToUse);
 
@@ -188,49 +251,54 @@ public class PlayerManager : Unit
     public void AddExp(int amount)
     {
         currentExp += amount;
-
-        // Dùng vòng lặp while lỡ người chơi nhận 1 lượng EXP khổng lồ nhảy liền 2-3 cấp
-        while (currentExp >= expToNextLevel)
+        // Kiểm tra lên cấp (có thể lên nhiều cấp cùng lúc)
+        while (currentExp >= GetRequiredExpForLevel(level))
         {
-            currentExp -= expToNextLevel;
+            currentExp -= GetRequiredExpForLevel(level);
             LevelUp();
         }
+        
+        // Cập nhật lại mốc hiển thị cho UI
+        expToNextLevel = GetRequiredExpForLevel(level);
+    }
+
+    /// <summary>
+    /// Tính toán lượng EXP cần thiết để từ cấp hiện tại lên cấp tiếp theo.
+    /// Công thức: Base + (L-1)*Linear + (L-1)^2*Quad
+    /// </summary>
+    public int GetRequiredExpForLevel(int lv)
+    {
+        int multiplier = lv - 1;
+        return baseExpNeeded + (multiplier * linearExpGrowth) + (multiplier * multiplier * quadraticExpGrowth);
     }
 
     private void LevelUp()
     {
         level++;
-        expToNextLevel += 25; // Cấp sau cần nhiều hơn cấp trước 25 EXP
-
-        maxFood += 3; // Tăng giới hạn lương thực thêm 3
-        food = maxFood; // Bơm đầy thức ăn khi lên cấp
-
-        unspentStatPoints += 3; // Cho 3 điểm chỉ số
-
-        Debug.Log($"[LÊN CẤP] Chúc mừng! Bạn đạt Cấp {level}. Giới hạn lương thực: {maxFood}. Nhận 3 điểm chỉ số.");
+        maxFood += 3;
+        food = maxFood;
+        unspentStatPoints += 3;
+        Debug.Log($"[LÊN CẤP] Chúc mừng! Bạn đã đạt cấp {level}. Nhận 3 điểm chỉ số.");
     }
 
-    // THÊM HÀM NÀY ĐỂ CỘNG CHỈ SỐ TỪ GIAO DIỆN
     public bool UpgradeStat(string statType)
     {
         if (unspentStatPoints <= 0) return false;
-
         switch (statType)
         {
-            case "STR": str++; break;
-            case "DEX": dex++; break;
-            case "VIT":
-                vit++;
-                UpdateMaxHP(); // VIT tăng thì Máu tối đa cũng phải tính lại ngay
-                break;
-            case "AGL":
-                agl++;
-                currentSpeed = GetTotalSpeed(); // AGL tăng thì Tốc độ phải tính lại
-                break;
+            case "STR": str++;  break;
+            case "DEX": dex++;  break;
+            case "VIT": vit++; UpdateMaxHP(); break;
+            case "AGL": agl++; currentSpeed = GetTotalSpeed(); break;
             default: return false;
         }
-
         unspentStatPoints--;
         return true;
+    }
+
+    [ContextMenu("Thêm Đồ Test (Editor Only)")]
+    public void AddTestItemsEditor()
+    {
+        Debug.Log("[CONTEXTMENU] Gán ItemData bằng code trong hàm này để test.");
     }
 }

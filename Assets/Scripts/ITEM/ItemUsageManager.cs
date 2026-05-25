@@ -65,6 +65,51 @@ public class ItemUsageManager : MonoBehaviour
                 used = true;
                 break;
 
+            case ConsumableType.Buff_ATK:
+                ApplyBuff(BuffType.ATK_Up, item.buffValue, item.buffDuration, item.maxStacks);
+                Debug.Log($"Sử dụng {item.itemName}: +{item.buffValue} ATK trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.Buff_DEF:
+                ApplyBuff(BuffType.DEF_Up, item.buffValue, item.buffDuration, item.maxStacks);
+                Debug.Log($"Sử dụng {item.itemName}: +{item.buffValue} DEF trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.Buff_SPD:
+                ApplyBuff(BuffType.SPD_Up, item.buffValue, item.buffDuration, item.maxStacks);
+                Debug.Log($"Sử dụng {item.itemName}: +{item.buffValue} SPD trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.Buff_CRIT:
+                ApplyBuff(BuffType.CRIT_Up, item.buffValue, item.buffDuration, item.maxStacks);
+                Debug.Log($"Sử dụng {item.itemName}: +{item.buffValue}% CRIT trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.Buff_EVA:
+                ApplyBuff(BuffType.EVA_Up, item.buffValue, item.buffDuration, item.maxStacks);
+                Debug.Log($"Sử dụng {item.itemName}: +{item.buffValue}% EVA trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.WeaponCoating:
+                if (BuffManager.Instance != null)
+                    BuffManager.Instance.AddWeaponCoating(PlayerManager.Instance,
+                        item.coatingType, item.coatingChance, item.buffDuration);
+                Debug.Log($"Sử dụng {item.itemName}: Tẩm {item.coatingType} {item.coatingChance}% trong {item.buffDuration} lượt");
+                used = true;
+                break;
+
+            case ConsumableType.Cleanse:
+                if (DebuffManager.Instance != null)
+                    DebuffManager.Instance.ClearAllDebuffs(PlayerManager.Instance);
+                Debug.Log($"Sử dụng {item.itemName}: Giải toàn bộ debuff");
+                used = true;
+                break;
+
             default:
                 Debug.Log($"Chưa implement consumable type: {item.consumableType}");
                 break;
@@ -87,5 +132,13 @@ public class ItemUsageManager : MonoBehaviour
         }
 
         return used;
+    }
+
+    private void ApplyBuff(BuffType buffType, float value, int duration, int maxStacks)
+    {
+        if (BuffManager.Instance == null) return;
+        int stacks = maxStacks > 0 ? maxStacks : 3;
+        int dur    = duration  > 0 ? duration  : 5;
+        BuffManager.Instance.AddBuff(PlayerManager.Instance, buffType, value, dur, stacks);
     }
 }

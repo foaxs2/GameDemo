@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: revolver
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: revolver
+  itemName: "L\u1EE5c \u1ED5 xoay"
   description: "M\u1ED9t kh\u1EA9u l\u1EE5c \u1ED5 xoay c\xF3 th\u1EC3 b\u1EAFn nh\u1EEFng
     vi\xEAn \u0111\u1EA1n v\xF4 c\xF9ng \u0111\xE1ng tin c\u1EADy."
   itemType: 1
   icon: {fileID: 8200246906327157222, guid: fcd0283605e3f544c882548c713973de, type: 3}
   buyPrice: 180
   sellPrice: 40
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

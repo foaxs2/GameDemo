@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49861bc3019825b46b49eb8acf93935a, type: 3}
+  m_Name: "s\u1EF1 ki\u1EC7n 2"
+  m_EditorClassIdentifier: Assembly-CSharp::EventData
+  eventName: "V\u1EA5p Ng\xE3"
+  eventIcon: {fileID: 7190293295649886467, guid: 947d228df80d3f144b0e0e1d059a86c5, type: 3}
+  description: "B\u1EA1n va v\xE0o m\u1ED9t c\xE1i b\u1EABy trong h\u1EA7m ng\u1EE5c."
+  choices: []
+  trapPenaltyHP: 8
+  trapPenaltyFood: 0
+  trapPenaltySanity: 2
+  trapPenaltyGold: 0

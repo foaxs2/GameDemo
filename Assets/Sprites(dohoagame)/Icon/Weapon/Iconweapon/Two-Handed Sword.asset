@@ -12,20 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: Two-Handed Sword
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Two-Handed Sword
+  itemName: "Tr\u01B0\u1EDDng Ki\u1EBFm"
   description: "Thanh ki\u1EBFm hai tay n\u1EB7ng n\u1EC1. C\xF3 t\u1EC9 l\u1EC7
     g\xE2y cho\xE1ng."
   itemType: 1
   icon: {fileID: 1209812426669915820, guid: 738712a2e7bcd0948aa19884dd20c14e, type: 3}
   buyPrice: 141
   sellPrice: 46
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0
   buffDuration: 0
   maxStacks: 0
+  coatingType: 0
+  coatingChance: 0
   equipmentSlot: 0
   damageBonus: 2
   defenseBonus: 0

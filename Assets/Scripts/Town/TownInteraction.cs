@@ -8,6 +8,7 @@ public class TownInteraction : MonoBehaviour
     public string locationName;
     public TrainingUI trainingUI;
     public ShopUI shopUI;
+    public GuildUI guildUI;
     void Update()
     {
         if (Mouse.current == null) return;
@@ -43,6 +44,12 @@ public class TownInteraction : MonoBehaviour
                 if (locationName == "Cửa hàng" && shopUI != null)
                 {
                     shopUI.OpenShop();
+                }
+                
+                // 4. Mở Guild
+                if (locationName == "Hội mạo hiểm" && guildUI != null)
+                {
+                    guildUI.OpenGuild();
                 }
             }
         }

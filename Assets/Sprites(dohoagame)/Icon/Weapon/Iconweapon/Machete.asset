@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
   m_Name: Machete
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Machete
+  itemName: "M\xE3 t\u1EA5u"
   description: "M\u1ED9t con dao g\u0103m l\u1EDBn, s\u1EAFc b\xE9n. C\xF3 t\u1EC9
     l\u1EC7 g\xE2y ch\u1EA3y m\xE1u"
   itemType: 1
   icon: {fileID: -7671631787105517523, guid: 2681bd8befade664681d951b122fb70e, type: 3}
   buyPrice: 120
   sellPrice: 34
+  canBeSold: 1
   consumableType: 0
   healAmount: 0
+  foodRestoreAmount: 0
   healPercentage: 0
   buffValue: 0
   buffPercentage: 0

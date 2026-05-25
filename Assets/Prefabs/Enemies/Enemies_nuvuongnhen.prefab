@@ -44,27 +44,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 72
-  currentHP: 72
-  baseDefense: 0
-  currentDefense: 0
-  baseSpeed: 0
-  currentSpeed: 16
+  maxHP: 100
+  currentHP: 100
+  baseDefense: 4
+  currentDefense: 4
+  baseSpeed: 16
+  currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 0
   immuneToBleed: 0
   weakToPoison: 0
   weakToBurn: 1
-  weakToBleed: 0
+  weakToBleed: 1
   enemyName: "N\u1EEF V\u01B0\u01A1ng Nh\u1EC7n"
   enemySprite: {fileID: 494317416542166407, guid: 1a7f97d1086f2874f97dd7fdd26a9d5e, type: 3}
-  attack: 5
-  critChance: 12
-  evasion: 8
-  skillName: 
-  skillDescription: 
-  maxCooldown: 0
+  enemyType: 1
+  attack: 6
+  critChance: 16
+  evasion: 10
+  skillID: 7
+  skillName: "C\xE0o x\xE9 th\u1ECBt"
+  skillDescription: "N\u1EEF v\u01B0\u01A1ng vung chi\u1EBFc ch\xE2n s\u1EAFc nh\u01B0
+    dao c\u1EA1o, x\xE9 to\u1EA1c h\xE0ng ph\xF2ng ng\u1EF1 c\u1EE7a m\u1EE5c ti\xEAu.
+    G\xE2y m\u1ED9t \u0111\xF2n t\u1EA5n c\xF4ng n\u1EB7ng n\u1EC1"
+  maxCooldown: 5
+  initialCooldown: 3
   currentCooldown: 0
-  goldDrop: 75
-  expDrop: 250
+  goldDrop: 350
+  expDrop: 1200
+  hasSpawnOnAllyDeath: 1
+  hasEnrageOnLowHP: 1
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 4
+  enrageSPDBonus: 6
+  hasPassivePoison: 1
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 1
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: "\"Nh\u1EEFng b\xE0n ch\xE2n c\u1EE7a nh\u1EC7n ch\xFAa \u0111ang
+    co gi\u1EADt...\"\"Nh\u1EEFng b\xE0n ch\xE2n c\u1EE7a nh\u1EC7n ch\xFAa \u0111ang
+    co gi\u1EADt...\""

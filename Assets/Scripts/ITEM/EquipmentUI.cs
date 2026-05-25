@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class EquipmentUI : MonoBehaviour
 {
     public static EquipmentUI Instance { get; private set; }
+
     private enum EquipmentUIState { SelectingCategory, SelectingItem }
     private EquipmentUIState currentState = EquipmentUIState.SelectingCategory;
 
@@ -21,7 +22,7 @@ public class EquipmentUI : MonoBehaviour
     }
 
     [Header("Tham chiếu Canvas Tổng")]
-    public GameObject rootCanvas; // Kéo Canvas_Equipment vào đây
+    public GameObject rootCanvas;
 
     [Header("Top - Mô tả")]
     public TextMeshProUGUI txtDescription;
@@ -34,11 +35,10 @@ public class EquipmentUI : MonoBehaviour
     public TextMeshProUGUI[] categoryNames;
     public Image[] categoryIcons;
 
-    [Header("Bottom - Kho đồ")]
+    [Header("Bottom - Kho đồ (ScrollView)")]
     public Transform bottomContent;
     public GameObject equipSlotPrefab;
-    public ScrollRect bottomScrollRect; // Kéo Scroll View vào đây
-    [Tooltip("Đệm phính để item cuối không bị khuất (pixel)")]
+    public ScrollRect bottomScrollRect;
     public float scrollBottomPadding = 100f;
 
     private int selectedCategoryIndex = 0;
@@ -51,197 +51,257 @@ public class EquipmentUI : MonoBehaviour
         currentState = EquipmentUIState.SelectingCategory;
         selectedCategoryIndex = 0;
         selectedItemIndex = 0;
-        // Làm mới không bị tranh chấp nút x/z
+
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(null);
-        // Tính lại toàn bộ chỉ số trang bị để stats panel hiển thị đúng ngay khi mở
+
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.UpdateEquipmentStats();
-        RefreshAll();
+
+        if (txtDescription != null)
+            txtDescription.gameObject.SetActive(true);
+
+        SetupCategoryButtonMouseEvents();
+
+        UpdatePlayerStatsUI();
+        UpdateEquippedDisplay();
+        RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
+        ApplyCategoryColors();
+        UpdateDescriptionForCategory();
     }
 
     private void Update()
     {
-        // LUÔN LUÔN cho phép phím X thoát menu bất kể trạng thái nào để tránh bị kẹt
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.X))
         {
-            if (currentState == EquipmentUIState.SelectingItem)
-            {
-                // Nếu đang chọn đồ ở dưới, bấm X để quay lại chọn 4 ô trên
-                currentState = EquipmentUIState.SelectingCategory;
-                UpdateVisualSelection();
-            }
-            else
-            {
-                // Nếu đang ở 4 ô trên (kể cả khi không có item nào), bấm X để thoát hẳn
-                ExitEquipmentMenu();
-            }
+            HandleBackAction();
             return;
         }
 
-        if (currentState == EquipmentUIState.SelectingCategory) HandleCategoryNavigation();
-        else HandleItemNavigation();
+        if (currentState == EquipmentUIState.SelectingCategory)
+            HandleCategoryNavigation();
+        else
+            HandleItemNavigation();
 
         ApplyCategoryColors();
     }
 
-    private void HandleCategoryNavigation()
+    private void HandleBackAction()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedCategoryIndex = Mathf.Max(0, selectedCategoryIndex - 1); RefreshAll(); }
-        if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedCategoryIndex = Mathf.Min(3, selectedCategoryIndex + 1); RefreshAll(); }
-
-        if (Input.GetKeyDown(KeyCode.Z)) // Bấm Z lần 1: Chọn loại trang bị
+        if (currentState == EquipmentUIState.SelectingItem)
         {
-            if (filteredItems.Count > 0)
-            {
-                currentState = EquipmentUIState.SelectingItem;
-                selectedItemIndex = 0; // Luôn bắt đầu từ món đồ đầu tiên
-                UpdateVisualSelection(); // ÉP UI CẬP NHẬT ĐỂ MÓN ĐỒ SÁNG LÊN NGAY
-                Debug.Log($"Đã chọn danh mục {selectedCategoryIndex}, nhảy xuống món đồ đầu tiên.");
-            }
-        }
-        // X đã được xử lý trong Update() – không cần xử lý lại ở đây
-    }
-
-    private void HandleItemNavigation()
-    {
-        bool moved = false;
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) { selectedItemIndex = Mathf.Max(0, selectedItemIndex - 1); moved = true; }
-        if (Input.GetKeyDown(KeyCode.RightArrow)) { selectedItemIndex = Mathf.Min(filteredItems.Count - 1, selectedItemIndex + 1); moved = true; }
-        if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedItemIndex = Mathf.Max(0, selectedItemIndex - 2); moved = true; }
-        if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedItemIndex = Mathf.Min(filteredItems.Count - 1, selectedItemIndex + 2); moved = true; }
-
-        if (Input.GetKeyDown(KeyCode.Z)) // BẤM Z LẦN 2: MẶC ĐỒ
-        {
-            EquipmentSlot targetSlot = (EquipmentSlot)selectedCategoryIndex;
-            InventoryManager.Instance.EquipItem(filteredItems[selectedItemIndex], targetSlot);
             currentState = EquipmentUIState.SelectingCategory;
-            RefreshAll();
+            ClearItemHighlights();
+            UpdateDescriptionForCategory();
         }
-
-        // X đã được xử lý trong Update() – không cần xử lý lại ở đây
-
-        if (moved)
+        else
         {
-            UpdateVisualSelection();
-            ScrollToSelectedItem();
-        }
-    }
-
-    // Tự cuộn ScrollView để item đang chọn luôn hiển thị trong khung nhìn
-    private void ScrollToSelectedItem()
-    {
-        if (bottomScrollRect == null || spawnedSlots.Count == 0) return;
-        if (selectedItemIndex < 0 || selectedItemIndex >= spawnedSlots.Count) return;
-
-        RectTransform contentRect = bottomScrollRect.content;
-        RectTransform viewportRect = bottomScrollRect.viewport;
-        RectTransform itemRect = spawnedSlots[selectedItemIndex].GetComponent<RectTransform>();
-
-        float contentHeight = contentRect.rect.height;
-        float viewportHeight = viewportRect.rect.height;
-
-        if (contentHeight <= viewportHeight) return;
-
-        // Vị trí tính từ đỉnh Content xuống (giá trị dương)
-        float itemTop = -itemRect.anchoredPosition.y;
-        float itemBottom = itemTop + itemRect.rect.height + scrollBottomPadding;
-
-        float maxScroll = contentHeight - viewportHeight;
-        // Mức cuộn hiện tại (pixel đại số ẩn phía trên)
-        float currentOffset = (1f - bottomScrollRect.verticalNormalizedPosition) * maxScroll;
-
-        float newOffset = currentOffset;
-
-        // Item nằm DƯỚI khung nhìn → cuộn xuống
-        if (itemBottom > currentOffset + viewportHeight)
-        {
-            newOffset = itemBottom - viewportHeight;
-        }
-        // Item nằm TRÊN khung nhìn → cuộn lên
-        else if (itemTop < currentOffset)
-        {
-            newOffset = itemTop;
-        }
-
-        bottomScrollRect.verticalNormalizedPosition = Mathf.Clamp01(1f - (newOffset / maxScroll));
-    }
-
-    // Gán màu trực tiếp lên Image mỗi frame - cách duy nhất đảm bảo chiến thắng EventSystem
-    private void ApplyCategoryColors()
-    {
-        if (categoryButtons == null) return;
-        for (int i = 0; i < categoryButtons.Length; i++)
-        {
-            if (categoryButtons[i] == null) continue;
-            bool isSelected = (currentState == EquipmentUIState.SelectingCategory && i == selectedCategoryIndex);
-            Color targetColor = isSelected ? Color.yellow : Color.white;
-
-            // Tắt transition để Unity không can thiệp
-            categoryButtons[i].transition = Selectable.Transition.None;
-
-            // Ghi đè trực tiếp lên Image
-            Image img = categoryButtons[i].GetComponent<Image>();
-            if (img != null) img.color = targetColor;
+            ExitEquipmentMenu();
         }
     }
 
     private void ExitEquipmentMenu()
     {
         if (rootCanvas != null) rootCanvas.SetActive(false);
-        else this.gameObject.SetActive(false);
+        else gameObject.SetActive(false);
 
-        // Đảm bảo tắt luôn cả túi đồ nếu nó đang mở
-        if (InventoryUI.Instance != null && InventoryUI.Instance.inventoryPanel.activeSelf)
+        if (InventoryUI.Instance != null && InventoryUI.Instance.inventoryPanel != null
+            && InventoryUI.Instance.inventoryPanel.activeSelf)
             InventoryUI.Instance.ToggleInventory();
 
         if (CombatManager.Instance != null)
         {
-            CombatManager.Instance.actionMenu.SetActive(true);
-            CombatManager.Instance.ResumeCombat(); // Tiếp tục chiến đấu
+            CombatManager.Instance.UI?.ShowActionMenu(true);
+            CombatManager.Instance.ResumeCombat();
         }
     }
 
-    public void RefreshAll()
+    private void HandleCategoryNavigation()
     {
+        bool changed = false;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+        {
+            selectedCategoryIndex = Mathf.Max(0, selectedCategoryIndex - 1);
+            changed = true;
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+        {
+            selectedCategoryIndex = Mathf.Min(categoryButtons.Length - 1, selectedCategoryIndex + 1);
+            changed = true;
+        }
+
+        if (changed)
+        {
+            RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
+            UpdateEquippedDisplay();
+            UpdateDescriptionForCategory();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return)
+            || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+        {
+            if (filteredItems.Count > 0) EnterItemSelection();
+        }
+    }
+
+    private void HandleItemNavigation()
+    {
+        bool moved = false;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+        {
+            selectedItemIndex = Mathf.Max(0, selectedItemIndex - 1);
+            moved = true;
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+        {
+            selectedItemIndex = Mathf.Min(filteredItems.Count - 1, selectedItemIndex + 1);
+            moved = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+        {
+            HandleBackAction();
+            return;
+        }
+
+        if (moved)
+        {
+            UpdateItemHighlights();
+            UpdateDescriptionForItem();
+            ScrollToSelectedItem();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
+        {
+            EquipSelectedItem();
+        }
+    }
+
+    private void EnterItemSelection()
+    {
+        currentState = EquipmentUIState.SelectingItem;
+        selectedItemIndex = 0;
+        UpdateItemHighlights();
+        UpdateDescriptionForItem();
+        ScrollToSelectedItem();
+    }
+
+    private void ClearItemHighlights()
+    {
+        for (int i = 0; i < spawnedSlots.Count; i++)
+        {
+            Transform border = spawnedSlots[i].transform.Find("SelectionBorder");
+            if (border != null) border.gameObject.SetActive(false);
+        }
+    }
+
+    private void UpdateItemHighlights()
+    {
+        for (int i = 0; i < spawnedSlots.Count; i++)
+        {
+            Transform border = spawnedSlots[i].transform.Find("SelectionBorder");
+            if (border != null)
+                border.gameObject.SetActive(i == selectedItemIndex);
+        }
+    }
+
+    private void EquipSelectedItem()
+    {
+        if (selectedItemIndex < 0 || selectedItemIndex >= filteredItems.Count) return;
+        EquipmentSlot targetSlot = (EquipmentSlot)selectedCategoryIndex;
+        InventoryManager.Instance.EquipItem(filteredItems[selectedItemIndex], targetSlot);
+
+        currentState = EquipmentUIState.SelectingCategory;
         UpdatePlayerStatsUI();
         UpdateEquippedDisplay();
         RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
-        UpdateVisualSelection();
+        UpdateDescriptionForCategory();
+    }
+
+    private void UpdateDescriptionForCategory()
+    {
+        if (txtDescription == null) return;
+        txtDescription.gameObject.SetActive(true);
+
+        string catName = "";
+        ItemData equipped = null;
+
+        // Tự động quét xem đang đứng ở ô nào và lấy đúng món đồ đang mặc
+        switch (selectedCategoryIndex)
+        {
+            case 0: catName = "Vũ Khí"; equipped = InventoryManager.Instance.equippedWeapon; break;
+            case 1: catName = "Giáp"; equipped = InventoryManager.Instance.equippedArmor; break;
+            case 2: catName = "Phụ Kiện 1"; equipped = InventoryManager.Instance.equippedAccessory1; break;
+            case 3: catName = "Phụ Kiện 2"; equipped = InventoryManager.Instance.equippedAccessory2; break;
+        }
+
+        if (equipped != null)
+        {
+            // Chỉ dùng thẻ <b> để in đậm, KHÔNG ép màu chữ để giữ nguyên màu bạn set trong Inspector
+            txtDescription.text = $"<b>[{catName}]</b> {equipped.itemName}\n{equipped.description}";
+        }
+        else
+        {
+            txtDescription.text = $"<b>[{catName}]</b> Chưa trang bị\nClick chuột để chọn trang bị.";
+        }
+    }
+
+    private void UpdateDescriptionForItem()
+    {
+        if (txtDescription == null) return;
+        txtDescription.gameObject.SetActive(true);
+
+        if (selectedItemIndex >= 0 && selectedItemIndex < filteredItems.Count)
+        {
+            var item = filteredItems[selectedItemIndex];
+            // Hiển thị mô tả món đồ đang chọn trong danh sách dưới
+            txtDescription.text = $"<b>{item.itemName}</b>\n{item.description}";
+        }
+    }
+
+    private ItemData GetEquippedForCategory(int index)
+    {
+        if (InventoryManager.Instance == null) return null;
+        switch (index)
+        {
+            case 0: return InventoryManager.Instance.equippedWeapon;
+            case 1: return InventoryManager.Instance.equippedArmor;
+            case 2: return InventoryManager.Instance.equippedAccessory1;
+            case 3: return InventoryManager.Instance.equippedAccessory2;
+            default: return null;
+        }
     }
 
     private void UpdatePlayerStatsUI()
     {
-        if (txtStats == null)
-        {
-            Debug.LogError("[EquipmentUI] txtStats chưa được gán trong Inspector! Kéo PlayerStatsText vào trường txtStats.");
-            return;
-        }
-        if (PlayerManager.Instance == null)
-        {
-            Debug.LogWarning("[EquipmentUI] PlayerManager.Instance là null khi mở Equipment.");
-            return;
-        }
+        if (txtStats == null || PlayerManager.Instance == null) return;
+
         var p = PlayerManager.Instance;
 
-        string atkText = p.equipmentDamageBonus > 0 ? $"<color=green>(+{p.equipmentDamageBonus})</color>" : (p.equipmentDamageBonus < 0 ? $"<color=red>({p.equipmentDamageBonus})</color>" : "");
-        string defText = p.equipmentDefenseBonus > 0 ? $"<color=green>(+{p.equipmentDefenseBonus})</color>" : (p.equipmentDefenseBonus < 0 ? $"<color=red>({p.equipmentDefenseBonus})</color>" : "");
-        string spdText = p.equipmentSpeedBonus > 0 ? $"<color=green>(+{p.equipmentSpeedBonus})</color>" : (p.equipmentSpeedBonus < 0 ? $"<color=red>({p.equipmentSpeedBonus})</color>" : "");
-        string critText = p.equipmentCritBonus > 0 ? $"<color=green>(+{p.equipmentCritBonus}%)</color>" : (p.equipmentCritBonus < 0 ? $"<color=red>({p.equipmentCritBonus}%)</color>" : "");
-        string evaText = p.equipmentEvasionBonus > 0 ? $"<color=green>(+{p.equipmentEvasionBonus}%)</color>" : (p.equipmentEvasionBonus < 0 ? $"<color=red>({p.equipmentEvasionBonus}%)</color>" : "");
+        string atkText = BonusText(p.equipmentDamageBonus, false);
+        string defText = BonusText(p.equipmentDefenseBonus, false);
+        string spdText = BonusText(p.equipmentSpeedBonus, false);
+        string critText = BonusText(p.equipmentCritBonus, true);
+        string evaText = BonusText(p.equipmentEvasionBonus, true);
 
         float totalDef = p.currentDefense + p.equipmentDefenseBonus;
 
-        // THÊM TÊN NHÂN VẬT VÀ CHỈ SỐ
         txtStats.text = $"<color=red>FOAX</color>\n\n" +
                         $"Công Kích: {p.GetTotalAttack():F1} {atkText}\n" +
                         $"Phòng Ngự: {totalDef:F1} {defText}\n" +
                         $"Tốc Độ: {p.GetTotalSpeed():F1} {spdText}\n" +
                         $"Chí Mạng: {p.GetTotalCrit():F1}% {critText}\n" +
                         $"Né Tránh: {p.GetTotalEvasion():F1}% {evaText}";
+    }
 
-        Debug.Log($"[EquipmentUI] Stats đã cập nhật: ATK={p.GetTotalAttack():F1}, DEF={totalDef:F1}");
+    private string BonusText(float bonus, bool isPercent)
+    {
+        string suffix = isPercent ? "%" : "";
+        if (bonus > 0) return $"<color=green>(+{bonus}{suffix})</color>";
+        if (bonus < 0) return $"<color=red>({bonus}{suffix})</color>";
+        return "";
     }
 
     private void UpdateEquippedDisplay()
@@ -255,16 +315,33 @@ public class EquipmentUI : MonoBehaviour
 
     private void SetSlotUI(int index, ItemData item)
     {
-        categoryNames[index].text = (item != null) ? item.itemName : "Rỗng";
-        categoryIcons[index].sprite = (item != null) ? item.icon : null;
-        categoryIcons[index].enabled = (item != null);
+        if (categoryNames != null && index < categoryNames.Length && categoryNames[index] != null)
+            categoryNames[index].text = (item != null) ? item.itemName : "Rỗng";
+        if (categoryIcons != null && index < categoryIcons.Length && categoryIcons[index] != null)
+        {
+            categoryIcons[index].sprite = (item != null) ? item.icon : null;
+            categoryIcons[index].enabled = (item != null);
+        }
+    }
+
+    private void ApplyCategoryColors()
+    {
+        if (categoryButtons == null) return;
+        for (int i = 0; i < categoryButtons.Length; i++)
+        {
+            if (categoryButtons[i] == null) continue;
+            bool isSelected = (i == selectedCategoryIndex);
+            Color targetColor = isSelected ? Color.yellow : Color.white;
+
+            categoryButtons[i].transition = Selectable.Transition.None;
+            Image img = categoryButtons[i].GetComponent<Image>();
+            if (img != null) img.color = targetColor;
+        }
     }
 
     private void RefreshBottomList(EquipmentSlot filterType)
     {
-        // Dùng DestroyImmediate để xóa slot cũ NGAY LẬP TỨC (không chờ cuối frame như Destroy)
-        // đảm bảo khi ForceRebuildLayoutImmediate chạy, Content không còn slot cũ nữa
-        foreach (var obj in spawnedSlots) DestroyImmediate(obj);
+        foreach (var obj in spawnedSlots) Destroy(obj); // SỬA LẠI THÀNH Destroy THAY VÌ DestroyImmediate
         spawnedSlots.Clear();
         filteredItems.Clear();
 
@@ -272,65 +349,157 @@ public class EquipmentUI : MonoBehaviour
         allSlots.AddRange(InventoryManager.Instance.storageInventory);
         allSlots.AddRange(InventoryManager.Instance.combatInventory);
 
+        int spawnedIndex = 0;
         foreach (var slot in allSlots)
         {
             if (slot.IsEmpty || slot.item == null) continue;
 
-            bool match = false;
-            // Nếu slot hiện tại đang xem là Phụ Kiện, hiển thị toàn bộ trang bị thuộc loại Phụ Kiện (1 hoặc 2)
+            bool match;
             if (filterType == EquipmentSlot.Accessory1 || filterType == EquipmentSlot.Accessory2)
-            {
-                match = (slot.item.equipmentSlot == EquipmentSlot.Accessory1 || slot.item.equipmentSlot == EquipmentSlot.Accessory2);
-            }
+                match = (slot.item.equipmentSlot == EquipmentSlot.Accessory1
+                      || slot.item.equipmentSlot == EquipmentSlot.Accessory2);
             else
-            {
                 match = (slot.item.equipmentSlot == filterType);
-            }
 
-            if (!slot.IsEmpty && slot.item.itemType == ItemType.Equipment && match)
+            if (slot.item.itemType == ItemType.Equipment && match)
             {
                 filteredItems.Add(slot.item);
                 GameObject newSlot = Instantiate(equipSlotPrefab, bottomContent);
                 spawnedSlots.Add(newSlot);
 
-                newSlot.transform.Find("ItemNameText").GetComponent<TextMeshProUGUI>().text = slot.item.itemName;
-                newSlot.transform.Find("QuantityText").GetComponent<TextMeshProUGUI>().text = $"x{slot.quantity}";
-                newSlot.transform.Find("ItemIcon").GetComponent<Image>().sprite = slot.item.icon;
+                // --- SỬA LỖI CS0571 Ở ĐÂY: DÙNG DẤU BẰNG (=) ĐỂ GÁN GIÁ TRỊ ---
+                var nameText = newSlot.transform.Find("ItemNameText")?.GetComponent<TextMeshProUGUI>();
+                var qtyText = newSlot.transform.Find("QuantityText")?.GetComponent<TextMeshProUGUI>();
+                var icon = newSlot.transform.Find("ItemIcon")?.GetComponent<Image>();
 
-                // Mặc định tắt viền vàng của slot mới sinh ra
+                if (nameText != null) nameText.text = slot.item.itemName;
+                if (qtyText != null) qtyText.text = $"x{slot.quantity}";
+                if (icon != null) icon.sprite = slot.item.icon;
+
                 Transform border = newSlot.transform.Find("SelectionBorder");
                 if (border != null) border.gameObject.SetActive(false);
+
+                int capturedIndex = spawnedIndex;
+                AddSlotMouseEvents(newSlot, capturedIndex);
+                spawnedIndex++;
             }
         }
 
-        // Ép Unity tính lại chiều cao Content ngay lập tức
-        // mà không cần chờ đến frame kế tiếp, tránh ScrollView bị sai khoảng cuộn
         Canvas.ForceUpdateCanvases();
         if (bottomContent is RectTransform contentRect)
-        {
             LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
-        }
     }
 
-    private void UpdateVisualSelection()
+    private void ScrollToSelectedItem()
     {
-        // 1. Category buttons — bỏ qua, đã xử lý trong ApplyCategoryColors() mỗi frame
+        if (bottomScrollRect == null || spawnedSlots.Count == 0) return;
+        if (selectedItemIndex < 0 || selectedItemIndex >= spawnedSlots.Count) return;
 
-        // 2. Làm nổi bật món đồ trong kho đồ bên dưới
-        for (int i = 0; i < spawnedSlots.Count; i++)
+        RectTransform contentRect = bottomScrollRect.content;
+        RectTransform viewportRect = bottomScrollRect.viewport;
+        RectTransform itemRect = spawnedSlots[selectedItemIndex].GetComponent<RectTransform>();
+
+        float contentHeight = contentRect.rect.height;
+        float viewportHeight = viewportRect.rect.height;
+        if (contentHeight <= viewportHeight) return;
+
+        float itemTop = -itemRect.anchoredPosition.y;
+        float itemBottom = itemTop + itemRect.rect.height + scrollBottomPadding;
+        float maxScroll = contentHeight - viewportHeight;
+        float curOffset = (1f - bottomScrollRect.verticalNormalizedPosition) * maxScroll;
+        float newOffset = curOffset;
+
+        if (itemBottom > curOffset + viewportHeight) newOffset = itemBottom - viewportHeight;
+        else if (itemTop < curOffset) newOffset = itemTop;
+
+        bottomScrollRect.verticalNormalizedPosition = Mathf.Clamp01(1f - (newOffset / maxScroll));
+    }
+
+    private void AddSlotMouseEvents(GameObject slotObj, int index)
+    {
+        EventTrigger trigger = slotObj.GetComponent<EventTrigger>();
+        if (trigger == null) trigger = slotObj.AddComponent<EventTrigger>();
+        trigger.triggers.Clear();
+
+        var hoverEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        hoverEntry.callback.AddListener((_) =>
         {
-            Transform border = spawnedSlots[i].transform.Find("SelectionBorder");
-            if (border != null)
+            if (currentState != EquipmentUIState.SelectingItem) return;
+            selectedItemIndex = index;
+            UpdateItemHighlights();
+            UpdateDescriptionForItem();
+        });
+        trigger.triggers.Add(hoverEntry);
+
+        var clickEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
+        clickEntry.callback.AddListener((data) =>
+        {
+            PointerEventData ped = (PointerEventData)data;
+            if (ped.button == PointerEventData.InputButton.Left)
             {
-                border.gameObject.SetActive(currentState == EquipmentUIState.SelectingItem && i == selectedItemIndex);
+                selectedItemIndex = index;
+                currentState = EquipmentUIState.SelectingItem;
+                UpdateItemHighlights();
+                UpdateDescriptionForItem();
+                EquipSelectedItem();
             }
-        }
+        });
+        trigger.triggers.Add(clickEntry);
+    }
 
-        // 3. Cập nhật mô tả và tên ở trên cùng
-        if (currentState == EquipmentUIState.SelectingItem && filteredItems.Count > selectedItemIndex)
+    private void SetupCategoryButtonMouseEvents()
+    {
+        if (categoryButtons == null) return;
+        for (int i = 0; i < categoryButtons.Length; i++)
         {
-            txtDescription.text = filteredItems[selectedItemIndex].description;
+            if (categoryButtons[i] == null) continue;
+            int capturedIndex = i;
+
+            EventTrigger trigger = categoryButtons[i].GetComponent<EventTrigger>();
+            if (trigger == null) trigger = categoryButtons[i].gameObject.AddComponent<EventTrigger>();
+            trigger.triggers.Clear();
+
+            var hoverEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+            hoverEntry.callback.AddListener((_) =>
+            {
+                if (currentState == EquipmentUIState.SelectingCategory)
+                {
+                    selectedCategoryIndex = capturedIndex;
+                    RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
+                    UpdateEquippedDisplay();
+                    UpdateDescriptionForCategory();
+                }
+            });
+            trigger.triggers.Add(hoverEntry);
+
+            var clickEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
+            clickEntry.callback.AddListener((data) =>
+            {
+                PointerEventData ped = (PointerEventData)data;
+                if (ped.button == PointerEventData.InputButton.Left)
+                {
+                    selectedCategoryIndex = capturedIndex;
+                    RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
+                    UpdateEquippedDisplay();
+                    if (filteredItems.Count > 0)
+                        EnterItemSelection();
+                    else
+                        UpdateDescriptionForCategory();
+                }
+            });
+            trigger.triggers.Add(clickEntry);
         }
     }
 
+    public void RefreshAll()
+    {
+        UpdatePlayerStatsUI();
+        UpdateEquippedDisplay();
+        RefreshBottomList((EquipmentSlot)selectedCategoryIndex);
+
+        if (currentState == EquipmentUIState.SelectingItem)
+            UpdateDescriptionForItem();
+        else
+            UpdateDescriptionForCategory();
+    }
 }
