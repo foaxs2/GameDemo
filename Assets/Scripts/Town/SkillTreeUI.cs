@@ -9,7 +9,7 @@ public class SkillTreeUI : MonoBehaviour
 
     [Header("Bảng Thông Tin (Popup)")]
     public GameObject skillDetailPanel;
-    public Button btnCloseDetailBackground;
+    public Button btnCloseDetail;
 
     public Image detailIcon;
     public TextMeshProUGUI txtDetailName;
@@ -28,8 +28,8 @@ public class SkillTreeUI : MonoBehaviour
     void Start()
     {
         skillDetailPanel.SetActive(false);
-        if (btnCloseDetailBackground != null)
-            btnCloseDetailBackground.onClick.AddListener(() => skillDetailPanel.SetActive(false));
+        if (btnCloseDetail != null)
+            btnCloseDetail.onClick.AddListener(() => skillDetailPanel.SetActive(false));
 
         btnUpgrade.onClick.AddListener(OnUpgradeButtonClicked);
     }

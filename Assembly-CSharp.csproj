@@ -56,7 +56,9 @@
     <Compile Include="Assets\Scripts\Combat\CombatCalculator.cs" />
     <Compile Include="Assets\Scripts\Combat\SkillButtonUI.cs" />
     <Compile Include="Assets\Scripts\Combat\Skills\EnemySkillAction.cs" />
+    <Compile Include="Assets\Scripts\Town\TownHUD.cs" />
     <Compile Include="Assets\Scripts\Town\ShopManager.cs" />
+    <Compile Include="Assets\Scripts\Town\TownUIController.cs" />
     <Compile Include="Assets\Scripts\UI\GuildUI.cs" />
     <Compile Include="Assets\Scripts\ITEM\ItemData.cs" />
     <Compile Include="Assets\Scripts\Combat\Skills\PlayerSkills.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Assets\Scripts\Combat\EnemyStats.cs" />
     <Compile Include="Assets\Scripts\Combat\DebuffData.cs" />
     <Compile Include="Assets\Scripts\Combat\Player_Manager.cs" />
+    <Compile Include="Assets\Scripts\Town\TownEventManager.cs" />
     <Compile Include="Assets\Scripts\Dungeon\EventData.cs" />
     <Compile Include="Assets\Scripts\Combat\Unit.cs" />
     <Compile Include="Assets\Scripts\Combat\SkillData.cs" />
@@ -85,13 +88,16 @@
     <Compile Include="Assets\Scripts\Town\ShopUI.cs" />
     <Compile Include="Assets\Scripts\UI\StatusIconUI.cs" />
     <Compile Include="Assets\Scripts\Town\TownDeathNoticeUI.cs" />
+    <Compile Include="Assets\Scripts\UI\StartSceneManager.cs" />
     <Compile Include="Assets\Scripts\UI\QuestSlotUI.cs" />
     <Compile Include="Assets\Scripts\Dungeon\DungeonDeathUI.cs" />
     <Compile Include="Assets\Scripts\ITEM\EquipmentUI.cs" />
     <Compile Include="Assets\Scripts\ITEM\ItemTestHelper.cs" />
+    <Compile Include="Assets\Scripts\Town\TownSettingsUI.cs" />
     <Compile Include="Assets\Scripts\Combat\SkillManager.cs" />
     <Compile Include="Assets\Scripts\Dungeon\EventManager.cs" />
     <Compile Include="Assets\Scripts\ITEM\InventoryUI.cs" />
+    <Compile Include="Assets\Scripts\UI\SaveSlotCardUI.cs" />
     <Compile Include="Assets\Scripts\UI\GameBootstap.cs" />
     <Compile Include="Assets\Scripts\Combat\BossPassiveManager.cs" />
     <Compile Include="Assets\Scripts\Town\GuildManager.cs" />

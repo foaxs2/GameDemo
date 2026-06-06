@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 590
-  currentHP: 590
+  maxHP: 500
+  currentHP: 500
   baseDefense: 6
   currentDefense: 0
-  baseSpeed: 18
+  baseSpeed: 12
   currentSpeed: 0
   currentAP: 0
   debuffs: []
@@ -72,6 +72,7 @@ MonoBehaviour:
   maxCooldown: 6
   initialCooldown: 3
   currentCooldown: 0
+  healAmount: 15
   goldDrop: 780
   expDrop: 2250
   hasSpawnOnAllyDeath: 0

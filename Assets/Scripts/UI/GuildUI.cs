@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class GuildUI : MonoBehaviour
 {
@@ -16,20 +17,31 @@ public class GuildUI : MonoBehaviour
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI hpPotionsText;
     public TextMeshProUGUI foodText;
+    public TextMeshProUGUI senText; // Hiển thị số sen đang có / Tổng sen (Ví dụ: 2/10)
 
     [Header("Buttons")]
     public Button btnClaimSalary;
     public TextMeshProUGUI salaryText;
     public Button btnBuyHP;
     public Button btnBuyFood;
+    public Button btnBuyWine; // Nút mua rượu
     public Button btnRefreshBoard;
     public Button btnClose;
 
     [Header("Shop Config")]
     public int hpPotionCost = 10;
     public int foodCost = 30;
+    public int wineCost = 15; // Giá rượu có thể chỉnh được (mặc định 15)
     [Tooltip("Kéo ItemData của thuốc hồi máu vào đây (Bắt buộc)")]
     public ItemData hpPotionItem;
+
+    [Header("Price Overlays")]
+    public GameObject hpPriceOverlay;
+    public TextMeshProUGUI hpPriceOverlayText;
+    public GameObject foodPriceOverlay;
+    public TextMeshProUGUI foodPriceOverlayText;
+    public GameObject winePriceOverlay;
+    public TextMeshProUGUI winePriceOverlayText;
 
     [Header("Cancel Confirm Panel")]
     public GameObject cancelConfirmPanel;
@@ -50,6 +62,7 @@ public class GuildUI : MonoBehaviour
         btnClaimSalary.onClick.AddListener(ClaimSalary);
         btnBuyHP.onClick.AddListener(BuyHP);
         btnBuyFood.onClick.AddListener(BuyFood);
+        if (btnBuyWine != null) btnBuyWine.onClick.AddListener(BuyWine);
         if(btnRefreshBoard != null) btnRefreshBoard.onClick.AddListener(RefreshQuestBoard);
         btnClose.onClick.AddListener(CloseGuild);
 
@@ -58,6 +71,11 @@ public class GuildUI : MonoBehaviour
 
         if (cancelConfirmPanel != null) cancelConfirmPanel.SetActive(false);
         if (guildPanel != null) guildPanel.SetActive(false);
+
+        // Gắn sự kiện Hover cho các nút mua đồ
+        AddHoverListeners(btnBuyHP, hpPriceOverlay, hpPriceOverlayText, GetHPPotionCost());
+        AddHoverListeners(btnBuyFood, foodPriceOverlay, foodPriceOverlayText, GetFoodCost());
+        AddHoverListeners(btnBuyWine, winePriceOverlay, winePriceOverlayText, GetWineCost());
     }
 
     public void OpenGuild()
@@ -85,6 +103,16 @@ public class GuildUI : MonoBehaviour
             int count = InventoryManager.Instance.GetItemQuantity(hpPotionItem);
             hpPotionsText.text = $"{count} / 3"; 
         }
+
+        if (senText != null)
+        {
+            senText.text = $"{PlayerManager.Instance.sen}/{PlayerManager.Instance.maxSen}";
+        }
+
+        // Cập nhật giá hiển thị động trên các lớp phủ khi có sự kiện Town
+        if (hpPriceOverlayText != null) hpPriceOverlayText.text = $"{GetHPPotionCost()}G";
+        if (foodPriceOverlayText != null) foodPriceOverlayText.text = $"{GetFoodCost()}G";
+        if (winePriceOverlayText != null) winePriceOverlayText.text = $"{GetWineCost()}G";
     }
 
     private void UpdateSalaryButton()
@@ -124,9 +152,10 @@ public class GuildUI : MonoBehaviour
             return;
         }
 
-        if (PlayerManager.Instance.gold >= hpPotionCost)
+        int cost = GetHPPotionCost();
+        if (PlayerManager.Instance.gold >= cost)
         {
-            PlayerManager.Instance.gold -= hpPotionCost;
+            PlayerManager.Instance.gold -= cost;
             InventoryManager.Instance.AddItem(hpPotionItem, 1);
             UpdatePlayerInfo();
             Debug.Log("[GUILD] Đã mua 1 bình máu.");
@@ -145,9 +174,10 @@ public class GuildUI : MonoBehaviour
             return;
         }
 
-        if (PlayerManager.Instance.gold >= foodCost)
+        int cost = GetFoodCost();
+        if (PlayerManager.Instance.gold >= cost)
         {
-            PlayerManager.Instance.gold -= foodCost;
+            PlayerManager.Instance.gold -= cost;
             int healAmount = Mathf.FloorToInt(PlayerManager.Instance.maxFood * 0.5f);
             PlayerManager.Instance.food += healAmount;
             if (PlayerManager.Instance.food > PlayerManager.Instance.maxFood) 
@@ -242,5 +272,93 @@ public class GuildUI : MonoBehaviour
         {
             slot.UpdateProgress();
         }
+    }
+
+    private void BuyWine()
+    {
+        if (PlayerManager.Instance == null) return;
+
+        // Kiểm tra nếu sen đã đầy
+        if (PlayerManager.Instance.sen >= PlayerManager.Instance.maxSen)
+        {
+            Debug.Log("[GUILD] Chỉ số Sen đã đầy!");
+            return;
+        }
+
+        int cost = GetWineCost();
+        // Kiểm tra nếu đủ tiền mua rượu
+        if (PlayerManager.Instance.gold >= cost)
+        {
+            PlayerManager.Instance.gold -= cost;
+            PlayerManager.Instance.AddSanity(2); // Hồi phục 2 sen
+            UpdatePlayerInfo();
+            Debug.Log("[GUILD] Đã mua Rượu, hồi phục 2 Sen.");
+        }
+        else
+        {
+            Debug.Log("[GUILD] Không đủ vàng để mua Rượu!");
+        }
+    }
+
+    private void AddHoverListeners(Button button, GameObject overlay, TextMeshProUGUI overlayText, int cost)
+    {
+        if (button == null || overlay == null) return;
+
+        // Cập nhật text giá tiền hiển thị trên lớp phủ
+        if (overlayText != null)
+        {
+            overlayText.text = $"{cost}G";
+        }
+
+        // Mặc định ẩn lớp phủ giá tiền đi
+        overlay.SetActive(false);
+
+        // Lấy hoặc tự động thêm EventTrigger vào Button
+        EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+        }
+
+        // Hover chuột vào (PointerEnter) -> Hiện lớp phủ
+        EventTrigger.Entry entryEnter = new EventTrigger.Entry();
+        entryEnter.eventID = EventTriggerType.PointerEnter;
+        entryEnter.callback.AddListener((data) => { overlay.SetActive(true); });
+        trigger.triggers.Add(entryEnter);
+
+        // Rê chuột ra ngoài (PointerExit) -> Ẩn lớp phủ
+        EventTrigger.Entry entryExit = new EventTrigger.Entry();
+        entryExit.eventID = EventTriggerType.PointerExit;
+        entryExit.callback.AddListener((data) => { overlay.SetActive(false); });
+        trigger.triggers.Add(entryExit);
+    }
+
+    public int GetHPPotionCost()
+    {
+        int cost = hpPotionCost;
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.ShopDiscount)
+        {
+            cost = Mathf.RoundToInt(cost * 0.75f);
+        }
+        return cost;
+    }
+
+    public int GetFoodCost()
+    {
+        int cost = foodCost;
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.ShopDiscount)
+        {
+            cost = Mathf.RoundToInt(cost * 0.75f);
+        }
+        return cost;
+    }
+
+    public int GetWineCost()
+    {
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.FreeWine)
+        {
+            return 0; // Miễn phí rượu
+        }
+        return wineCost;
     }
 }

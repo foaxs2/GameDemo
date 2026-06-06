@@ -88,7 +88,15 @@ public class PlayerMovement : MonoBehaviour
         PlayerManager.Instance.currentExp -= expPenalty;
         if (PlayerManager.Instance.currentExp < 0) PlayerManager.Instance.currentExp = 0;
 
-        Debug.Log($"[PENALTY] Chết/Điên tại tầng {currentFloor}: -{ goldPenalty} Vàng, -{expPenalty} EXP (nửa số kiếm được trong tầng).");
+        Debug.Log($"[PENALTY] Chết/Điên tại tầng {currentFloor}: -{goldPenalty} Vàng, -{expPenalty} EXP (nửa số kiếm được trong tầng).");
+        
+        // Reset dữ liệu bản đồ để lần tới vào Dungeon sẽ sinh lại ngẫu nhiên bản đồ mới
+        clearedFogTiles.Clear();
+        defeatedEnemiesTiles.Clear();
+        activatedEventTiles.Clear();
+        currentMapSeed = UnityEngine.Random.Range(100, 999999);
+        isReturningFromCombat = false; // Huỷ cờ quay lại từ combat cũ
+        
         ResetFloorTracking(); // Xóa bộ đếm sau khi đã áp hình phạt
     }
 
@@ -494,6 +502,12 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Tiến tới tầng tiếp theo!");
             ResetFloorTracking(); // Vượt tầng thành công → xóa bộ đếm, không bị phạt
             
+            // Roll sự kiện Town mới
+            if (TownEventManager.Instance != null)
+            {
+                TownEventManager.Instance.RollNewEvent();
+            }
+
             // Guild: Nhận 1 lần lương & Reset Nhiệm vụ khi hoàn thành tầng
             if (GuildManager.Instance != null)
             {

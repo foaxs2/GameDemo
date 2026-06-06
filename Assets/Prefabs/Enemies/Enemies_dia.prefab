@@ -45,14 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 18
-  currentHP: 18
+  maxHP: 13
+  currentHP: 13
   baseDefense: 0
   currentDefense: 0
-  baseSpeed: 8
+  baseSpeed: 5
   currentSpeed: 0
   currentAP: 0
   debuffs: []
+  buffs: []
   isImmuneToStun: 0
   immuneToBleed: 1
   weakToPoison: 0
@@ -70,8 +71,27 @@ MonoBehaviour:
   maxCooldown: 4
   initialCooldown: 2
   currentCooldown: 0
+  healAmount: 15
   goldDrop: 6
   expDrop: 15
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 0
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 3
+  enrageSPDBonus: 5
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: 
 --- !u!114 &7570864095978996350
 MonoBehaviour:
   m_ObjectHideFlags: 0

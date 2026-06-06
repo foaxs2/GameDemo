@@ -37,10 +37,24 @@ public class GuildManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
-            Destroy(gameObject);
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
+    }
+
+    public void ResetData()
+    {
+        pendingSalaryCount = 1;
+        activeBoardQuests.Clear();
+        completedQuests.Clear();
     }
 
     public GuildSaveData BuildGuildData()

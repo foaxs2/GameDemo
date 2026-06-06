@@ -50,7 +50,14 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
             return;
         }
         Instance = this;

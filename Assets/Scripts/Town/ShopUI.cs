@@ -74,7 +74,7 @@ public class ShopUI : MonoBehaviour
             GameObject newSlot = Instantiate(shopSlotPrefab, shopContent);
             shopUIObjects.Add(newSlot);
 
-            SetupSlotInfo(newSlot, item, item.buyPrice, "");
+            SetupSlotInfo(newSlot, item, GetBuyPrice(item), "");
 
             // Bắt sự kiện Click
             newSlot.GetComponent<Button>().onClick.AddListener(() => OnSlotClicked(index, true));
@@ -98,6 +98,9 @@ public class ShopUI : MonoBehaviour
         {
             if (!slot.IsEmpty)
             {
+                // Chỉ hiện các vật phẩm có giá bán > 0 và có thể bán được
+                if (GetSellPrice(slot.item) <= 0 || !slot.item.canBeSold) continue;
+
                 currentPlayerItems.Add(slot);
                 int index = indexCounter;
 
@@ -106,7 +109,7 @@ public class ShopUI : MonoBehaviour
 
                 // Hiển thị số lượng (x2, x3...)
                 string qtyText = slot.quantity > 1 ? $"x{slot.quantity}" : "";
-                SetupSlotInfo(newSlot, slot.item, slot.item.sellPrice, qtyText);
+                SetupSlotInfo(newSlot, slot.item, GetSellPrice(slot.item), qtyText);
 
                 newSlot.GetComponent<Button>().onClick.AddListener(() => OnSlotClicked(index, false));
                 indexCounter++;
@@ -176,9 +179,10 @@ public class ShopUI : MonoBehaviour
         if (!isSelectingShop || selectedIndex < 0 || selectedIndex >= ShopManager.Instance.currentShopItems.Count) return;
 
         ItemData itemToBuy = ShopManager.Instance.currentShopItems[selectedIndex];
+        int cost = GetBuyPrice(itemToBuy);
 
         // 1. Kiểm tra tiền người chơi
-        if (PlayerManager.Instance.gold < itemToBuy.buyPrice)
+        if (PlayerManager.Instance.gold < cost)
         {
             Debug.LogWarning("Không đủ vàng để mua!");
             return;
@@ -188,8 +192,8 @@ public class ShopUI : MonoBehaviour
         if (InventoryManager.Instance.AddItem(itemToBuy, 1))
         {
             // 3. Trừ tiền người chơi, cộng tiền Shop
-            PlayerManager.Instance.gold -= itemToBuy.buyPrice;
-            ShopManager.Instance.shopGold += itemToBuy.buyPrice;
+            PlayerManager.Instance.gold -= cost;
+            ShopManager.Instance.shopGold += cost;
 
             // 4. Xóa món đó khỏi Shop (Vì shop 20 món riêng biệt)
             ShopManager.Instance.currentShopItems.RemoveAt(selectedIndex);
@@ -207,15 +211,16 @@ public class ShopUI : MonoBehaviour
 
         InventorySlot slotToSell = currentPlayerItems[selectedIndex];
         ItemData itemToSell = slotToSell.item;
+        int price = GetSellPrice(itemToSell);
 
         // 1. Kiểm tra tiền của Shop có đủ để thu mua không
-        if (ShopManager.Instance.shopGold < itemToSell.sellPrice)
+        if (ShopManager.Instance.shopGold < price)
         {
             Debug.LogWarning("Chủ shop đã cạn tiền, không thể mua thêm đồ của bạn!");
             return;
         }
         //Chan bao nếu món đồ không thể bán
-        if (!itemToSell.canBeSold)
+        if (!itemToSell.canBeSold || price <= 0)
         {
             return;
         }
@@ -223,8 +228,8 @@ public class ShopUI : MonoBehaviour
         if (InventoryManager.Instance.RemoveItem(itemToSell, 1))
         {
             // 3. Trừ tiền Shop, Cộng tiền người chơi
-            ShopManager.Instance.shopGold -= itemToSell.sellPrice;
-            PlayerManager.Instance.gold += itemToSell.sellPrice;
+            ShopManager.Instance.shopGold -= price;
+            PlayerManager.Instance.gold += price;
 
             // 4.Quăng món đồ vừa bán vào danh sách của Shop để lỡ bán nhầm có thể mua lại
             ShopManager.Instance.currentShopItems.Add(itemToSell);
@@ -233,5 +238,27 @@ public class ShopUI : MonoBehaviour
             RefreshAll();
             Debug.Log($"Đã bán {itemToSell.itemName}");
         }
+    }
+
+    public int GetBuyPrice(ItemData item)
+    {
+        if (item == null) return 0;
+        int price = item.buyPrice;
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.ShopDiscount)
+        {
+            price = Mathf.RoundToInt(price * 0.75f); // Giảm 25%
+        }
+        return price;
+    }
+
+    public int GetSellPrice(ItemData item)
+    {
+        if (item == null) return 0;
+        int price = item.sellPrice;
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.ShopSellBonus)
+        {
+            price = Mathf.RoundToInt(price * 1.5f); // Tăng 50%
+        }
+        return price;
     }
 }

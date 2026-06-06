@@ -24,9 +24,16 @@ public class ShopManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             RefreshShop();
         }
-        else
+        else if (Instance != this)
         {
-            Destroy(gameObject);
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

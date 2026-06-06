@@ -445,6 +445,30 @@ public class EquipmentUI : MonoBehaviour
             }
         });
         trigger.triggers.Add(clickEntry);
+
+        // Chuyển tiếp các sự kiện Drag và Scroll lên bottomScrollRect để có thể kéo chuột và cuộn chuột
+        if (bottomScrollRect != null)
+        {
+            var scrollEntry = new EventTrigger.Entry { eventID = EventTriggerType.Scroll };
+            scrollEntry.callback.AddListener((data) => { bottomScrollRect.OnScroll((PointerEventData)data); });
+            trigger.triggers.Add(scrollEntry);
+
+            var beginDragEntry = new EventTrigger.Entry { eventID = EventTriggerType.BeginDrag };
+            beginDragEntry.callback.AddListener((data) => { bottomScrollRect.OnBeginDrag((PointerEventData)data); });
+            trigger.triggers.Add(beginDragEntry);
+
+            var dragEntry = new EventTrigger.Entry { eventID = EventTriggerType.Drag };
+            dragEntry.callback.AddListener((data) => { bottomScrollRect.OnDrag((PointerEventData)data); });
+            trigger.triggers.Add(dragEntry);
+
+            var endDragEntry = new EventTrigger.Entry { eventID = EventTriggerType.EndDrag };
+            endDragEntry.callback.AddListener((data) => { bottomScrollRect.OnEndDrag((PointerEventData)data); });
+            trigger.triggers.Add(endDragEntry);
+
+            var initDragEntry = new EventTrigger.Entry { eventID = EventTriggerType.InitializePotentialDrag };
+            initDragEntry.callback.AddListener((data) => { bottomScrollRect.OnInitializePotentialDrag((PointerEventData)data); });
+            trigger.triggers.Add(initDragEntry);
+        }
     }
 
     private void SetupCategoryButtonMouseEvents()

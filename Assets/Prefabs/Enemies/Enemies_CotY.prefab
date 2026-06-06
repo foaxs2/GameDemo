@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 30
-  currentHP: 30
+  maxHP: 18
+  currentHP: 18
   baseDefense: 1
   currentDefense: 1
-  baseSpeed: 13
+  baseSpeed: 6
   currentSpeed: 13
   currentAP: 0
   debuffs: []

@@ -39,7 +39,7 @@ public class QuestSlotUI : MonoBehaviour
             targetText.text = "Tìm: " + currentConfig.targetName;
 
         // Ghi phần thưởng
-        string rText = $"Thưởng: {currentConfig.rewardGold}g";
+        string rText = $"{currentConfig.rewardGold}g";
         if (currentConfig.rewardExp > 0) rText += $", {currentConfig.rewardExp}exp";
         if (currentConfig.rewardItem != null) rText += $", {currentConfig.rewardItemAmount} {currentConfig.rewardItem.itemName}";
         if (currentConfig.rewardEquipment != null) rText += $", {currentConfig.rewardEquipment.itemName}";

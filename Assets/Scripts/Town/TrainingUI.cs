@@ -139,7 +139,7 @@ public class TrainingUI : MonoBehaviour
 
     private void UpdateStatRow(TextMeshProUGUI text, string statName, int baseVal, int tempVal, Button addBtn, Button minusBtn)
     {
-        text.text = $"{statName}:<pos=265>{baseVal}" + (tempVal > 0 ? $" <color=green>(+{tempVal})</color>" : "");
+        text.text = $"{statName}:<pos=100>{baseVal}" + (tempVal > 0 ? $" <color=green>(+{tempVal})</color>" : "");
         addBtn.interactable = tempUnspent > 0;
         minusBtn.interactable = tempVal > 0;
     }

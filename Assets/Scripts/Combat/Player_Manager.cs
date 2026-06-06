@@ -4,6 +4,11 @@ public class PlayerManager : Unit
 {
     public static PlayerManager Instance;
 
+    [Header("Thông tin nhân vật (Save Slot)")]
+    public string playerName = "Người Chơi";
+    public float playTime = 0f;
+    public int characterIconIndex = 0;
+
     [Header("Tài nguyên sinh tồn riêng")]
     public int sen = 10;
     public int maxSen = 10;
@@ -28,10 +33,8 @@ public class PlayerManager : Unit
     public int expToNextLevel = 50;
     public int unspentStatPoints = 0;
 
-    [Header("Công thức EXP (Base + (L-1)*Linear + (L-1)^2*Quad)")]
-    [SerializeField] private int baseExpNeeded = 50;
-    [SerializeField] private int linearExpGrowth = 20;
-    [SerializeField] private int quadraticExpGrowth = 10;
+    [Header("Công thức EXP (Cố định mỗi cấp)")]
+    [SerializeField] private int fixedExpPerLevel = 50;
 
     [Header("Equipment Bonuses")]
     public float equipmentDamageBonus;
@@ -60,9 +63,16 @@ public class PlayerManager : Unit
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
-            Destroy(gameObject);
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -90,6 +100,12 @@ public class PlayerManager : Unit
         currentHP = maxHP;
         currentSpeed = GetTotalSpeed();
         currentDefense = baseDefense;
+    }
+
+    void Update()
+    {
+        // Tăng thời gian chơi trong giây
+        playTime += Time.deltaTime;
     }
 
     public void UpdateMaxHP()
@@ -264,21 +280,19 @@ public class PlayerManager : Unit
 
     /// <summary>
     /// Tính toán lượng EXP cần thiết để từ cấp hiện tại lên cấp tiếp theo.
-    /// Công thức: Base + (L-1)*Linear + (L-1)^2*Quad
+    /// Công thức mới: Cố định theo fixedExpPerLevel.
     /// </summary>
     public int GetRequiredExpForLevel(int lv)
     {
-        int multiplier = lv - 1;
-        return baseExpNeeded + (multiplier * linearExpGrowth) + (multiplier * multiplier * quadraticExpGrowth);
+        return fixedExpPerLevel;
     }
 
     private void LevelUp()
     {
         level++;
-        maxFood += 3;
-        food = maxFood;
-        unspentStatPoints += 3;
-        Debug.Log($"[LÊN CẤP] Chúc mừng! Bạn đã đạt cấp {level}. Nhận 3 điểm chỉ số.");
+        // Không tăng maxFood và không hồi maxFood khi lên cấp nữa
+        unspentStatPoints += 1; // Cộng 1 điểm kĩ năng/chỉ số mỗi cấp thay vì +3
+        Debug.Log($"[LÊN CẤP] Chúc mừng! Bạn đã đạt cấp {level}. Nhận 1 điểm chỉ số.");
     }
 
     public bool UpgradeStat(string statType)

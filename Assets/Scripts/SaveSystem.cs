@@ -13,6 +13,7 @@ public class SaveData
     public DungeonSaveData dungeon;
     public SkillSaveData skills;
     public GuildSaveData guild;
+    public string activeTownEvent; // Sự kiện Town đang diễn ra
 }
 
 [Serializable]
@@ -24,6 +25,11 @@ public class PlayerSaveData
     public int gold, sen, food;
     public List<string> killedMonsterNames = new List<string>();
     public List<int> killedMonsterCounts = new List<int>();
+    
+    // Thêm để hiển thị thông tin save slot
+    public string playerName;
+    public float playTime;
+    public int characterIconIndex;
 }
 
 [Serializable]
@@ -94,13 +100,54 @@ public class SaveSystem : MonoBehaviour
     [Header("Item Registry (Kéo tất cả ItemData vào đây để Load)")]
     public ItemData[] allItems;
 
-    private static string SavePath => Path.Combine(Application.persistentDataPath, "save.json");
+    [Header("Save Slot System")]
+    public static int CurrentSlot = 1; // 1, 2, 3 mặc định
+
+    public static string GetSavePath(int slot)
+    {
+        return Path.Combine(Application.persistentDataPath, $"save_slot_{slot}.json");
+    }
+
+    private static string SavePath => GetSavePath(CurrentSlot);
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Start()
+    {
+        // Khởi chạy Coroutine tự động lưu
+        StartCoroutine(AutoSaveRoutine());
+    }
+
+    private System.Collections.IEnumerator AutoSaveRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(60f);
+
+            string activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            // Chỉ tự động lưu nếu KHÔNG ở scene Dungeon, Combat hoặc Start
+            if (activeScene != "Dungeon" && activeScene != "Combat" && activeScene != "Start")
+            {
+                Save();
+                Debug.Log($"[AUTOSAVE] Đã tự động lưu game thành công vào slot {CurrentSlot}");
+            }
+        }
     }
 
     // ─── SAVE ────────────────────────────────────────────────────
@@ -113,23 +160,31 @@ public class SaveSystem : MonoBehaviour
         data.skills    = BuildSkillData();
         if (GuildManager.Instance != null) data.guild = GuildManager.Instance.BuildGuildData();
 
+        if (TownEventManager.Instance != null)
+            data.activeTownEvent = TownEventManager.Instance.CurrentEvent.ToString();
+        else
+            data.activeTownEvent = TownEvent.None.ToString();
+
         string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(SavePath, json);
-        Debug.Log($"[SAVE] Đã lưu game vào: {SavePath}");
+        string path = SavePath;
+        File.WriteAllText(path, json);
+        Debug.Log($"[SAVE] Đã lưu game vào slot {CurrentSlot}: {path}");
     }
 
     // ─── LOAD ────────────────────────────────────────────────────
     public bool Load()
     {
-        if (!File.Exists(SavePath))
+        ResetAllStates();
+        string path = SavePath;
+        if (!File.Exists(path))
         {
-            Debug.Log("[SAVE] Không tìm thấy file save.");
+            Debug.Log($"[SAVE] Không tìm thấy file save tại slot {CurrentSlot}.");
             return false;
         }
 
         try
         {
-            string json = File.ReadAllText(SavePath);
+            string json = File.ReadAllText(path);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
 
             if (data == null) { Debug.LogError("[SAVE] File save lỗi — không parse được."); return false; }
@@ -140,7 +195,19 @@ public class SaveSystem : MonoBehaviour
             ApplySkillData(data.skills);
             if (GuildManager.Instance != null) GuildManager.Instance.ApplyGuildData(data.guild);
 
-            Debug.Log("[SAVE] Đã load game thành công.");
+            if (TownEventManager.Instance != null && !string.IsNullOrEmpty(data.activeTownEvent))
+            {
+                if (Enum.TryParse(data.activeTownEvent, out TownEvent loadedEvent))
+                {
+                    TownEventManager.Instance.SetEvent(loadedEvent);
+                }
+                else
+                {
+                    TownEventManager.Instance.SetEvent(TownEvent.None);
+                }
+            }
+
+            Debug.Log($"[SAVE] Đã load game thành công từ slot {CurrentSlot}.");
             return true;
         }
         catch (Exception e)
@@ -153,8 +220,28 @@ public class SaveSystem : MonoBehaviour
     public void InitializeNewGame()
     {
         Debug.Log("[SAVE] Khởi tạo dữ liệu game mới.");
+        ResetAllStates();
         if (PlayerManager.Instance != null)
+        {
             PlayerManager.Instance.gold = 50; // Vàng khởi đầu
+            PlayerManager.Instance.level = 1;
+            PlayerManager.Instance.currentExp = 0;
+            PlayerManager.Instance.expToNextLevel = 50;
+            PlayerManager.Instance.unspentStatPoints = 0;
+            PlayerManager.Instance.str = 10;
+            PlayerManager.Instance.dex = 10;
+            PlayerManager.Instance.vit = 10;
+            PlayerManager.Instance.agl = 10;
+            PlayerManager.Instance.playTime = 0f;
+            PlayerManager.Instance.playerName = "Slot " + CurrentSlot;
+            PlayerManager.Instance.UpdateMaxHP();
+            PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+        }
+
+        if (TownEventManager.Instance != null)
+        {
+            TownEventManager.Instance.SetEvent(TownEvent.None); // Bắt đầu game mới không có sự kiện (Bình yên)
+        }
 
         // Tìm vật phẩm hồi máu (HP) đầu tiên trong registry để làm quà khởi đầu
         ItemData startingPotion = null;
@@ -177,7 +264,77 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    private void ResetAllStates()
+    {
+        Debug.Log("[SAVE] Đang reset tất cả trạng thái manager để tránh tràn bộ nhớ/rò rỉ slot.");
+
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.killedMonsters.Clear();
+            PlayerManager.Instance.RestoreSanityCollapse();
+        }
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.combatInventory.Clear();
+            InventoryManager.Instance.storageInventory.Clear();
+            for (int i = 0; i < InventoryManager.Instance.storageMaxSlots; i++)
+            {
+                InventoryManager.Instance.storageInventory.Add(new InventorySlot());
+            }
+            InventoryManager.Instance.equippedWeapon = null;
+            InventoryManager.Instance.equippedArmor = null;
+            InventoryManager.Instance.equippedAccessory1 = null;
+            InventoryManager.Instance.equippedAccessory2 = null;
+        }
+
+        if (SkillManager.Instance != null)
+        {
+            SkillManager.Instance.learnedSkills.Clear();
+        }
+
+        if (GuildManager.Instance != null)
+        {
+            GuildManager.Instance.ResetData();
+            GuildManager.Instance.RefreshBoard();
+        }
+
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.RefreshShop();
+        }
+
+        PlayerMovement.currentFloor = 1;
+        PlayerMovement.currentKeys = 0;
+        PlayerMovement.isReturningFromCombat = false;
+        PlayerMovement.clearedFogTiles.Clear();
+        PlayerMovement.defeatedEnemiesTiles.Clear();
+        PlayerMovement.activatedEventTiles.Clear();
+        PlayerMovement.savedDungeonPosition = Vector3Int.zero;
+        PlayerMovement.floorGoldEarned = 0;
+        PlayerMovement.floorExpEarned = 0;
+    }
+
     public static bool HasSave() => File.Exists(SavePath);
+    public static bool HasSave(int slot) => File.Exists(GetSavePath(slot));
+
+    public static PlayerSaveData GetPlayerMetadata(int slot)
+    {
+        string path = GetSavePath(slot);
+        if (!File.Exists(path)) return null;
+
+        try
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            return data?.player;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[SAVE] Lỗi đọc metadata slot {slot}: {e.Message}");
+            return null;
+        }
+    }
 
     [ContextMenu("Xóa File Save")]
     public void DeleteSaveManual()
@@ -187,10 +344,16 @@ public class SaveSystem : MonoBehaviour
 
     public static void DeleteSave()
     {
-        if (File.Exists(SavePath)) 
+        DeleteSave(CurrentSlot);
+    }
+
+    public static void DeleteSave(int slot)
+    {
+        string path = GetSavePath(slot);
+        if (File.Exists(path)) 
         {
-            File.Delete(SavePath);
-            Debug.Log("[SAVE] Đã xóa file save thành công.");
+            File.Delete(path);
+            Debug.Log($"[SAVE] Đã xóa file save của slot {slot} thành công.");
         }
     }
 
@@ -204,7 +367,10 @@ public class SaveSystem : MonoBehaviour
             unspentStatPoints = p.unspentStatPoints,
             currentHP = p.currentHP, maxHP = p.maxHP,
             str = p.str, dex = p.dex, vit = p.vit, agl = p.agl,
-            gold = p.gold, sen = p.sen, food = p.food
+            gold = p.gold, sen = p.sen, food = p.food,
+            playerName = p.playerName,
+            playTime = p.playTime,
+            characterIconIndex = p.characterIconIndex
         };
         
         foreach(var kvp in p.killedMonsters)
@@ -291,6 +457,9 @@ public class SaveSystem : MonoBehaviour
         p.unspentStatPoints = d.unspentStatPoints;
         p.str = d.str; p.dex = d.dex; p.vit = d.vit; p.agl = d.agl;
         p.gold = d.gold; p.sen = d.sen; p.food = d.food;
+        p.playerName = string.IsNullOrEmpty(d.playerName) ? ("Slot " + CurrentSlot) : d.playerName;
+        p.playTime = d.playTime;
+        p.characterIconIndex = d.characterIconIndex;
         p.UpdateMaxHP();
         p.currentHP = Mathf.Min(d.currentHP, p.maxHP);
         

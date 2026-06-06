@@ -19,7 +19,17 @@ public class SkillManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else Destroy(gameObject);
+        else if (Instance != this)
+        {
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 
     public int GetSkillLevel(string skillID)
@@ -39,6 +49,13 @@ public class SkillManager : MonoBehaviour
         {
             cost = Mathf.Floor(cost * 1.5f);
         }
+
+        // Áp dụng giảm 25% học kĩ năng khi có sự kiện SkillDiscount
+        if (TownEventManager.Instance != null && TownEventManager.Instance.CurrentEvent == TownEvent.SkillDiscount)
+        {
+            cost = Mathf.RoundToInt(cost * 0.75f);
+        }
+
         return (int)cost;
     }
 

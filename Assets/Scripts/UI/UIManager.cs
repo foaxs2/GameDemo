@@ -16,6 +16,10 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI levelText;   // Hiện "Cấp: X"
     public TextMeshProUGUI expText;     // Hiện "EXP: X / Y"
 
+    [Header("EXP Slider & Điểm Kỹ Năng Mới")]
+    public UnityEngine.UI.Slider expSlider;        // Slider trượt EXP màu trắng xám
+    public TextMeshProUGUI skillPointsText;       // Hiển thị số Điểm kỹ năng đang có
+
     private Canvas myCanvas;
 
     void Awake()
@@ -27,9 +31,16 @@ public class UIManager : MonoBehaviour
             myCanvas = GetComponent<Canvas>();
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
-        else
+        else if (Instance != this)
         {
-            Destroy(gameObject);
+            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
+            {
+                Destroy(this);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -66,6 +77,17 @@ public class UIManager : MonoBehaviour
 
         if (expText != null)
             expText.text = "EXP: " + p.currentExp + " / " + p.expToNextLevel;
+
+        if (expSlider != null)
+        {
+            expSlider.maxValue = p.expToNextLevel;
+            expSlider.value = p.currentExp;
+        }
+
+        if (skillPointsText != null)
+        {
+            skillPointsText.text = p.unspentStatPoints.ToString();
+        }
     }
 
     /// <summary>Gọi từ EventManager để ẩn/hiện HUD khi panel sự kiện đang mở.</summary>
