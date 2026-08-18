@@ -68,10 +68,10 @@ MonoBehaviour:
   skillID: 5
   skillName: "T\u0103ng T\u1ED1c"
   skillDescription: "T\u1EF1 t\u0103ng t\u1ED1c \u0111\u1ED9 c\u1EE7a b\u1EA3n th\xE2n"
-  maxCooldown: 4
-  initialCooldown: 2
+  skillIcon: {fileID: -9129631603465814812, guid: 1d6a292c32d187f47af59be6c6b1a734, type: 3}
+  maxCooldown: 2
   currentCooldown: 0
-  healAmount: 15
+  healAmount: 0
   goldDrop: 9
   expDrop: 17
   hasSpawnOnAllyDeath: 0
@@ -108,4 +108,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   hpBar: {fileID: 0}
   apBar: {fileID: 0}
+  warningBubble: {fileID: 0}
   unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

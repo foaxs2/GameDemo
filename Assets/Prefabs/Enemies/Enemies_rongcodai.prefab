@@ -69,8 +69,8 @@ MonoBehaviour:
   skillDescription: "Do cu\u1ED1ng h\u1ECDng \u0111\xE3 r\xE1ch n\xE1t, ng\u1ECDn
     l\u1EEDa c\u1ED5 \u0111\u1EA1i phun ra \u0111\u1EE9t \u0111o\u1EA1n nh\u01B0ng
     mang nhi\u1EC7t l\u01B0\u1EE3ng nung ch\u1EA3y v\u1EA1n v\u1EADt."
-  maxCooldown: 6
-  initialCooldown: 3
+  skillIcon: {fileID: 7486083125957326677, guid: a7f3bee9e4b8b004dbd0a7f109af0749, type: 3}
+  maxCooldown: 4
   currentCooldown: 0
   healAmount: 15
   goldDrop: 780

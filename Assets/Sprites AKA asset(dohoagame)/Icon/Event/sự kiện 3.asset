@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49861bc3019825b46b49eb8acf93935a, type: 3}
+  m_Name: "s\u1EF1 ki\u1EC7n 3"
+  m_EditorClassIdentifier: Assembly-CSharp::EventData
+  eventName: "X\xE1c ch\u1EBFt"
+  eventIcon: {fileID: -5989269467630602068, guid: b5d606eefd1af304a85bf37534515ac5, type: 3}
+  description: "Tr\u01B0\u1EDBc m\u1EB7t b\u1EA1n l\xE0 nh\u1EEFng x\xE1c ch\u1EBFt
+    c\u1EE7a nh\u1EEFng m\u1EA1o hi\u1EC3m gi\u1EA3 \u0111i tr\u01B0\u1EDBc.\n"
+  choices:
+  - choiceText: "L\u1EE5c so\xE1t x\xE1c ch\u1EBFt"
+    baseSuccessChance: 25
+    rewardGold: 20
+    rewardExp: 0
+    rewardHP: 0
+    rewardFood: 0
+    rewardSanity: 0
+    rewardItem: {fileID: 11400000, guid: b4665c17eb1734e46b618e5ecbafc93b, type: 2}
+    buffStatType: 
+    buffStatAmount: 0
+    successMessage: "B\u1EA1n t\xECm th\u1EA5y m\u1ED9t s\u1ED1 th\u1EE9."
+    penaltyHP: 0
+    penaltyFood: 0
+    penaltySanity: 2
+    penaltyGold: 0
+    failMessage: "B\u1EA1n ch\u1EB3ng t\xECm \u0111\u01B0\u1EE3c g\xEC c\u1EA3.\n"
+  - choiceText: "B\u1ECF qua"
+    baseSuccessChance: 100
+    rewardGold: 0
+    rewardExp: 0
+    rewardHP: 0
+    rewardFood: 0
+    rewardSanity: 0
+    rewardItem: {fileID: 0}
+    buffStatType: 
+    buffStatAmount: 0
+    successMessage: "B\u1EA1n cho r\u1EB1ng nh\u1EEFng c\xE1i x\xE1c ch\u1EB3ng c\xF2n
+      l\u1EA1i g\xEC v\xE0 ti\u1EBFp t\u1EE5c \u0111i ti\u1EBFp."
+    penaltyHP: 0
+    penaltyFood: 0
+    penaltySanity: 2
+    penaltyGold: 0
+    failMessage: "B\u1EA1n ch\u1EB3ng t\xECm \u0111\u01B0\u1EE3c g\xEC c\u1EA3.\n"
+  trapPenaltyHP: 0
+  trapPenaltyFood: 0
+  trapPenaltySanity: 0
+  trapPenaltyGold: 0

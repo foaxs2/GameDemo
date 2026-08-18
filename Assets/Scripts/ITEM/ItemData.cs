@@ -75,6 +75,10 @@ public class ItemData : ScriptableObject
     public float stunChance;         // % gây choáng
     public float bonusDamageVsHuman; // +damage vs human
     public float bonusDamageVsNonHuman; // +damage vs non-human
+    [Tooltip("% giảm tỷ lệ mất SEN khi di chuyển/đói/bị crit (vd: 5 = giảm 5% tỷ lệ)")]
+    public float senLossReduction;
+    [Tooltip("% sát thương nhận thêm từ mọi đòn đánh của kẻ thù (vd: 15 = nhận thêm 15% damage)")]
+    public float extraDamageTakenPercent;
 
     [Header("Stack & Sử dụng")]
     public bool isStackable;

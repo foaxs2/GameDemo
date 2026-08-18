@@ -18,6 +18,7 @@ public enum EnemySkillID
     HealEnemy,               // Cốt Y: Hồi máu đồng minh (hoặc bản thân)
     NhenNuVuong_ClawRip,     // Boss LV5 — Nhện Nữ Vương: Cào Xé Thịt
     Dragon_FlameBreath,      // Boss LV10 — Rồng Cổ Đại: Phun Lửa
+    BocGiap,                 // Kẻ thù Tê Tê: Bọc Giáp (Giảm 50% DMG + Phản sát thương)
 }
 
 public class EnemyStats : Unit
@@ -37,8 +38,8 @@ public class EnemyStats : Unit
     public string skillName;
     [TextArea(3, 5)]
     public string skillDescription;
+    public Sprite skillIcon;
     public int maxCooldown;
-    public int initialCooldown = 2;
     [HideInInspector] public int currentCooldown = 0;
 
     [Tooltip("Lượng HP hồi khi dùng kĩ năng HealEnemy (cài theo từng prefab).")]
@@ -56,7 +57,7 @@ public class EnemyStats : Unit
     [SerializeField] public float enrageATKBonus = 3f;      // ATK tăng khi Hỏa Điền
     [SerializeField] public float enrageSPDBonus = 5f;      // SPD tăng khi Hỏa Điền
     public bool hasPassivePoison;                           // Nhện Nữ Vương — Nọc Độc Thụ Động
-    [Range(0f, 100f)] public float passivePoisonChance = 20f;
+    [Range(0f, 100f)] public float passivePoisonChance = 80f;
     public int passivePoisonDuration = 4;
     public bool hasCrackScales;                             // Rồng — Vảy Rắn Nứt
     public bool hasRoarPassive;                             // Rồng — Tiếng Rồng Suy Nhược
@@ -80,7 +81,7 @@ public class EnemyStats : Unit
         currentHP       = maxHP;
         currentDefense  = baseDefense;
         currentSpeed    = baseSpeed;
-        currentCooldown = initialCooldown;
+        currentCooldown = maxCooldown;
     }
 
     public override void TakeDamage(float damage, bool isTrueDamage = false, bool ignoreFracture = false)
@@ -88,10 +89,39 @@ public class EnemyStats : Unit
         if (!ignoreFracture && DebuffManager.Instance != null)
             damage *= DebuffManager.Instance.GetDamageTakenMultiplier(this);
 
+        bool hasBocGiap = BuffManager.Instance != null && BuffManager.Instance.HasBuff(this, BuffType.BocGiap);
+        float rawDamageBeforeReduction = damage;
+
+        if (hasBocGiap && !isTrueDamage)
+        {
+            damage *= 0.5f; // Bọc Giáp: Giảm 50% sát thương trực tiếp
+        }
+
         float finalDamage = isTrueDamage ? damage : Mathf.Max(1, damage - currentDefense);
 
         currentHP -= Mathf.FloorToInt(finalDamage);
         if (currentHP < 0) currentHP = 0;
+
+        // Phản sát thương khi Bọc Giáp đang kích hoạt + Giảm 1 lượt buff của Bọc Giáp do bị đánh
+        if (hasBocGiap && PlayerManager.Instance != null && PlayerManager.Instance.currentHP > 0)
+        {
+            float baseReflect = (GetTotalAttack() + rawDamageBeforeReduction) / 1.5f;
+            if (DebuffManager.Instance != null)
+                baseReflect *= DebuffManager.Instance.GetDamageTakenMultiplier(PlayerManager.Instance);
+
+            float finalReflect = Mathf.Max(1f, baseReflect - PlayerManager.Instance.currentDefense);
+            PlayerManager.Instance.TakeDamage(finalReflect, false, false);
+
+            if (FloatingTextManager.Instance != null && CombatManager.Instance?.UI != null)
+            {
+                CombatManager.Instance.UI.FlashPlayerHit();
+                Vector3 pPos = CombatManager.Instance.UI.GetPlayerHPBarTransform()?.position ?? Vector3.zero;
+                FloatingTextManager.Instance.SpawnText(pPos, Mathf.FloorToInt(finalReflect).ToString(), Color.magenta);
+            }
+
+            // Mỗi khi người chơi đánh vào -> Buff Bọc Giáp giảm 1 lượt
+            BuffManager.Instance?.ConsumeBuffTurn(this, BuffType.BocGiap);
+        }
     }
 
     /// <summary>ATK base + buff ATK_Up từ BuffManager.</summary>

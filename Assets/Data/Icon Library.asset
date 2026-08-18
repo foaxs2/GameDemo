@@ -12,19 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0656e90c25af94345ad6048c7d775553, type: 3}
   m_Name: Icon Library
   m_EditorClassIdentifier: Assembly-CSharp::IconLibrary
-  atkUpIcon: {fileID: 6587802678347041897, guid: b54a76692e1435a47b74852eb0df2cea, type: 3}
-  defUpIcon: {fileID: -6783535068791366241, guid: 03f9a7d6bd5dba343a4e70d04d16ede6, type: 3}
-  spdUpIcon: {fileID: 4824912247271261439, guid: 3f2c7a58eef6a4948998499c8c7f4ddb, type: 3}
-  critUpIcon: {fileID: -2715510207050145985, guid: 3fb92ce85b804584f8e807d7b148d8f7, type: 3}
-  evaUpIcon: {fileID: 5287370112181719559, guid: c95c16c0ae80dab46ad254cdd11795af, type: 3}
-  coatingBleedIcon: {fileID: 8661956374862147123, guid: e9c6c1d4ee70e3543be58fc47bce1df1, type: 3}
-  coatingFireIcon: {fileID: 67493270369254655, guid: c5f0ad31d91afaf4f8f58ad944f87ccb, type: 3}
-  coatingPoisonIcon: {fileID: -272627352941721372, guid: 7f9125d3d35b82f4ea76ca7be460f97b, type: 3}
-  stunIcon: {fileID: -2901327116285628959, guid: 622f799fbefab3942a626c307c429807, type: 3}
-  poisonIcon: {fileID: 3052265130958201430, guid: 4a7ce8b871be95d42be48bbb8f61eb3c, type: 3}
-  burnIcon: {fileID: -8995612204219458900, guid: 30f11b9b32ba98948b731c54154c0b54, type: 3}
-  bleedIcon: {fileID: -8740819239815299711, guid: b1737c920483e0c4886ec241c8b23eab, type: 3}
-  fractureIcon: {fileID: 3942104344588643377, guid: afdb77c1f7e4445448f7d66266325231, type: 3}
+  atkUpIcon: {fileID: 6587802678347041897, guid: ace42494fa337114c835b4374ad1fa90, type: 3}
+  defUpIcon: {fileID: -6783535068791366241, guid: f78c9881b6c39bd44aff9bff3e58b5f7, type: 3}
+  spdUpIcon: {fileID: 4824912247271261439, guid: aa00766c7affc4741a4c2b1c990b68e0, type: 3}
+  critUpIcon: {fileID: -2715510207050145985, guid: 390bbca71b42f9241a2c41815132097f, type: 3}
+  evaUpIcon: {fileID: 5287370112181719559, guid: cd90fd27b828c6a4f9d8585b74b7a42e, type: 3}
+  coatingBleedIcon: {fileID: 8661956374862147123, guid: bd02ab32b9192184aa12102a55cb48fa, type: 3}
+  coatingFireIcon: {fileID: 67493270369254655, guid: 6350b54ccc4627b47b6a7c1f4ea73d59, type: 3}
+  coatingPoisonIcon: {fileID: -272627352941721372, guid: 520be9b0596b1c743a38410f94cd3b64, type: 3}
+  stunIcon: {fileID: -2901327116285628959, guid: f6c2adc1664b64c4a8acd53d2eb7ecef, type: 3}
+  poisonIcon: {fileID: 3052265130958201430, guid: 6f3c42e02040dec40a73a3d6ac3d0342, type: 3}
+  burnIcon: {fileID: -8995612204219458900, guid: e3001a1fa30e82b488fa66fb419a8933, type: 3}
+  bleedIcon: {fileID: -8740819239815299711, guid: 1ad4e7e0146788f44ab4c5dd648de57a, type: 3}
+  fractureIcon: {fileID: 3942104344588643377, guid: 9126ad0eeafaa1b4a874a443247d6008, type: 3}
   arrow1: {fileID: -3134535190847785357, guid: 09fa9ddc3ee87e04eb39460f9e17aa41, type: 3}
   arrow2: {fileID: -8532604900442776225, guid: 76473451568f68b48ab0435cb63e65fc, type: 3}
   arrow3: {fileID: 6835093803286373336, guid: 88d47200a371a4e4d97bcb963e36632f, type: 3}

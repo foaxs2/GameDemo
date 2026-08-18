@@ -122,6 +122,46 @@ public class GuildManager : MonoBehaviour
         }
     }
 
+    public bool ForceAddAndAcceptQuest(string questID)
+    {
+        QuestConfig config = GetQuestConfig(questID);
+        if (config == null) return false;
+
+        int acceptedCount = 0;
+        foreach (var q in activeBoardQuests) if (q.isAccepted) acceptedCount++;
+
+        QuestSaveData existing = activeBoardQuests.Find(q => q.questID == questID);
+        if (existing != null && existing.isAccepted)
+        {
+            Debug.LogWarning($"[GUILD] Nhiệm vụ '{config.targetName}' đã được nhận trước đó!");
+            return false;
+        }
+
+        if (acceptedCount >= 3)
+        {
+            Debug.LogWarning("[GUILD] Bạn đã nhận tối đa 3 nhiệm vụ (3/3)!");
+            return false;
+        }
+
+        if (existing == null)
+        {
+            existing = new QuestSaveData { questID = questID, isAccepted = true };
+            activeBoardQuests.Add(existing);
+        }
+        else
+        {
+            existing.isAccepted = true;
+        }
+        return true;
+    }
+
+    public void ClearAllQuests()
+    {
+        activeBoardQuests.Clear();
+        completedQuests.Clear();
+        Debug.Log("[GUILD] Đã xóa toàn bộ nhiệm vụ (Clear all quests)!");
+    }
+
     public void CancelQuest(string questID)
     {
         foreach(var q in activeBoardQuests)
@@ -157,10 +197,9 @@ public class GuildManager : MonoBehaviour
                 }
                 else if (config.type == QuestType.Gather)
                 {
-                    ItemData item = SaveSystem.Instance.allItems != null ? System.Array.Find(SaveSystem.Instance.allItems, x => x != null && x.itemName == config.targetName) : null;
-                    if (item != null && InventoryManager.Instance.HasItem(item, config.requiredAmount))
+                    if (InventoryManager.Instance != null && InventoryManager.Instance.HasItem(config.targetName, config.requiredAmount))
                     {
-                        InventoryManager.Instance.RemoveItem(item, config.requiredAmount);
+                        InventoryManager.Instance.RemoveItem(config.targetName, config.requiredAmount);
                         RewardPlayer(config);
                         completedQuests.Add(questID);
                         activeBoardQuests.RemoveAt(i);

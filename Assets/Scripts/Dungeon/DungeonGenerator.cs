@@ -33,15 +33,22 @@ public class DungeonGenerator : MonoBehaviour
     public TileBase exitTile;
     public List<TileBase> enemyTiles = new List<TileBase>();
     
-    [Header("Boss Bosses (Sinh ở Tầng 5, 10...)")]
-    public List<TileBase> bossTiles = new List<TileBase>();
+    [Header("Boss Configs Linh Hoạt (Tầng 10, 20...)")]
+    [Tooltip("Danh sách cấu hình Boss theo tầng. Để trống sẽ fallback về tầng 10 & 20 mặc định.")]
+    public List<BossFloorConfig> bossFloorConfigs = new List<BossFloorConfig>();
+
+    [Header("Quái Tinh Anh (Elite Encounter)")]
+    [Tooltip("Danh sách các tầng xuất hiện ô Quái Tinh Anh (không tính tầng Boss)")]
+    public List<int> eliteEncounterFloors = new List<int>() { 3, 7, 12, 16, 18 };
+    [Tooltip("Tile đại diện cho Quái Tinh Anh trên bản đồ (EnemyMap)")]
+    public TileBase eliteEnemyTile;
 
     [Header("Random Event Tiles (Rương, Bẫy...)")]
-    public System.Collections.Generic.List<UnityEngine.Tilemaps.TileBase> eventTiles = new System.Collections.Generic.List<UnityEngine.Tilemaps.TileBase>();
+    public List<TileBase> eventTiles = new List<TileBase>();
 
     [Header("Ô Vàng (Nhặt vàng trực tiếp)")]
     [Tooltip("Tile hiển thị ô vàng. Kéo Tile Asset vào đây trong Inspector.")]
-    public UnityEngine.Tilemaps.TileBase goldTile;
+    public TileBase goldTile;
     [Range(0f, 100f)]
     [Tooltip("Tỷ lệ % mỗi ô còn trống được đặt thành ô vàng.")]
     public float goldTileChance = 5f;
@@ -57,10 +64,99 @@ public class DungeonGenerator : MonoBehaviour
     public TileBase keyTileGen;
     public TileBase lockedDoorTileGen;
     [Range(0f, 100f)] public float lockedDoorChance = 40f;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    #region HELPER METHODS
+
+    /// <summary>Kiểm tra xem một tầng có phải là tầng Boss không.</summary>
+    public bool IsBossFloor(int floor)
+    {
+        if (bossFloorConfigs != null && bossFloorConfigs.Count > 0)
+            return bossFloorConfigs.Exists(b => b != null && b.floorNumber == floor);
+        
+        // Fallback mặc định: Tầng 10 và Tầng 20 là Boss
+        return (floor == 10 || floor == 20);
+    }
+
+    /// <summary>Lấy BossFloorConfig của một tầng cụ thể (nếu có).</summary>
+    public BossFloorConfig GetBossFloorConfig(int floor)
+    {
+        if (bossFloorConfigs != null)
+            return bossFloorConfigs.Find(b => b != null && b.floorNumber == floor);
+        return null;
+    }
+
+    /// <summary>Kiểm tra xem một TileBase có phải là Tile của Boss hay không.</summary>
+    public bool IsBossTile(TileBase tile)
+    {
+        if (tile == null || bossFloorConfigs == null) return false;
+
+        foreach (var config in bossFloorConfigs)
+        {
+            if (config != null && config.bossTile != null && config.bossTile == tile)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Kiểm tra xem một TileBase có phải là Tile Quái Tinh Anh (Elite) hay không.</summary>
+    public bool IsEliteTile(TileBase tile)
+    {
+        if (tile == null || eliteEnemyTile == null) return false;
+        return (tile == eliteEnemyTile);
+    }
+
+    #endregion
+
+    public int TotalTiles { get; private set; } = 42;
+    public int CurrentFloorWidth { get; private set; } = 7;
+    public int CurrentFloorHeight { get; private set; } = 6;
+
+    public struct FloorPreset
+    {
+        public int width;
+        public int height;
+        public int monsters;
+        public int events;
+    }
+
+    /// <summary>
+    /// Lấy cấu hình chuẩn cho từng tầng theo bảng thiết kế CanKiemTra.md: Width = 7 cố định.
+    /// </summary>
+    public FloorPreset GetFloorPreset(int floor)
+    {
+        switch (floor)
+        {
+            case 1:  return new FloorPreset { width = 7, height = 7,  monsters = 5,  events = 4 };
+            case 2:  return new FloorPreset { width = 7, height = 7,  monsters = 5,  events = 4 };
+            case 3:  return new FloorPreset { width = 7, height = 7,  monsters = 5,  events = 4 }; // +1 Elite
+            case 4:  return new FloorPreset { width = 7, height = 7,  monsters = 6,  events = 4 };
+            case 5:  return new FloorPreset { width = 7, height = 7,  monsters = 6,  events = 4 };
+            case 6:  return new FloorPreset { width = 7, height = 8,  monsters = 7,  events = 5 };
+            case 7:  return new FloorPreset { width = 7, height = 8,  monsters = 7,  events = 5 }; // +1 Elite
+            case 8:  return new FloorPreset { width = 7, height = 9,  monsters = 8,  events = 5 };
+            case 9:  return new FloorPreset { width = 7, height = 9,  monsters = 8,  events = 5 };
+            case 10: return new FloorPreset { width = 7, height = 9,  monsters = 5,  events = 8 }; // Boss 1 (+1 Boss)
+            case 11: return new FloorPreset { width = 7, height = 9,  monsters = 8,  events = 5 };
+            case 12: return new FloorPreset { width = 7, height = 10, monsters = 8,  events = 6 }; // +1 Elite
+            case 13: return new FloorPreset { width = 7, height = 10, monsters = 8,  events = 6 };
+            case 14: return new FloorPreset { width = 7, height = 11, monsters = 10, events = 6 };
+            case 15: return new FloorPreset { width = 7, height = 11, monsters = 10, events = 6 };
+            case 16: return new FloorPreset { width = 7, height = 12, monsters = 10, events = 7 }; // +1 Elite
+            case 17: return new FloorPreset { width = 7, height = 12, monsters = 10, events = 7 };
+            case 18: return new FloorPreset { width = 7, height = 13, monsters = 11, events = 8 }; // +1 Elite
+            case 19: return new FloorPreset { width = 7, height = 13, monsters = 11, events = 8 };
+            case 20: return new FloorPreset { width = 7, height = 14, monsters = 8,  events = 12 }; // Đại Boss (+1 Boss)
+            default:
+                int h = Mathf.Clamp(6 + (floor - 1) / 2, 6, 14);
+                return new FloorPreset { width = 7, height = h, monsters = 8, events = 6 };
+        }
     }
 
     public void GenerateDungeon(int currentFloor, int seed)
@@ -68,46 +164,32 @@ public class DungeonGenerator : MonoBehaviour
         // Fix cứng trạng thái ngẫu nhiên bằng Seed để Map không đổi khi đánh quái xong quay lại
         Random.InitState(seed);
 
-        // 1. XÁC ĐỊNH KÍCH THƯỚC MAP THEO TẦNG
-        bool isBossFloor = (currentFloor == 5 || currentFloor == 10);
-        int width, height;
+        // 1. XÁC ĐỊNH KÍCH THƯỚC MAP THEO BẢNG CHUẨN CAN KIEM TRA (Width = 7 Cố Định)
+        bool isBoss = IsBossFloor(currentFloor);
+        FloorPreset preset = GetFloorPreset(currentFloor);
 
-        if (isBossFloor)
-        {
-            // Tầng Boss (5, 10): LUÔN 9x9
-            width = 9;
-            height = 9;
-        }
-        else if (currentFloor <= 3)
-        {
-            // Tầng 1-3: Hình chữ nhật, mỗi chiều từ 5 đến 7
-            width  = Random.Range(5, 8);  // 5, 6, hoặc 7
-            height = Random.Range(5, 8);  // 5, 6, hoặc 7
-        }
-        else
-        {
-            // Tầng 4+: Hình chữ nhật, mỗi chiều từ 6 đến 9
-            width  = Random.Range(6, 10); // 6, 7, 8, hoặc 9
-            height = Random.Range(6, 10);
-        }
+        int width = preset.width;
+        int height = preset.height;
+        TotalTiles = width * height;
+        CurrentFloorWidth = width;
+        CurrentFloorHeight = height;
 
-        // 2. Xóa sạch mọi thứ tàn dư của map cũ/vẽ tay
-        if (groundMap != null) groundMap.ClearAllTiles();
+        // 2. Xóa sạch mọi thứ tàn dư của map cũ/vẽ tay & Reset Grid về (0,0,0)
+        if (groundMap != null)
+        {
+            if (groundMap.layoutGrid != null) groundMap.layoutGrid.transform.position = Vector3.zero;
+            groundMap.ClearAllTiles();
+        }
         if (fogMap != null) fogMap.ClearAllTiles();
         if (enemyMap != null) enemyMap.ClearAllTiles();
         if (eventMap != null) eventMap.ClearAllTiles();
 
         List<Vector3Int> availableSlots = new List<Vector3Int>();
 
-        // 4. Fill Ground và Fog (Căn giữa map thay vì vẽ hết lên góc trên phải)
-        int startX = -width / 2;
-        int endX = width / 2;
-        int startY = -height / 2;
-        int endY = height / 2;
-
-        for (int x = startX; x <= endX; x++)
+        // 3. Fill Ground và Fog: Tọa độ từ (0, 0) đến (width-1, height-1)
+        for (int x = 0; x < width; x++)
         {
-            for (int y = startY; y <= endY; y++)
+            for (int y = 0; y < height; y++)
             {
                 Vector3Int pos = new Vector3Int(x, y, 0);
                 if (groundTile != null && groundMap != null) groundMap.SetTile(pos, groundTile);
@@ -117,72 +199,140 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
 
-        // 5. Đặt Player vào vị trí ngẫu nhiên
+        // Tự động tìm hoặc gắn DungeonCameraController nếu chưa có trong scene
+        DungeonCameraController camCtrl = DungeonCameraController.Instance;
+        if (camCtrl == null)
+        {
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                camCtrl = cam.GetComponent<DungeonCameraController>();
+                if (camCtrl == null) camCtrl = cam.gameObject.AddComponent<DungeonCameraController>();
+            }
+        }
+        if (camCtrl != null)
+        {
+            camCtrl.SetupFloorBounds(height);
+        }
+        else
+        {
+            // Fallback: tự căn giữa Camera.main về (3.5, 3.5, -10)
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                cam.orthographic = true;
+                cam.orthographicSize = 3.5f;
+                cam.transform.position = new Vector3(3.5f, 3.5f, -10f);
+            }
+        }
+
+        // 4. Đặt Player vào vị trí ngẫu nhiên
+        Vector3Int playerCellPos = Vector3Int.zero;
         if (availableSlots.Count > 0 && playerTransform != null && groundMap != null)
         {
             int pIndex = Random.Range(0, availableSlots.Count);
-            Vector3Int pPos = availableSlots[pIndex];
+            playerCellPos = availableSlots[pIndex];
             
             // PlayerMovement sẽ tự cập nhật currentCellPosition khi Start() chạy
-            playerTransform.position = groundMap.GetCellCenterWorld(pPos);
-            //Đặt cửa ngay dưới chân Player
+            playerTransform.position = groundMap.GetCellCenterWorld(playerCellPos);
+            
+            // Đặt cửa ngay dưới chân Player
             if (entryTileGen != null && eventMap != null)
             {
-                eventMap.SetTile(pPos, entryTileGen);
+                eventMap.SetTile(playerCellPos, entryTileGen);
             }
             availableSlots.RemoveAt(pIndex);
         }
 
-        // 6. HỆ THỐNG LỐI RA (Chỉ chọn 1 trong 2 loại)
+        // 5. HỆ THỐNG LỐI RA (Cửa Khóa vs Cửa Gỗ)
         bool hasLockedDoor = false;
 
-        // Đổ xúc xắc xem tầng này có dùng Cửa Khóa làm lối ra không
-        if (keyTileGen != null && lockedDoorTileGen != null && Random.Range(0f, 100f) <= lockedDoorChance && availableSlots.Count >= 2)
+        if (isBoss)
         {
-            // Sinh Chìa khóa
-            int kIndex = Random.Range(0, availableSlots.Count);
-            eventMap.SetTile(availableSlots[kIndex], keyTileGen);
-            availableSlots.RemoveAt(kIndex);
+            // === TẦNG BOSS: CỬA RA LUÔN LUÔN LÀ CỬA KHÓA, KHÔNG SINH CHÌA KHÓA NGẪU NHIÊN ===
+            if (lockedDoorTileGen != null && eventMap != null && availableSlots.Count > 0)
+            {
+                int dIndex = Random.Range(0, availableSlots.Count);
+                eventMap.SetTile(availableSlots[dIndex], lockedDoorTileGen);
+                availableSlots.RemoveAt(dIndex);
+                hasLockedDoor = true;
+                Debug.Log($"[DungeonGenerator] Tầng Boss {currentFloor}: Cửa Ra BẮT BUỘC là Cửa Khóa. Chìa khóa sẽ rơi ra khi tiêu diệt Boss!");
+            }
+        }
+        else
+        {
+            // === TẦNG THƯỜNG: Đổ xúc xắc xem tầng có dùng Cửa Khóa + Chìa Khóa ngẫu nhiên không ===
+            if (keyTileGen != null && lockedDoorTileGen != null && Random.Range(0f, 100f) <= lockedDoorChance && availableSlots.Count >= 2)
+            {
+                // Sinh Chìa khóa ngẫu nhiên
+                int kIndex = Random.Range(0, availableSlots.Count);
+                eventMap.SetTile(availableSlots[kIndex], keyTileGen);
+                availableSlots.RemoveAt(kIndex);
 
-            // Sinh Cửa bị khóa (Đây chính là lối ra của tầng này)
-            int dIndex = Random.Range(0, availableSlots.Count);
-            eventMap.SetTile(availableSlots[dIndex], lockedDoorTileGen);
-            availableSlots.RemoveAt(dIndex);
+                // Sinh Cửa bị khóa (Đây chính là lối ra của tầng này)
+                int dIndex = Random.Range(0, availableSlots.Count);
+                eventMap.SetTile(availableSlots[dIndex], lockedDoorTileGen);
+                availableSlots.RemoveAt(dIndex);
 
-            hasLockedDoor = true;
-            Debug.Log("Tầng này dùng Cửa Khóa làm lối ra!");
+                hasLockedDoor = true;
+                Debug.Log($"[DungeonGenerator] Tầng {currentFloor}: Sinh Cửa Khóa & Chìa Khóa ngẫu nhiên!");
+            }
         }
 
-        // Nếu xúc xắc xịt (không có cửa khóa), thì mới sinh Cửa gỗ mặc định
+        // Nếu không có cửa khóa (hoặc xúc xắc xịt), sinh Cửa Gỗ mặc định
         if (!hasLockedDoor && availableSlots.Count > 0 && exitTile != null && eventMap != null)
         {
             int eIndex = Random.Range(0, availableSlots.Count);
             Vector3Int exitPos = availableSlots[eIndex];
             eventMap.SetTile(exitPos, exitTile);
             availableSlots.RemoveAt(eIndex);
-            Debug.Log("Tầng này dùng Cửa Gỗ mặc định làm lối ra!");
+            Debug.Log($"[DungeonGenerator] Tầng {currentFloor}: Sinh Cửa Gỗ mặc định!");
         }
 
-        // 7. TÍNH SỐ LƯỢNG SPAWN DỰA TRÊN KÍCH THƯỚC MAP
-        GetSpawnCounts(isBossFloor, width, height, out int enemiesToSpawn, out int eventsToSpawn);
+        // 6. SỐ LƯỢNG SPAWN DỰA TRÊN BẢNG THIẾT KẾ CAN KIEM TRA
+        int enemiesToSpawn = preset.monsters;
+        int eventsToSpawn = preset.events;
 
-        // 8. Sinh Boss (chỉ tầng Boss)
-        if (isBossFloor && bossTiles.Count > 0 && enemyMap != null)
+        // 7. SINH BOSS (Chỉ tầng Boss - Luôn spawn ở ô xa Player nhất)
+        if (isBoss && availableSlots.Count > 0 && enemyMap != null)
         {
-            // Lựa chọn Boss Tile dựa trên Tầng
-            TileBase correctBossTile = bossTiles[0]; // Mặc định là Nhện
-            if (currentFloor == 10 && bossTiles.Count > 1) 
-                correctBossTile = bossTiles[1]; // Rồng
-                
-            // Sinh 1 tile Boss
-            int bIndex = Random.Range(0, availableSlots.Count);
-            Vector3Int bossPos = availableSlots[bIndex];
-            enemyMap.SetTile(bossPos, correctBossTile);
-            availableSlots.RemoveAt(bIndex);
-            Debug.Log($"CHÚ Ý: TẦNG BOSS ĐÃ XUẤT HIỆN! (Tầng {currentFloor})");
+            TileBase correctBossTile = GetCorrectBossTile(currentFloor);
+
+            if (correctBossTile != null)
+            {
+                // Thuật toán tìm ô xa Player nhất theo khoảng cách Manhattan
+                int furthestIndex = 0;
+                int maxDistance = -1;
+
+                for (int i = 0; i < availableSlots.Count; i++)
+                {
+                    Vector3Int slot = availableSlots[i];
+                    int dist = Mathf.Abs(slot.x - playerCellPos.x) + Mathf.Abs(slot.y - playerCellPos.y);
+                    if (dist > maxDistance)
+                    {
+                        maxDistance = dist;
+                        furthestIndex = i;
+                    }
+                }
+
+                Vector3Int bossPos = availableSlots[furthestIndex];
+                enemyMap.SetTile(bossPos, correctBossTile);
+                availableSlots.RemoveAt(furthestIndex);
+                Debug.Log($"[DungeonGenerator] CHÚ Ý: BOSS ĐÃ XUẤT HIỆN tại {bossPos} (Khoảng cách {maxDistance} từ Player) - Tầng {currentFloor}");
+            }
         }
 
-        // 9. Sinh Quái Vật thường (cả tầng Boss lẫn tầng thường đều có enemiesToSpawn quái)
+        // 8. SINH QUÁI TINH ANH (ELITE ENCOUNTER - Nếu trúng tầng Elite và không phải tầng Boss)
+        if (!isBoss && eliteEncounterFloors != null && eliteEncounterFloors.Contains(currentFloor) && eliteEnemyTile != null && availableSlots.Count > 0 && enemyMap != null)
+        {
+            int eliteIndex = Random.Range(0, availableSlots.Count);
+            Vector3Int elitePos = availableSlots[eliteIndex];
+            enemyMap.SetTile(elitePos, eliteEnemyTile);
+            availableSlots.RemoveAt(eliteIndex);
+            Debug.Log($"[DungeonGenerator] Ô Quái Tinh Anh (Elite) đã xuất hiện tại {elitePos} - Tầng {currentFloor}");
+        }
+
+        // 9. Sinh Quái Vật thường
         int spawnedEnemies = 0;
         for (int i = 0; i < enemiesToSpawn; i++)
         {
@@ -212,7 +362,6 @@ public class DungeonGenerator : MonoBehaviour
         int spawnedGold = 0;
         if (goldTile != null && eventMap != null)
         {
-            // Duyệt toàn bộ slot còn lại, mỗi slot có goldTileChance% xuất hiện
             List<Vector3Int> goldCandidates = new List<Vector3Int>(availableSlots);
             foreach (Vector3Int slot in goldCandidates)
             {
@@ -225,51 +374,46 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
 
-        string bossTag = isBossFloor ? " [BOSS FLOOR]" : "";
+        string bossTag = isBoss ? " [BOSS FLOOR]" : "";
         Debug.Log($"Sinh thành công Tầng {currentFloor}{bossTag} - Cỡ {width}x{height} | Quái: {spawnedEnemies} | Event: {spawnedEvents} | Ô Vàng: {spawnedGold}");
     }
 
-    /// <summary>
-    /// Tính số lượng quái và event cần spawn dựa trên kích thước map.
-    /// Ngưỡng tối thiểu: 3 quái, 2 event.
-    /// Tầng Boss (isBossFloor): 3 quái + 3 event (Boss tile được xử lý riêng).
-    /// </summary>
-    private void GetSpawnCounts(bool isBossFloor, int w, int h, out int enemies, out int events)
+    /// <summary>Lấy Tile của Boss tương ứng với tầng hiện tại.</summary>
+    private TileBase GetCorrectBossTile(int floor)
     {
-        // --- Tầng Boss: cố định ---
-        if (isBossFloor)
-        {
-            enemies = 3;
-            events  = 3;
-            return;
-        }
+        // 1. Tìm trong bossFloorConfigs
+        BossFloorConfig config = GetBossFloorConfig(floor);
+        if (config != null && config.bossTile != null)
+            return config.bossTile;
 
-        // --- Tầng thường: dựa vào diện tích ---
-        // Lấy chiều lớn hơn để phân loại nhóm kích thước
-        int maxDim = Mathf.Max(w, h);
-        int minDim = Mathf.Min(w, h);
+        // 2. Fallback sang enemyTiles nếu chưa có boss tile nào
+        if (enemyTiles != null && enemyTiles.Count > 0)
+            return enemyTiles[0];
 
-        if (maxDim <= 7)
-        {
-            // Map nhỏ: 5x5 → 7x7 (bao gồm 5x7, 6x7...)
-            enemies = 3;
-            events  = 2;
-        }
-        else if (maxDim == 8)
-        {
-            // Map vừa: 8x8, 7x8, 6x8...
-            enemies = 3;
-            events  = 3;
-        }
-        else
-        {
-            // Map lớn: 9x9, 8x9, 7x9...
-            enemies = 4;
-            events  = 3;
-        }
+        return null;
+    }
 
-        // Đảm bảo ngưỡng tối thiểu tuyệt đối
-        enemies = Mathf.Max(enemies, 3);
-        events  = Mathf.Max(events,  2);
+    /// <summary>
+    /// Tính số lượng quái và event cần spawn dựa trên kích thước map theo công thức:
+    /// - Ô đặc biệt = 20% tổng số ô (w * h)
+    /// - Quái thường = 60% ô đặc biệt (Tối thiểu 3, Tối đa Trần 9)
+    /// - Sự kiện = 40% ô đặc biệt (Tối thiểu 2, Tối đa Trần 6)
+    /// (Boss Tile và Elite Tile được cộng thêm riêng)
+    /// </summary>
+    private void GetSpawnCounts(bool isBossFloor, int currentFloor, int w, int h, out int enemies, out int events)
+    {
+        int totalTiles = w * h;
+        int specialTiles = Mathf.RoundToInt(totalTiles * 0.20f);
+
+        int calculatedEnemies = Mathf.RoundToInt(specialTiles * 0.60f);
+        int calculatedEvents  = Mathf.RoundToInt(specialTiles * 0.40f);
+
+        // Áp dụng giới hạn Sàn (Min) và Trần (Max Cap):
+        // Quái: 3 -> 9
+        // Event: 2 -> 6
+        enemies = Mathf.Clamp(calculatedEnemies, 3, 9);
+        events  = Mathf.Clamp(calculatedEvents,  2, 6);
     }
 }
+
+

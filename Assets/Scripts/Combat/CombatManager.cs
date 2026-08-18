@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +9,12 @@ using UnityEngine.EventSystems;
 public class CombatManager : MonoBehaviour
 {
     public static CombatManager Instance { get; private set; }
+
+    // [Test Data] Các biến này được phía Test SET vào
+    public static bool isTestMode = false;
+    public static string returnSceneName = "Dungeon";
+    public static GameObject[] overrideEnemyPrefabs = null;
+    public static bool autoWinCombat = false;
 
     // [Phase 3] Sinh quÃ¡i Ä‘Æ°á»£c quáº£n lÃ½ bá»Ÿi EncounterSpawner
     [Header("Encounter Spawner (Phase 3)")]
@@ -27,8 +33,9 @@ public class CombatManager : MonoBehaviour
 
     public List<EnemyStats> activeEnemies = new List<EnemyStats>();
 
-    // Proxy properties cho EncounterSpawner truy cáº­p targeting state
+    // Proxy properties cho EncounterSpawner truy cập targeting state
     public bool IsTargetingMode => Input != null ? Input.IsTargetingMode : false;
+    public EnemyStats CurrentTarget => Input != null ? Input.CurrentTarget : null;
     public void SetCurrentTarget(EnemyStats t) { if (Input != null) Input.SetTarget(t); }
 
     [Header("Há»‡ thá»‘ng ATB")]
@@ -70,9 +77,25 @@ public class CombatManager : MonoBehaviour
         isCombatPaused = false;
     }
 
+    private System.Collections.IEnumerator AutoWinAfterSpawn()
+    {
+        yield return new WaitForSeconds(0.1f); // Đợi ngắn để đảm bảo quái và UI đã khởi tạo đầy đủ
+        if (activeEnemies != null)
+        {
+            foreach (var enemy in activeEnemies)
+            {
+                if (enemy != null)
+                    enemy.currentHP = 0;
+            }
+            yield return null;
+            CheckBattleEnd();
+        }
+    }
+
     private void Awake()
     {
-        if (SceneManager.GetActiveScene().name != "Combat")
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName != "Combat" && sceneName != "TestCombat")
         {
             this.enabled = false;
             return;
@@ -88,22 +111,33 @@ public class CombatManager : MonoBehaviour
 
     void Start()
     {
-        // [Phase 2] Auto-tÃ¬m CombatUIManager náº¿u chÆ°a gÃ¡n
+        // [Phase 2] Auto-tìm CombatUIManager nếu chưa gán
         if (UI == null) UI = GetComponent<CombatUIManager>();
         if (UI == null) UI = gameObject.AddComponent<CombatUIManager>();
 
-        // [Phase 3] Auto-tÃ¬m EncounterSpawner náº¿u chÆ°a gÃ¡n
+        // [Phase 3] Auto-tìm EncounterSpawner nếu chưa gán
         if (Spawner == null) Spawner = GetComponent<EncounterSpawner>();
         if (Spawner == null) Spawner = gameObject.AddComponent<EncounterSpawner>();
 
-        Random.State oldState = Random.state;
-        int encounterSeed = PlayerMovement.currentMapSeed + (PlayerMovement.combatEnemyPosition.x * 37) + (PlayerMovement.combatEnemyPosition.y * 101);
-        Random.InitState(encounterSeed);
+        if (overrideEnemyPrefabs != null)
+        {
+            Spawner.RunOverrideEncounter(overrideEnemyPrefabs);
+            overrideEnemyPrefabs = null;
+        }
+        else if (returnSceneName == "TestDungeon" || !isTestMode)
+        {
+            Random.State oldState = Random.state;
+            int encounterSeed = PlayerMovement.currentMapSeed + (PlayerMovement.combatEnemyPosition.x * 37) + (PlayerMovement.combatEnemyPosition.y * 101);
+            Random.InitState(encounterSeed);
+            Spawner.RunEncounter();
+            Random.state = oldState;
+        }
 
-        Spawner.RunEncounter();
-
-        PlayerMovement.isBossFight = false;
-        Random.state = oldState;
+        if (autoWinCombat)
+        {
+            StartCoroutine(AutoWinAfterSpawn());
+            autoWinCombat = false;
+        }
 
         // [Phase 4] Auto-tÃ¬m CombatInputController náº¿u chÆ°a gÃ¡n
         if (Input == null) Input = GetComponent<CombatInputController>();
@@ -112,6 +146,10 @@ public class CombatManager : MonoBehaviour
         // [Phase 5] Auto-tÃ¬m SkillExecutor náº¿u chÆ°a gÃ¡n
         if (Executor == null) Executor = GetComponent<SkillExecutor>();
         if (Executor == null) Executor = gameObject.AddComponent<SkillExecutor>();
+
+        // [VFX] Auto-gắn UIShake & CombatVFX
+        if (UIShake.Instance == null) gameObject.AddComponent<UIShake>();
+        if (CombatVFX.Instance == null) gameObject.AddComponent<CombatVFX>();
 
         UI.Initialize();
         UI.UpdatePlayerUI();
@@ -199,7 +237,7 @@ public class CombatManager : MonoBehaviour
             if (readyUnit.currentHP <= 0) { isCombatPaused = false; return; }
 
             if (readyUnit == PlayerManager.Instance) PlayerTurn();
-            else EnemyTurn((EnemyStats)readyUnit);
+            else StartCoroutine(EnemyTurnCoroutine((EnemyStats)readyUnit));
         }
     }
 
@@ -243,7 +281,7 @@ public class CombatManager : MonoBehaviour
         return null;
     }
 
-    // â”€â”€â”€ [Phase 5] Public bridges cho SkillAction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── [Phase 5] Public bridges cho SkillAction ─────────────────────────
     public bool   CheckBattleEndPublic()              => CheckBattleEnd();
     public EnemyStats GetRandomAliveEnemyPublic()     => GetRandomAliveEnemy();
     public void   InvokeApplyOnHitEffects(EnemyStats t, float raw) => ApplyOnHitEffects(t, raw);
@@ -255,15 +293,22 @@ public class CombatManager : MonoBehaviour
     {
         if (activeEnemies == null || activeEnemies.Count == 0) return false;
 
-        // â”€â”€ Sinh ÄÃ n check: trÆ°á»›c khi káº¿t luáº­n allDead â”€â”€
+        // ── Sinh Đàn check: trước khi kết luận allDead ──
         if (BossPassiveManager.Instance != null && BossPassiveManager.Instance.CheckSpawnOnAllyDeath(this))
         {
-            // [Phase 3] DÃ¹ng Spawner Ä‘á»ƒ spawn Nhá»‡n Hang thay tháº¿
-            GameObject nhenHangPrefab = Spawner?.FindNormalPrefabByName("nhenhang");
-            if (nhenHangPrefab != null)
+            BossFloorConfig config = Spawner?.GetBossFloorConfig(PlayerMovement.currentFloor);
+            GameObject summonPrefab = (config != null && config.summonOnAlliesDeadPrefab != null)
+                ? config.summonOnAlliesDeadPrefab
+                : Spawner?.FindNormalPrefabByName("nhenhang");
+
+            if (summonPrefab == null)
+                summonPrefab = Spawner?.FindNormalPrefabByName("nhen");
+
+            if (summonPrefab != null && Spawner != null)
             {
-                Spawner.SpawnSpecificEnemy(nhenHangPrefab);
-                Spawner.SpawnSpecificEnemy(nhenHangPrefab);
+                Spawner.SpawnBossSinhDanMinions(summonPrefab);
+                if (FloatingTextManager.Instance != null)
+                    FloatingTextManager.Instance.SpawnText(Vector3.zero, "🕷️ Sinh Đàn: Triệu hồi 2 Quái Con!", Color.red);
             }
             return false;
         }
@@ -277,12 +322,15 @@ public class CombatManager : MonoBehaviour
             isCombatPaused = true;
             earnedExp = 0;
             earnedGold = 0;
+            int killedThisBattle = 0;
             foreach (var enemy in activeEnemies)
             {
+                if (enemy == null) continue;
                 earnedExp += enemy.expDrop;
                 earnedGold += enemy.goldDrop;
+                killedThisBattle++;
                 
-                // Cáº­p nháº­t sá»‘ lÆ°á»£ng quÃ¡i diá»‡t Ä‘Æ°á»£c cho há»‡ thá»‘ng Nhiá»‡m Vá»¥ Guild
+                // Cập nhật số lượng quái diệt được cho hệ thống Nhiệm Vụ Guild
                 if (PlayerManager.Instance != null)
                 {
                     string mName = enemy.enemyName;
@@ -291,6 +339,8 @@ public class CombatManager : MonoBehaviour
                     PlayerManager.Instance.killedMonsters[mName]++;
                 }
             }
+
+            PlayerMovement.floorMonstersKilled += killedThisBattle;
 
             UI.ShowVictoryPanel(earnedExp, earnedGold);
             if (UI.victoryPanel == null) OnVictoryContinueButton();
@@ -303,7 +353,7 @@ public class CombatManager : MonoBehaviour
     {
         if (PlayerManager.Instance != null)
         {
-            BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // XÃ³a buff khi tháº¯ng
+            BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // Xóa buff khi thắng
             PlayerManager.Instance.AddExp(earnedExp);
             PlayerManager.Instance.gold += earnedGold;
             // Track floor gold/EXP earned for death penalty
@@ -311,7 +361,14 @@ public class CombatManager : MonoBehaviour
             PlayerMovement.floorExpEarned  += earnedExp;
         }
         PlayerMovement.defeatedEnemiesTiles.Add(PlayerMovement.combatEnemyPosition);
-        SceneManager.LoadScene("Dungeon");
+        PlayerMovement.wasBossFight = PlayerMovement.isBossFight;
+        PlayerMovement.isBossFight = false;
+        PlayerMovement.isEliteFight = false;
+
+        string target = returnSceneName;
+        returnSceneName = "Dungeon";
+        SaveSystem.Instance?.Save(); // Lưu lại tiến trình ngay sau khi diệt quái
+        SceneManager.LoadScene(target);
     }
 
     void UpdatePlayerUI() => UI.UpdatePlayerUI();
@@ -326,43 +383,78 @@ public class CombatManager : MonoBehaviour
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
     }
 
-    void EnemyTurn(EnemyStats attacker)
+    // [MỤC 10] Chuyển sang Coroutine để hỗ trợ flash effect và pacing dừng nghỉ
+    IEnumerator EnemyTurnCoroutine(EnemyStats attacker)
     {
         bool isBoss = attacker.hasEnrageOnLowHP || attacker.hasRoarPassive ||
                       attacker.hasPassivePoison || attacker.hasSpawnOnAllyDeath;
 
-        // â”€â”€ Boss Passives: Enrage + Roar (trÆ°á»›c khi hÃ nh Ä‘á»™ng) â”€â”€
+        // ── Boss Passives: Enrage + Roar (trước khi hành động) ──
         if (isBoss)
         {
             BossPassiveManager.Instance?.CheckAllBossPassives(attacker);
             BossPassiveManager.Instance?.IncrementBossTurnCounter(attacker);
         }
 
+        bool hasBocGiap = BuffManager.Instance != null && BuffManager.Instance.HasBuff(attacker, BuffType.BocGiap);
+
+        if (hasBocGiap)
+        {
+            // Trong 3 lượt Bọc Giáp, Tê Tê KHÔNG tấn công người chơi.
+            // Số lượt Bọc Giáp đã được ProcessUnitTurnTick() tự động giảm 1 lượt khi bắt đầu lượt này.
+            UI.UpdatePlayerUI();
+            CheckPlayerDeath();
+
+            attacker.currentAP -= maxAP;
+            if (playerWaitTurns > 0) playerWaitTurns--;
+
+            isCombatPaused = false;
+            yield break;
+        }
+
         if (attacker.currentCooldown > 0) attacker.currentCooldown--;
 
-        // Hiá»‡n cáº£nh bÃ¡o TRÆ¯á»šC 1 LÆ¯á»¢T khi boss chuáº©n bá»‹ tung chiÃªu (CD == 1)
-        if (isBoss && attacker.maxCooldown > 0 && attacker.currentCooldown == 1
-            && !string.IsNullOrEmpty(attacker.bossSkillWarningText))
-            UI.ShowBossWarning(attacker.bossSkillWarningText);
+        // Tìm EnemyUI tương ứng với attacker để điều khiển bong bóng cảnh báo và flash
+        EnemyUI enemyUI = null;
+        if (UI != null)
+        {
+            foreach (var eUI in Object.FindObjectsByType<EnemyUI>(FindObjectsSortMode.None))
+            {
+                if (eUI.stats == attacker) { enemyUI = eUI; break; }
+            }
+        }
+
+        // Hiển thị bong bóng cảnh báo TRƯỚC 1 LƯỢT (currentCooldown == 1)
+        if (attacker.maxCooldown > 0 && attacker.currentCooldown == 1)
+        {
+            if (enemyUI != null)
+                enemyUI.SetSkillWarning(true, attacker.skillIcon);
+        }
+
+        // [MỤC 10] Hiệu ứng sáng lóe khi kẻ thù tấn công
+        if (enemyUI != null)
+            yield return StartCoroutine(enemyUI.FlashAttack());
 
         bool usedSkill = false;
-        if (attacker.maxCooldown > 0 && attacker.currentCooldown == 0)
+        if (attacker.maxCooldown > 0 && attacker.currentCooldown <= 0)
         {
-            // Boss luÃ´n dÃ¹ng skill 100%; quÃ¡i thÆ°á»ng 70%
-            float skillChance = isBoss ? 100f : 70f;
-            if (Random.Range(0f, 100f) <= skillChance)
-            {
-                // KhÃ´ng hiá»‡n cáº£nh bÃ¡o á»Ÿ Ä‘Ã¢y ná»¯a (cáº£nh bÃ¡o Ä‘Ã£ hiá»‡n lÆ°á»£t trÆ°á»›c)
-                ExecuteEnemySkill(attacker);
-                usedSkill = true;
-            }
-            else attacker.currentCooldown = attacker.maxCooldown;
+            // Ẩn bong bóng cảnh báo khi quái tung chiêu
+            if (enemyUI != null)
+                enemyUI.SetSkillWarning(false);
+
+            // Kích hoạt skill 100% cho cả quái thường và Boss
+            ExecuteEnemySkill(attacker);
+            usedSkill = true;
+            attacker.currentCooldown = attacker.maxCooldown;
         }
 
         if (!usedSkill) ExecuteEnemyNormalAttack(attacker);
 
         UI.UpdatePlayerUI();
         CheckPlayerDeath();
+
+        // [MỤC 10] Nhịp độ combat: Dừng/chờ nhẹ một khoảng ngắn trước khi chuyển sang lượt tiếp theo
+        yield return new WaitForSeconds(0.25f);
 
         attacker.currentAP -= maxAP;
         if (playerWaitTurns > 0) playerWaitTurns--;
@@ -403,13 +495,18 @@ public class CombatManager : MonoBehaviour
         else UI.ToggleEnemyInfo(clickedEnemy, false);
     }
 
-    // [Phase 2] MoveArrowToTarget Ä‘Ã£ chuyá»ƒn vÃ o CombatUIManager.
+    // [Phase 2] MoveArrowToTarget đã chuyển vào CombatUIManager.
 
     private void ExecutePlayerAttack(EnemyStats target)
     {
+        StartCoroutine(ExecutePlayerAttackRoutine(target));
+    }
+
+    private IEnumerator ExecutePlayerAttackRoutine(EnemyStats target)
+    {
         Input?.ResetTargeting();
 
-        // [Phase 1] Gá»i CombatCalculator thay vÃ¬ tá»± tÃ­nh
+        // [Phase 1] Gọi CombatCalculator thay vì tự tính
         var result = CombatCalculator.CalculateNormalAttack(PlayerManager.Instance, target);
 
         if (result.missed)
@@ -418,21 +515,33 @@ public class CombatManager : MonoBehaviour
         }
         else
         {
-            target.currentHP -= result.finalDamage;
-            if (target.currentHP < 0) target.currentHP = 0;
+            // Gọi TakeDamage để EnemyStats tự xử lý giảm HP, phản sát thương Bọc Giáp & giảm lượt buff do bị đánh
+            target.TakeDamage(result.rawDamage, false, false);
 
             Color dmgColor = result.isCrit ? Color.yellow : Color.white;
             Transform targetTransform = UI.GetEnemyUITransform(target);
             FloatingTextManager.Instance?.SpawnText(targetTransform.position, result.finalDamage.ToString(), dmgColor);
 
+            // [VFX] Hiệu ứng chém tại vị trí quái khi đánh thường
+            RectTransform targetUI = targetTransform as RectTransform;
+            if (CombatVFX.Instance != null && targetUI != null)
+                CombatVFX.Instance.PlayVFX(VFXType.SlashNormal, targetUI);
+
+            // [Hiệu ứng Trúng Đòn] Cho quái nháy đỏ nhạt khi bị Player đánh trúng (như Darkest Dungeon)
+            EnemyUI eUI = targetUI != null ? targetUI.GetComponentInParent<EnemyUI>() : null;
+            if (eUI != null) eUI.FlashHit();
+
             ApplyOnHitEffects(target, result.rawDamage);
         }
 
-        // Countdown duration debuff vÃ  buff (chá»‰ khi Attack, khÃ´ng khi dÃ¹ng Ä‘á»“)
+        // [MỤC 10] Chờ hoạt ảnh chém của Player hoàn tất trước khi nhường lượt cho kẻ thù
+        yield return new WaitForSeconds(0.35f);
+
+        // Countdown duration debuff và buff (chỉ khi Attack, không khi dùng đồ)
         DebuffManager.Instance?.ProcessTurnDurationTick(PlayerManager.Instance);
         BuffManager.Instance?.ProcessUnitTurnTick(PlayerManager.Instance);
 
-        playerTurnDamageTicked = false; // Reset cho lÆ°á»£t tiáº¿p theo
+        playerTurnDamageTicked = false; // Reset cho lượt tiếp theo
         PlayerManager.Instance.currentAP -= maxAP;
         TickDownSkillCooldowns();
         isCombatPaused = false;
@@ -443,19 +552,14 @@ public class CombatManager : MonoBehaviour
         UI.ShowActionMenu(false);
         PlayerManager.Instance.isDefending = true;
 
-        // Hiá»ƒn thá»‹ icon PhÃ²ng Thá»§: DEFâ†‘ vÃ  EVAâ†‘ trong 1 lÆ°á»£t
-        // value=0 vÃ¬ isDefending flag Ä‘Ã£ xá»­ lÃ½ bonus DEF/EVA thá»±c táº¿
+        // Thêm Buff DEF_Up (giảm 50% DMG nhận vào + 1 DEF) và EVA_Up (+25% né) duy trì trong 2 lượt
         if (BuffManager.Instance != null)
         {
-            BuffManager.Instance.AddBuff(PlayerManager.Instance, BuffType.DEF_Up, 0f, 1, 1);
-            BuffManager.Instance.AddBuff(PlayerManager.Instance, BuffType.EVA_Up, 0f, 1, 1);
+            BuffManager.Instance.AddBuff(PlayerManager.Instance, BuffType.DEF_Up, 0.5f, 2, 1);
+            BuffManager.Instance.AddBuff(PlayerManager.Instance, BuffType.EVA_Up, 25f, 2, 1);
         }
 
-        // Countdown duration debuff vÃ  buff (chá»‰ khi Defend, khÃ´ng khi dÃ¹ng Ä‘á»“)
-        DebuffManager.Instance?.ProcessTurnDurationTick(PlayerManager.Instance);
-        BuffManager.Instance?.ProcessUnitTurnTick(PlayerManager.Instance);
-
-        playerTurnDamageTicked = false; // Reset cho lÆ°á»£t tiáº¿p theo
+        playerTurnDamageTicked = false;
         PlayerManager.Instance.currentAP -= maxAP;
         TickDownSkillCooldowns();
         isCombatPaused = false;
@@ -471,11 +575,16 @@ public class CombatManager : MonoBehaviour
         if (Random.Range(0f, 100f) <= fleeChance)
         {
             PlayerMovement.isReturningFromCombat = true;
-            SceneManager.LoadScene("Dungeon");
+            PlayerMovement.isBossFight = false;
+            PlayerMovement.isEliteFight = false;
+            PlayerMovement.wasBossFight = false;
+            string target = returnSceneName;
+            returnSceneName = "Dungeon";
+            SceneManager.LoadScene(target);
         }
         else
         {
-            UI.ShowFloatingText("Cháº¡y tháº¥t báº¡i!", Color.red);
+            UI.ShowFloatingText("Chạy thất bại!", Color.red);
             PlayerManager.Instance.currentAP = 0;
             playerWaitTurns = 0;
             foreach (var e in activeEnemies) if (e.currentHP > 0) playerWaitTurns++;
@@ -483,7 +592,7 @@ public class CombatManager : MonoBehaviour
         }
     }
 
-    // [Phase 2] ToggleEnemyInfo Ä‘Ã£ chuyá»ƒn vÃ o CombatUIManager.
+    // [Phase 2] ToggleEnemyInfo đã chuyển vào CombatUIManager.
 
     void ExecuteEnemyNormalAttack(EnemyStats attacker)
     {
@@ -495,7 +604,25 @@ public class CombatManager : MonoBehaviour
         Color dmgColor = result.isCrit ? Color.yellow : Color.white;
         FloatingTextManager.Instance?.SpawnText(UI.GetPlayerHPBarTransform().position, result.displayDamage.ToString(), dmgColor);
 
+        // [FlashHit] PlayerIcon chớp đỏ khi bị quái đánh trúng
+        UI?.FlashPlayerHit();
+
+        // [VFX] Hiệu ứng trúng đòn mạnh CHỈ xuất hiện khi bị đánh Chí Mạng (Crit)
+        if (result.isCrit)
+        {
+            RectTransform playerUI = UI?.GetPlayerIconTransform() as RectTransform;
+            if (CombatVFX.Instance != null && playerUI != null)
+                CombatVFX.Instance.PlayVFX(VFXType.HitHeavy, playerUI);
+        }
+
         if (result.isCrit && UnityEngine.Random.Range(0f, 100f) <= 12f) PlayerManager.Instance.ReduceSanity(1);
+        // [VFX] Rung màn hình khi bị quái đánh (đòn thường rung nhẹ 10f, crit rung mạnh 20f)
+        if (UIShake.Instance != null)
+        {
+            float mag = result.isCrit ? 20f : 10f;
+            UIShake.Instance.Shake(0.2f, mag);
+        }
+
         BossPassiveManager.Instance?.ApplyPassiveEffects(attacker);
     }
 
@@ -505,10 +632,10 @@ public class CombatManager : MonoBehaviour
         if (Executor != null)
         {
             bool isAsync = Executor.RunEnemySkill(attacker.skillID, attacker);
-            // Async skills (FlameBreath) tá»± giáº£i phÃ³ng isCombatPaused qua coroutine
+            // Async skills (FlameBreath) tự giải phóng isCombatPaused qua coroutine
             return;
         }
-        // Fallback náº¿u Executor chÆ°a sáºµn (khÃ´ng nÃªn xáº£y ra)
+        // Fallback nếu Executor chưa sẵn (không nên xảy ra)
         ExecuteEnemyNormalAttack(attacker);
     }
 
@@ -524,10 +651,23 @@ public class CombatManager : MonoBehaviour
 
     public void OnDeathReturnTown()
     {
-        BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // XÃ³a buff khi thua
+        BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // Xóa buff khi thua
+        if (returnSceneName == "TestDungeon" || returnSceneName == "TestCombat")
+        {
+            PlayerManager.Instance.UpdateMaxHP();
+            PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+            PlayerManager.Instance.sen = PlayerManager.Instance.maxSen;
+            PlayerManager.Instance.food = PlayerManager.Instance.maxFood;
+            PlayerManager.Instance.RestoreSanityCollapse();
+            string target = returnSceneName;
+            returnSceneName = "Dungeon";
+            SceneManager.LoadScene(target);
+            return;
+        }
+
         // Apply death penalty: lose half gold & EXP earned this floor
         PlayerMovement.ApplyDeathPenalty();
-        // Há»“i full HP, SEN giá»¯ nguyÃªn
+        // Hồi full HP, SEN giữ nguyên
         PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
         DeathContext.Pending = DeathContext.DeathType.CombatDeath;
         SaveSystem.Instance?.Save();
@@ -536,10 +676,23 @@ public class CombatManager : MonoBehaviour
 
     public void OnMadnessReturnTown()
     {
-        BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // XÃ³a buff khi thua
+        BuffManager.Instance?.ClearAllBuffs(PlayerManager.Instance); // Xóa buff khi thua
+        if (returnSceneName == "TestDungeon" || returnSceneName == "TestCombat")
+        {
+            PlayerManager.Instance.UpdateMaxHP();
+            PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+            PlayerManager.Instance.sen = PlayerManager.Instance.maxSen;
+            PlayerManager.Instance.food = PlayerManager.Instance.maxFood;
+            PlayerManager.Instance.RestoreSanityCollapse();
+            string target = returnSceneName;
+            returnSceneName = "Dungeon";
+            SceneManager.LoadScene(target);
+            return;
+        }
+
         // Apply death penalty: lose half gold & EXP earned this floor
         PlayerMovement.ApplyDeathPenalty();
-        // HP giá»¯ nguyÃªn nhÆ° lÃºc á»Ÿ trong combat, SEN = 2
+        // HP giữ nguyên như lúc ở trong combat, SEN = 2
         PlayerManager.Instance.sen = 2;
         DeathContext.Pending = DeathContext.DeathType.CombatMadness;
         SaveSystem.Instance?.Save();
@@ -569,12 +722,17 @@ public class CombatManager : MonoBehaviour
 
         if (result.missed) { UI.ShowMissText(target); return; }
 
-        target.currentHP -= result.finalDamage;
-        if (target.currentHP < 0) target.currentHP = 0;
+        // Gọi TakeDamage để EnemyStats tự xử lý giảm HP, phản sát thương Bọc Giáp & giảm lượt buff do bị đánh
+        target.TakeDamage(result.rawDamage, false, false);
 
         Color dmgColor = result.isCrit ? Color.yellow : Color.white;
         Transform targetTransform = UI.GetEnemyUITransform(target);
         FloatingTextManager.Instance?.SpawnText(targetTransform.position, result.finalDamage.ToString(), dmgColor);
+
+        // [VFX] Hiệu ứng chém tại vị trí quái
+        RectTransform targetUI = targetTransform as RectTransform;
+        if (CombatVFX.Instance != null && targetUI != null)
+            CombatVFX.Instance.PlayVFX(VFXType.SlashNormal, targetUI);
 
         if (result.isCrit) BossPassiveManager.Instance?.OnPlayerCritHit(target);
         if (triggerOnHit) ApplyOnHitEffects(target, result.rawDamage);
@@ -643,9 +801,17 @@ public class CombatManager : MonoBehaviour
         if (!isAsync) FinishPlayerTurnAfterSkill();
     }
 
-    /// <summary>[Phase 5] HoÃ n táº¥t lÆ°á»£t player sau khi skill Ä‘á»“ng bá»™ káº¿t thÃºc.</summary>
+    /// <summary>[Phase 5] Hoàn tất lượt player sau khi skill đồng bộ kết thúc.</summary>
     public void FinishPlayerTurnAfterSkill()
     {
+        StartCoroutine(FinishPlayerTurnRoutine());
+    }
+
+    private IEnumerator FinishPlayerTurnRoutine()
+    {
+        // [MỤC 10] Chờ hoạt ảnh kỹ năng của Player hoàn tất trước khi nhường lượt cho kẻ thù
+        yield return new WaitForSeconds(0.35f);
+
         DebuffManager.Instance?.ProcessTurnDurationTick(PlayerManager.Instance);
         BuffManager.Instance?.ProcessUnitTurnTick(PlayerManager.Instance);
         playerTurnDamageTicked = false;

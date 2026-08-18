@@ -59,14 +59,17 @@ public class BossPassiveManager : MonoBehaviour
         {
             boss.roarTurnCounter = 0;
 
-            // 30% Stun player 1 lượt
-            if (Random.Range(0f, 100f) <= 30f)
+            // 80% Stun player 1 lượt
+            if (Random.Range(0f, 100f) <= 80f)
             {
                 DebuffManager.Instance?.AddDebuff(PlayerManager.Instance, DebuffType.Stun, 1);
                 Debug.Log("[BossPassive] TIẾNG RỒNG SUY NHƯỢC! Player bị Stun 1 lượt.");
 
                 if (FloatingTextManager.Instance != null && CombatManager.Instance?.UI != null)
-                    FloatingTextManager.Instance.SpawnText(CombatManager.Instance.UI.GetPlayerHPBarTransform().position, "💀 TIẾNG RỒNG! Stun!", Color.magenta);
+                {
+                    Vector3 pPos = CombatManager.Instance.UI.GetPlayerHPBarTransform()?.position ?? Vector3.zero;
+                    FloatingTextManager.Instance.SpawnText(pPos, "💀 TIẾNG RỒNG! Stun!", Color.magenta);
+                }
             }
         }
     }

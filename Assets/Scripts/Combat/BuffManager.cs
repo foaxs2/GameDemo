@@ -18,10 +18,11 @@ public class BuffManager : MonoBehaviour
 
     // ─── ADD ─────────────────────────────────────────────────────────────
 
-    /// <summary>Thêm buff thông thường. Nếu đã có cùng loại → stack + refresh duration.</summary>
+    /// <summary>Thêm buff thông thường. Nếu đã có cùng loại → stack + refresh duration. Giới hạn tối đa là 3 stacks.</summary>
     public void AddBuff(Unit target, BuffType type, float value, int duration, int maxStacks = 3)
     {
         if (target == null) return;
+        maxStacks = Mathf.Min(3, maxStacks);
         BuffInstance existing = GetBuff(target, type);
         if (existing != null)
         {
@@ -72,6 +73,26 @@ public class BuffManager : MonoBehaviour
 
     // ─── TICK ────────────────────────────────────────────────────────────
 
+    /// <summary>Trừ 1 lượt của 1 loại buff cụ thể (dùng khi bị đánh hoặc xả stack).</summary>
+    public void ConsumeBuffTurn(Unit target, BuffType type)
+    {
+        if (target == null) return;
+        int idx = target.buffs.FindIndex(b => b.Type == type);
+        if (idx >= 0)
+        {
+            target.buffs[idx].RemainingTurns--;
+            if (target.buffs[idx].RemainingTurns <= 0)
+            {
+                target.buffs.RemoveAt(idx);
+                OnBuffRemoved?.Invoke(target, type);
+            }
+            else
+            {
+                OnBuffTick?.Invoke(target, type);
+            }
+        }
+    }
+
     /// <summary>Gọi khi unit bắt đầu lượt hành động. Trừ 1 lượt, xóa khi hết.</summary>
     public void ProcessUnitTurnTick(Unit unit)
     {
@@ -105,11 +126,12 @@ public class BuffManager : MonoBehaviour
 
     public bool HasBuff(Unit target, BuffType type) => GetBuff(target, type) != null;
 
-    /// <summary>Trả về value × stacks (0 nếu không có buff).</summary>
+    /// <summary>Trả về tổng giá trị buff dựa trên số stacks (tầng 1-2 cộng dồn tuyến tính, từ tầng 3 trở đi cộng thêm gấp đôi giá trị gốc).</summary>
     public float GetBuffValue(Unit target, BuffType type)
     {
         var b = GetBuff(target, type);
-        return b != null ? b.Value * b.Stacks : 0f;
+        if (b == null) return 0f;
+        return b.Stacks <= 2 ? b.Value * b.Stacks : b.Value * 2 * (b.Stacks - 1);
     }
 
     public int GetBuffStacks(Unit target, BuffType type)

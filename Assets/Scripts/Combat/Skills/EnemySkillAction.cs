@@ -20,10 +20,24 @@ public abstract class EnemySkillAction
 
     public virtual bool IsAsync => false;
 
-    /// <summary>Gây sát thương lên player.</summary>
-    protected void DealToPlayer(float rawDamage, bool trueDmg = false, bool canCrit = false)
+    /// <summary>Gây sát thương lên player kèm VFX/Shake.</summary>
+    protected void DealToPlayer(float rawDamage, bool trueDmg = false, bool canCrit = false,
+                                 VFXType vfxType = VFXType.HitHeavy,
+                                 float shakeMagnitude = 0f, float shakeDuration = 0.2f)
     {
         Player?.TakeDamage(rawDamage, trueDmg, canCrit);
+
+        // [FlashHit] PlayerIcon chớp đỏ khi bị dính kỹ năng
+        UI?.FlashPlayerHit();
+
+        // [VFX] Hiệu ứng kỹ năng trúng đòn tại vị trí PlayerIcon
+        RectTransform playerUI = UI?.GetPlayerIconTransform() as RectTransform;
+        if (CombatVFX.Instance != null && playerUI != null)
+            CombatVFX.Instance.PlayVFX(vfxType, playerUI);
+
+        // [VFX] Rung màn hình — mặc định 0f = không rung
+        if (shakeMagnitude > 0f && UIShake.Instance != null)
+            UIShake.Instance.Shake(shakeDuration, shakeMagnitude);
     }
 
     /// <summary>Hiện floating text tại vị trí HP bar của player.</summary>

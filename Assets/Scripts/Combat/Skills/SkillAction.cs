@@ -47,9 +47,12 @@ public abstract class SkillAction
 
     // ─── Common helpers cho subclass ─────────────────────────────────────────
 
-    /// <summary>Gây sát thương cho kẻ thù và hiện FloatingText.</summary>
+    /// <summary>Gây sát thương cho kẻ thù và hiện FloatingText kèm VFX/Shake và góc xoay VFX.</summary>
     protected void DealToEnemy(EnemyStats target, float multiplier, float flatDmg,
-                               float extraCritChance = 0f, bool triggerOnHit = true)
+                               float extraCritChance = 0f, bool triggerOnHit = true,
+                               VFXType vfxType = VFXType.SlashNormal,
+                               float shakeMagnitude = 0f, float shakeDuration = 0.15f,
+                               float vfxAngle = 0f)
     {
         if (target == null || target.currentHP <= 0) return;
 
@@ -58,24 +61,51 @@ public abstract class SkillAction
 
         if (result.missed) { UI?.ShowMissText(target); return; }
 
-        target.currentHP -= result.finalDamage;
-        if (target.currentHP < 0) target.currentHP = 0;
+        // Gọi TakeDamage để EnemyStats tự xử lý giảm HP, phản sát thương Bọc Giáp & giảm lượt buff do bị đánh
+        target.TakeDamage(result.rawDamage, false, false);
 
         Color col = result.isCrit ? Color.yellow : Color.white;
         Transform tf = UI?.GetEnemyUITransform(target);
         FTM?.SpawnText(tf != null ? tf.position : Vector3.zero,
                        result.finalDamage.ToString(), col);
 
+        // [VFX] Hiệu ứng tại vị trí quái — loại VFX và góc xoay do nơi gọi quyết định
+        RectTransform targetUI = tf as RectTransform;
+        if (CombatVFX.Instance != null && targetUI != null)
+            CombatVFX.Instance.PlayVFX(vfxType, targetUI, vfxAngle);
+
+        // [FlashHit] Kẻ địch trúng đòn hiển thị lớp ánh sáng đỏ nhạt
+        EnemyUI enemyUI = targetUI != null ? targetUI.GetComponentInParent<EnemyUI>() : null;
+        if (enemyUI != null) enemyUI.FlashHit();
+
+        // [VFX] Rung màn hình — chỉ kích hoạt nếu shakeMagnitude > 0
+        if (shakeMagnitude > 0f && UIShake.Instance != null)
+            UIShake.Instance.Shake(shakeDuration, shakeMagnitude);
+
         if (result.isCrit) BossPassiveManager.Instance?.OnPlayerCritHit(target);
         if (triggerOnHit)  CM?.InvokeApplyOnHitEffects(target, result.rawDamage);
     }
 
-    /// <summary>Gây sát thương lên player và hiện FloatingText.</summary>
-    protected void DealToPlayer(float rawDamage, bool trueDamage = false, bool canCrit = false)
+    /// <summary>Gây sát thương lên player và hiện FloatingText kèm VFX/Shake.</summary>
+    protected void DealToPlayer(float rawDamage, bool trueDamage = false, bool canCrit = false,
+                                 VFXType vfxType = VFXType.HitHeavy,
+                                 float shakeMagnitude = 0f, float shakeDuration = 0.2f)
     {
         Player?.TakeDamage(rawDamage, trueDamage, canCrit);
         FTM?.SpawnText(UI?.GetPlayerHPBarTransform()?.position ?? Vector3.zero,
                        rawDamage.ToString(), Color.white);
+
+        // [FlashHit] PlayerIcon chớp đỏ khi bị dính kỹ năng
+        UI?.FlashPlayerHit();
+
+        // [VFX] Hiệu ứng kỹ năng trúng đòn tại vị trí PlayerIcon
+        RectTransform playerUI = UI?.GetPlayerIconTransform() as RectTransform;
+        if (CombatVFX.Instance != null && playerUI != null)
+            CombatVFX.Instance.PlayVFX(vfxType, playerUI);
+
+        // [VFX] Rung màn hình — mặc định 0f = không rung
+        if (shakeMagnitude > 0f && UIShake.Instance != null)
+            UIShake.Instance.Shake(shakeDuration, shakeMagnitude);
     }
 
     /// <summary>Gọi sau khi skill đồng bộ hoàn tất.</summary>

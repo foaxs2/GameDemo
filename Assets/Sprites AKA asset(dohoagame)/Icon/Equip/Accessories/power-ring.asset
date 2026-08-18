@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: power-ring
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: power-ring
+  description: "Nh\u1EABn t\u0103ng s\u1EE9c m\u1EA1nh\n"
+  itemType: 1
+  icon: {fileID: 3423430382353770276, guid: 3f9d8974e01f4424bb493c6f6e82bef5, type: 3}
+  buyPrice: 250
+  sellPrice: 70
+  canBeSold: 1
+  consumableType: 0
+  healAmount: 0
+  foodRestoreAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  coatingType: 0
+  coatingChance: 0
+  equipmentSlot: 2
+  damageBonus: 5
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

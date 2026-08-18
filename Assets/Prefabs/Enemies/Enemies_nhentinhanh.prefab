@@ -69,8 +69,8 @@ MonoBehaviour:
   skillName: "G\u1ECDi \u0111\xE0n"
   skillDescription: "G\u1ECDi th\xEAm 1 c\xE1 th\u1EC3 nh\u1EC7n hang chi\u1EBFn
     \u0111\u1EA5u c\xF9ng"
-  maxCooldown: 5
-  initialCooldown: 2
+  skillIcon: {fileID: -3551646705651467984, guid: 27ab64fc9d0c3aa45b078b2593815925, type: 3}
+  maxCooldown: 4
   currentCooldown: 0
   healAmount: 15
   goldDrop: 16
@@ -109,4 +109,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   hpBar: {fileID: 0}
   apBar: {fileID: 0}
+  warningBubble: {fileID: 0}
   unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

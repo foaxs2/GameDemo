@@ -69,8 +69,8 @@ MonoBehaviour:
   skillDescription: "N\u1EEF v\u01B0\u01A1ng vung chi\u1EBFc ch\xE2n s\u1EAFc nh\u01B0
     dao c\u1EA1o, x\xE9 to\u1EA1c h\xE0ng ph\xF2ng ng\u1EF1 c\u1EE7a m\u1EE5c ti\xEAu.
     G\xE2y m\u1ED9t \u0111\xF2n t\u1EA5n c\xF4ng n\u1EB7ng n\u1EC1"
-  maxCooldown: 5
-  initialCooldown: 3
+  skillIcon: {fileID: 5949491713409113250, guid: f54fd1875e18e454da8136a5965243e2, type: 3}
+  maxCooldown: 3
   currentCooldown: 0
   healAmount: 15
   goldDrop: 350

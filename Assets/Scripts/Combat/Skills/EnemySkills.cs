@@ -33,9 +33,9 @@ public class ESkill_Bloodsuck : EnemySkillAction
     public override void Execute(EnemyStats attacker)
     {
         attacker.currentCooldown = attacker.maxCooldown;
-        DealToPlayer(attacker.attack);
+        DealToPlayer(attacker.attack, shakeMagnitude: 12f, shakeDuration: 0.25f);
         ShowPlayerDmgText(attacker.attack);
-        if (UnityEngine.Random.Range(0f, 100f) <= 30f)
+        if (UnityEngine.Random.Range(0f, 100f) <= 80f)
             Debuffs?.AddDebuff(Player, DebuffType.Bleed, 1, 1, attacker.attack);
         attacker.currentHP = Mathf.Min(attacker.maxHP, attacker.currentHP + 5);
     }
@@ -47,9 +47,9 @@ public class ESkill_Venom : EnemySkillAction
     public override void Execute(EnemyStats attacker)
     {
         attacker.currentCooldown = attacker.maxCooldown;
-        DealToPlayer(attacker.attack);
+        DealToPlayer(attacker.attack, shakeMagnitude: 12f, shakeDuration: 0.25f);
         ShowPlayerDmgText(attacker.attack);
-        if (UnityEngine.Random.Range(0f, 100f) <= 30f)
+        if (UnityEngine.Random.Range(0f, 100f) <= 80f)
             Debuffs?.AddDebuff(Player, DebuffType.Poison, 3);
     }
 }
@@ -60,7 +60,7 @@ public class ESkill_PowerBite : EnemySkillAction
     public override void Execute(EnemyStats attacker)
     {
         attacker.currentCooldown = attacker.maxCooldown;
-        DealToPlayer(attacker.attack + 3f);
+        DealToPlayer(attacker.attack + 3f, shakeMagnitude: 12f, shakeDuration: 0.25f);
         ShowPlayerDmgText(attacker.attack + 3f);
     }
 }
@@ -72,6 +72,12 @@ public class ESkill_SpeedDash : EnemySkillAction
     {
         attacker.currentCooldown = attacker.maxCooldown;
         Buffs?.AddBuff(attacker, BuffType.SPD_Up, 5f, 2, 1);
+
+        // [VFX] Aura buff tại vị trí quái
+        Transform attackerTf = UI?.GetEnemyUITransform(attacker);
+        RectTransform attackerUI = attackerTf as RectTransform;
+        if (CombatVFX.Instance != null && attackerUI != null)
+            CombatVFX.Instance.PlayVFX(VFXType.AuraBuff, attackerUI);
     }
 }
 
@@ -82,8 +88,14 @@ public class ESkill_StickyWeb : EnemySkillAction
     {
         attacker.currentCooldown = attacker.maxCooldown;
         Buffs?.AddBuff(attacker, BuffType.ATK_Up, 2f, 3, 1);
-        if (UnityEngine.Random.Range(0f, 100f) <= 30f)
+        if (UnityEngine.Random.Range(0f, 100f) <= 80f)
             Debuffs?.AddDebuff(Player, DebuffType.Fracture, 2);
+
+        // [VFX] Aura buff tại vị trí quái
+        Transform attackerTf = UI?.GetEnemyUITransform(attacker);
+        RectTransform attackerUI = attackerTf as RectTransform;
+        if (CombatVFX.Instance != null && attackerUI != null)
+            CombatVFX.Instance.PlayVFX(VFXType.AuraBuff, attackerUI);
     }
 }
 
@@ -146,7 +158,7 @@ public class ESkill_ClawRip : EnemySkillAction
         if (result.missed) { UI?.ShowMissText(Player); }
         else
         {
-            DealToPlayer(result.rawDamage);
+            DealToPlayer(result.rawDamage, shakeMagnitude: 12f, shakeDuration: 0.25f);
             Color col = result.isCrit ? Color.yellow : new Color(1f, 0.4f, 0f);
             FTM?.SpawnText(UI?.GetPlayerHPBarTransform()?.position ?? Vector3.zero,
                            result.displayDamage.ToString(), col);
@@ -168,13 +180,21 @@ public class ESkill_FlameBreath : EnemySkillAction
 
     private IEnumerator FlameBreath(EnemyStats attacker)
     {
+        // [VFX] Phun lửa diện rộng + rung mạnh — 1 lần duy nhất ở đầu
+        RectTransform playerUI = UI?.GetPlayerIconTransform() as RectTransform;
+        if (CombatVFX.Instance != null && playerUI != null)
+            CombatVFX.Instance.PlayVFX(VFXType.FlameBreath, playerUI);
+        if (UIShake.Instance != null)
+            UIShake.Instance.Shake(0.4f, 18f);
+
         for (int i = 0; i < 3; i++)
         {
             if (CM.CheckBattleEndPublic() || Player.currentHP <= 0) yield break;
             Player.TakeDamage(6f, true);
+            UI?.FlashPlayerHit(0.2f);
             FTM?.SpawnText(UI?.GetPlayerHPBarTransform()?.position ?? Vector3.zero,
                            "6", new Color(1f, 0.3f, 0f));
-            if (UnityEngine.Random.Range(0f, 100f) <= 40f)
+            if (UnityEngine.Random.Range(0f, 100f) <= 80f)
                 Debuffs?.AddDebuff(Player, DebuffType.Burn, 3);
             yield return new UnityEngine.WaitForSeconds(0.25f);
         }

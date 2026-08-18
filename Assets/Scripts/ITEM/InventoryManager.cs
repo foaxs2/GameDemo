@@ -63,6 +63,16 @@ public class InventoryManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         InitializeStorageInventory();
+        OnInventoryChanged += CheckAutoSaveInTest;
+    }
+
+    private void CheckAutoSaveInTest()
+    {
+        string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (scene == "TestDungeon" || scene == "TestCombat" || scene == "Combat_Test" || CombatManager.returnSceneName == "TestDungeon")
+        {
+            SaveSystem.Instance?.Save();
+        }
     }
     [Header("Đồ Test (Dùng Context Menu — Không Tự Chạy)")]
     [Tooltip("Thêm nhiều dòng, mỗi dòng kéo 1 ItemData và điền số lượng. Sau đó bấm ⟳ → Thêm Đồ Test Thủ Công.")]
@@ -108,7 +118,7 @@ public class InventoryManager : MonoBehaviour
             quantity = Mathf.Min(quantity, 3 - currentQty);
         }
 
-        int effectiveMaxStack = item.maxStackSize > 1 ? item.maxStackSize : 99;
+        int effectiveMaxStack = item.isStackable ? Mathf.Max(1, item.maxStackSize) : 1;
 
         // Tìm slot hiện có để gộp
         foreach (var slot in combatInventory)
@@ -150,7 +160,7 @@ public class InventoryManager : MonoBehaviour
 
     private bool AddToStorage(ItemData item, int quantity)
     {
-        int effectiveMaxStack = item.maxStackSize > 1 ? item.maxStackSize : 99;
+        int effectiveMaxStack = item.isStackable ? Mathf.Max(1, item.maxStackSize) : 1;
 
         for (int i = 0; i < storageInventory.Count; i++)
         {
@@ -180,8 +190,52 @@ public class InventoryManager : MonoBehaviour
     // === XÓA ITEM ===
     public bool RemoveItem(ItemData item, int quantity = 1)
     {
+        if (item == null) return false;
         if (RemoveFromList(combatInventory, item, quantity)) return true;
         return RemoveFromList(storageInventory, item, quantity);
+    }
+
+    public bool RemoveItem(string itemName, int quantity = 1)
+    {
+        if (string.IsNullOrEmpty(itemName)) return false;
+        int remaining = quantity;
+        RemoveFromListByName(combatInventory, itemName, ref remaining);
+        if (remaining > 0)
+        {
+            RemoveFromListByName(storageInventory, itemName, ref remaining);
+        }
+        return remaining < quantity; // Trả về true nếu đã xóa được ít nhất 1
+    }
+
+    private bool RemoveFromListByName(List<InventorySlot> list, string itemName, ref int quantity)
+    {
+        if (list == null || quantity <= 0) return false;
+        bool anyRemoved = false;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != null && list[i].item != null && list[i].item.itemName.Trim().Equals(itemName.Trim(), System.StringComparison.OrdinalIgnoreCase))
+            {
+                int toRemove = Mathf.Min(list[i].quantity, quantity);
+                list[i].quantity -= toRemove;
+                quantity -= toRemove;
+                anyRemoved = true;
+                if (list[i].quantity <= 0)
+                {
+                    if (list == combatInventory)
+                    {
+                        list.RemoveAt(i);
+                        i--;
+                    }
+                    else
+                    {
+                        list[i].Clear();
+                    }
+                }
+                OnInventoryChanged?.Invoke();
+                if (quantity <= 0) break;
+            }
+        }
+        return anyRemoved;
     }
 
     private bool RemoveFromList(List<InventorySlot> list, ItemData item, int quantity)
@@ -208,13 +262,33 @@ public class InventoryManager : MonoBehaviour
     // === KIỂM TRA ===
     public int GetItemQuantity(ItemData item)
     {
+        if (item == null) return 0;
         int total = 0;
-        foreach (var s in combatInventory) if (s.item == item) total += s.quantity;
-        foreach (var s in storageInventory) if (s.item == item) total += s.quantity;
+        foreach (var s in combatInventory) if (s != null && s.item == item) total += s.quantity;
+        foreach (var s in storageInventory) if (s != null && s.item == item) total += s.quantity;
+        return total;
+    }
+
+    public int GetItemQuantity(string itemName)
+    {
+        if (string.IsNullOrEmpty(itemName)) return 0;
+        int total = 0;
+        string searchName = itemName.Trim();
+        foreach (var s in combatInventory)
+        {
+            if (s != null && s.item != null && s.item.itemName.Trim().Equals(searchName, System.StringComparison.OrdinalIgnoreCase))
+                total += s.quantity;
+        }
+        foreach (var s in storageInventory)
+        {
+            if (s != null && s.item != null && s.item.itemName.Trim().Equals(searchName, System.StringComparison.OrdinalIgnoreCase))
+                total += s.quantity;
+        }
         return total;
     }
 
     public bool HasItem(ItemData item, int quantity = 1) => GetItemQuantity(item) >= quantity;
+    public bool HasItem(string itemName, int quantity = 1) => GetItemQuantity(itemName) >= quantity;
 
     // === TRANG BỊ ===
     public bool EquipItem(ItemData item, EquipmentSlot? targetSlot = null)

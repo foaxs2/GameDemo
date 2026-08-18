@@ -1,0 +1,2062 @@
+/* ============================================================
+   ASHBOUND PRESENTATION — Modern Minimalist Slide Deck
+   ============================================================ */
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Color Palette — Dark Minimalist */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a28;
+  --bg-card-hover: #22223a;
+  --bg-glass: rgba(26, 26, 40, 0.7);
+
+  --text-primary: #e8e8f0;
+  --text-secondary: #9494b0;
+  --text-muted: #6a6a82;
+
+  --accent: #7c6aef;
+  --accent-light: #9d8ff5;
+  --accent-glow: rgba(124, 106, 239, 0.25);
+  --accent-secondary: #ef6a9a;
+  --accent-tertiary: #6aefcf;
+
+  --border: rgba(148, 148, 176, 0.12);
+  --border-accent: rgba(124, 106, 239, 0.3);
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #7c6aef 0%, #ef6a9a 100%);
+  --gradient-card: linear-gradient(145deg, rgba(30, 30, 50, 0.8), rgba(20, 20, 35, 0.6));
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+
+  /* Spacing */
+  --slide-padding: 4rem;
+  --gap: 1.5rem;
+
+  /* Typography */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Transitions */
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Progress Bar ── */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  z-index: 1000;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gradient-accent);
+  transition: width 0.4s ease;
+  width: 5.56%;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Slide Counter ── */
+.slide-counter {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  z-index: 100;
+  letter-spacing: 0.05em;
+}
+
+/* ── Navigation ── */
+.nav-controls {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 100;
+}
+
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.nav-btn:hover {
+  background: var(--accent-glow);
+  border-color: var(--border-accent);
+  color: var(--accent-light);
+  transform: scale(1.05);
+}
+
+.nav-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Keyboard Hint ── */
+.keyboard-hint {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+  transition: opacity 2s ease;
+  z-index: 100;
+}
+
+.keyboard-hint.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Slides Container ── */
+.slides-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  padding: var(--slide-padding);
+}
+
+.slide-active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.slide-exit-left {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+/* ── Slide Content ── */
+.slide-content {
+  max-width: 1100px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Slide Header ── */
+.slide-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.slide-number {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  background: var(--accent-glow);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-accent);
+}
+
+.slide-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   SLIDE 1: Title
+   ============================================================ */
+.title-slide {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-badge {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  background: var(--accent-glow);
+  padding: 0.5rem 1.5rem;
+  border-radius: 100px;
+  border: 1px solid var(--border-accent);
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.8s ease;
+}
+
+.title-main {
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  animation: fadeInUp 0.8s ease 0.15s both;
+}
+
+.title-accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.title-light {
+  color: var(--text-primary);
+  font-weight: 300;
+}
+
+.title-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.title-divider {
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-accent);
+  border-radius: 3px;
+  margin: 1.5rem auto;
+  animation: fadeInUp 0.8s ease 0.45s both;
+}
+
+.title-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  animation: fadeInUp 0.8s ease 0.6s both;
+}
+
+.title-meta {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease 0.75s both;
+}
+
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+/* Decoration circles */
+.slide-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+}
+
+.deco-circle-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent);
+  top: -10%;
+  right: -5%;
+  animation: float 12s ease-in-out infinite;
+}
+
+.deco-circle-2 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-secondary);
+  bottom: -5%;
+  left: -5%;
+  animation: float 15s ease-in-out infinite reverse;
+}
+
+.deco-circle-3 {
+  width: 200px;
+  height: 200px;
+  background: var(--accent-tertiary);
+  top: 40%;
+  left: 30%;
+  animation: float 18s ease-in-out infinite 3s;
+}
+
+/* ============================================================
+   SLIDE 2: Overview — Info Cards
+   ============================================================ */
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+.info-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+  margin-bottom: var(--gap);
+}
+
+.info-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(124, 106, 239, 0.08);
+}
+
+.info-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.info-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   SLIDE 3: Architecture
+   ============================================================ */
+.architecture-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.arch-layer {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--gradient-card);
+}
+
+.arch-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.arch-nodes {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.arch-node {
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  min-width: 140px;
+}
+
+.arch-node small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 0.2rem;
+}
+
+.node-primary {
+  background: rgba(124, 106, 239, 0.12);
+  border-color: var(--border-accent);
+  color: var(--accent-light);
+}
+
+.node-scene {
+  background: var(--bg-card);
+}
+
+.node-gm { border-left: 3px solid var(--accent); }
+.node-town { border-left: 3px solid #6aefcf; }
+.node-dungeon { border-left: 3px solid #efcf6a; }
+.node-combat { border-left: 3px solid #ef6a9a; }
+
+.node-data {
+  background: rgba(106, 239, 207, 0.08);
+  border-color: rgba(106, 239, 207, 0.2);
+  color: var(--accent-tertiary);
+}
+
+.arch-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   SLIDE 4: Scene Flow
+   ============================================================ */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.flow-node {
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  text-align: center;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  min-width: 160px;
+  transition: var(--transition);
+}
+
+.flow-node:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.flow-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.flow-node strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.flow-node small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.flow-bootstrap { border-color: var(--border-accent); }
+.flow-town { border-color: rgba(106, 239, 207, 0.3); }
+.flow-dungeon { border-color: rgba(239, 207, 106, 0.3); }
+.flow-combat { border-color: rgba(239, 106, 154, 0.3); }
+
+.flow-connector {
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.flow-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.flow-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.detail-arrow {
+  font-size: 1rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.town-arrow { background: rgba(106, 239, 207, 0.15); color: var(--accent-tertiary); }
+.dungeon-arrow { background: rgba(239, 207, 106, 0.15); color: #efcf6a; }
+.combat-arrow { background: rgba(239, 106, 154, 0.15); color: var(--accent-secondary); }
+.death-arrow { background: rgba(239, 80, 80, 0.15); color: #ef5050; }
+
+.detail-text strong {
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.detail-text span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   SLIDE 5: Design Patterns
+   ============================================================ */
+.patterns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.pattern-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem;
+  transition: var(--transition);
+}
+
+.pattern-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.pattern-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-card p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-card code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent-light);
+  background: rgba(124, 106, 239, 0.08);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  display: block;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   SLIDE 6: Combat System
+   ============================================================ */
+.combat-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.atb-diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+}
+
+.atb-diagram h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  color: var(--accent-light);
+}
+
+.atb-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.atb-step {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-accent);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  min-width: 160px;
+  position: relative;
+}
+
+.atb-num {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.atb-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.atb-text code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-light);
+}
+
+.atb-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+.combat-actions h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--accent-light);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+}
+
+.action-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  transition: var(--transition);
+}
+
+.action-item:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-card-hover);
+}
+
+.action-key {
+  display: block;
+  font-size: 1.3rem;
+  margin-bottom: 0.3rem;
+}
+
+/* ============================================================
+   SLIDE 7: Damage Formula
+   ============================================================ */
+.formula-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+}
+
+.formula-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.formula-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--accent-light);
+}
+
+.formula-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formula-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.step-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 65px;
+  letter-spacing: 0.05em;
+}
+
+.formula-step code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.formula-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formula-small {
+  padding: 1.25rem;
+}
+
+.stat-formula {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-formula:last-child {
+  border-bottom: none;
+}
+
+.stat-formula span {
+  color: var(--accent-light);
+  font-weight: 600;
+  display: inline-block;
+  min-width: 50px;
+}
+
+/* ============================================================
+   SLIDE 8: Skill System
+   ============================================================ */
+.skill-architecture {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+}
+
+.skill-hierarchy h3,
+.skill-executor h3 {
+  font-size: 1rem;
+  color: var(--accent-light);
+  margin-bottom: 1rem;
+}
+
+.class-tree {
+  margin-bottom: 1.5rem;
+}
+
+.class-node {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+
+.class-node code {
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+}
+
+.class-node small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.class-abstract {
+  background: rgba(124, 106, 239, 0.1);
+  border-color: var(--border-accent);
+}
+
+.class-children {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border-accent);
+}
+
+.class-concrete {
+  background: var(--bg-card);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.class-enemy {
+  background: rgba(239, 106, 154, 0.08);
+  border-color: rgba(239, 106, 154, 0.2);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.skill-executor {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.executor-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.exec-step {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.exec-step code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent-light);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.exec-step small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.exec-arrow {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.highlight-step {
+  background: rgba(106, 239, 207, 0.08) !important;
+  border-color: rgba(106, 239, 207, 0.3) !important;
+}
+
+.highlight-step code {
+  color: var(--accent-tertiary) !important;
+}
+
+/* ============================================================
+   SLIDE 9: Buff / Debuff
+   ============================================================ */
+.buff-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.buff-title {
+  font-size: 1.1rem;
+  color: var(--accent-tertiary);
+  margin-bottom: 1rem;
+}
+
+.debuff-title {
+  font-size: 1.1rem;
+  color: var(--accent-secondary);
+  margin-bottom: 1rem;
+}
+
+.buff-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+}
+
+.buff-card {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.buff-card:hover {
+  transform: translateY(-2px);
+}
+
+.buff-icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.buff-card strong {
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
+}
+
+.buff-card small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.buff-positive {
+  background: rgba(106, 239, 207, 0.06);
+  border-color: rgba(106, 239, 207, 0.15);
+}
+
+.buff-coating {
+  background: rgba(239, 207, 106, 0.06);
+  border-color: rgba(239, 207, 106, 0.15);
+}
+
+.debuff-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+}
+
+.debuff-table thead th {
+  background: var(--bg-card);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debuff-table thead th:first-child { border-radius: 10px 0 0 0; }
+.debuff-table thead th:last-child { border-radius: 0 10px 0 0; }
+
+.debuff-table tbody td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.debuff-table tbody tr:last-child td:first-child { border-radius: 0 0 0 10px; }
+.debuff-table tbody tr:last-child td:last-child { border-radius: 0 0 10px 0; }
+
+.debuff-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.dot-stun { background: #efcf6a; }
+.dot-poison { background: #6aef6a; }
+.dot-burn { background: #ef6a3a; }
+.dot-bleed { background: #ef3a3a; }
+.dot-fracture { background: #9a6aef; }
+
+/* ============================================================
+   SLIDE 10: SEN System
+   ============================================================ */
+.sen-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sen-meter h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.sen-bar {
+  display: flex;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.sen-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+}
+
+.sen-zone span {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.sen-zone small {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.sen-safe {
+  background: linear-gradient(90deg, #2a6a4a, #3a8a5a);
+  color: #b0f0c0;
+}
+
+.sen-danger {
+  background: linear-gradient(90deg, #6a5a2a, #8a6a2a);
+  color: #f0d070;
+}
+
+.sen-madness {
+  background: linear-gradient(90deg, #6a2a2a, #8a2a2a);
+  color: #f07070;
+}
+
+.sen-effects {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.sen-card {
+  padding: 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.sen-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.sen-card ul {
+  list-style: none;
+}
+
+.sen-card li {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 0.3rem 0;
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.4;
+}
+
+.sen-card li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.sen-card-normal {
+  background: rgba(42, 106, 74, 0.1);
+  border-color: rgba(42, 106, 74, 0.25);
+}
+
+.sen-card-normal h4 { color: #6aef9a; }
+
+.sen-card-danger {
+  background: rgba(106, 90, 42, 0.1);
+  border-color: rgba(106, 90, 42, 0.25);
+}
+
+.sen-card-danger h4 { color: #efc06a; }
+
+.sen-card-madness {
+  background: rgba(106, 42, 42, 0.1);
+  border-color: rgba(106, 42, 42, 0.25);
+}
+
+.sen-card-madness h4 { color: #ef6a6a; }
+
+.sen-triggers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trigger-item {
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  border: 1px solid var(--border);
+}
+
+.trigger-loss {
+  background: rgba(239, 80, 80, 0.06);
+  color: var(--text-secondary);
+}
+
+.trigger-loss strong { color: #ef6a6a; }
+
+.trigger-gain {
+  background: rgba(106, 239, 150, 0.06);
+  color: var(--text-secondary);
+}
+
+.trigger-gain strong { color: #6aef9a; }
+
+/* ============================================================
+   SLIDE 11: Dungeon
+   ============================================================ */
+.dungeon-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 2rem;
+}
+
+.dungeon-gen h3,
+.dungeon-floors h3 {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  margin-bottom: 1.25rem;
+}
+
+.gen-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gen-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.gen-item:hover {
+  border-color: var(--border-accent);
+}
+
+.gen-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.gen-item strong {
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.gen-item p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.floor-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.floor-item {
+  padding: 1rem 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.floor-item:hover {
+  transform: scale(1.05);
+}
+
+.floor-boss {
+  background: rgba(239, 106, 154, 0.1);
+  border-color: rgba(239, 106, 154, 0.3);
+  color: var(--accent-secondary);
+}
+
+.floor-final {
+  background: rgba(239, 60, 60, 0.1) !important;
+  border-color: rgba(239, 60, 60, 0.3) !important;
+  color: #ef5050 !important;
+}
+
+.floor-item small {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+
+.floor-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   SLIDE 12: Enemies
+   ============================================================ */
+.enemy-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.enemy-grid h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.enemy-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.enemy-card {
+  padding: 0.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.82rem;
+  transition: var(--transition);
+}
+
+.enemy-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.enemy-card span {
+  font-size: 1.3rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.enemy-card small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.boss-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.boss-card {
+  padding: 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.boss-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.boss-stats {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.boss-card ul {
+  list-style: none;
+}
+
+.boss-card li {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  padding: 0.3rem 0;
+  line-height: 1.4;
+}
+
+.boss-card li strong {
+  color: var(--text-primary);
+}
+
+.boss-spider {
+  background: rgba(239, 106, 154, 0.06);
+  border-color: rgba(239, 106, 154, 0.2);
+}
+
+.boss-spider h4 { color: var(--accent-secondary); }
+
+.boss-dragon {
+  background: rgba(239, 80, 50, 0.06);
+  border-color: rgba(239, 80, 50, 0.2);
+}
+
+.boss-dragon h4 { color: #ef6a3a; }
+
+/* ============================================================
+   SLIDE 13: Enemy AI
+   ============================================================ */
+.ai-diagram {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.ai-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ai-node {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.ai-root {
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+.ai-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ai-check {
+  padding: 0.6rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid rgba(239, 207, 106, 0.3);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #efcf6a;
+  font-weight: 500;
+}
+
+.ai-split {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.ai-path {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.ai-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.ai-end {
+  font-size: 0.82rem;
+  border: 1px solid var(--border);
+}
+
+.ai-end small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.ai-skip { background: rgba(239, 207, 106, 0.1); border-color: rgba(239, 207, 106, 0.25); }
+.ai-heal { background: rgba(106, 239, 150, 0.1); border-color: rgba(106, 239, 150, 0.25); }
+.ai-skill { background: rgba(124, 106, 239, 0.1); border-color: rgba(124, 106, 239, 0.25); }
+.ai-attack { background: rgba(239, 106, 154, 0.1); border-color: rgba(239, 106, 154, 0.25); }
+
+/* ============================================================
+   SLIDE 14: Item & Equipment
+   ============================================================ */
+.item-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.item-section h3 {
+  font-size: 1rem;
+  color: var(--accent-light);
+  margin-bottom: 1rem;
+}
+
+.inv-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.inv-box {
+  padding: 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.inv-box h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.inv-box p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 0.2rem 0;
+}
+
+.inv-combat {
+  background: rgba(124, 106, 239, 0.06);
+  border-color: rgba(124, 106, 239, 0.2);
+}
+
+.inv-combat h4 { color: var(--accent-light); }
+
+.inv-storage {
+  background: rgba(106, 239, 207, 0.06);
+  border-color: rgba(106, 239, 207, 0.2);
+}
+
+.inv-storage h4 { color: var(--accent-tertiary); }
+
+.equip-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.equip-slot {
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.equip-slot:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.slot-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.equip-slot strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+
+.equip-slot small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.consumable-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.consumable-tag {
+  padding: 0.45rem 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.consumable-tag:hover {
+  border-color: var(--border-accent);
+}
+
+/* ============================================================
+   SLIDE 15: Town & Guild
+   ============================================================ */
+.town-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+}
+
+.town-map h3,
+.guild-detail h3 {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  margin-bottom: 1rem;
+}
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.location-card {
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: var(--transition);
+}
+
+.location-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.loc-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.location-card h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.location-card p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.guild-detail {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.guild-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guild-item {
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.guild-item:last-child {
+  border-bottom: none;
+}
+
+.guild-item strong {
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   SLIDE 16: Save System
+   ============================================================ */
+.save-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.save-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.save-hub {
+  padding: 1.25rem 2.5rem;
+  background: rgba(124, 106, 239, 0.12);
+  border: 1px solid var(--border-accent);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.save-hub strong {
+  font-size: 1.1rem;
+  display: block;
+  color: var(--accent-light);
+}
+
+.save-hub small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.save-branches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.save-node {
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.save-node h4 {
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.save-node ul {
+  list-style: none;
+}
+
+.save-node li {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0;
+}
+
+.save-player { border-top: 3px solid var(--accent); }
+.save-inv { border-top: 3px solid var(--accent-tertiary); }
+.save-dungeon { border-top: 3px solid #efcf6a; }
+.save-skill { border-top: 3px solid var(--accent-secondary); }
+.save-guild { border-top: 3px solid #6aef6a; }
+
+.save-triggers h3 {
+  font-size: 1rem;
+  color: var(--accent-light);
+  margin-bottom: 0.75rem;
+}
+
+.trigger-list {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.save-trigger {
+  padding: 0.6rem 1.2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   SLIDE 17: Event & Leveling
+   ============================================================ */
+.event-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+}
+
+.event-section h3 {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  margin-bottom: 1rem;
+}
+
+.event-types {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card {
+  padding: 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.event-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+
+.event-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.event-choice {
+  background: rgba(124, 106, 239, 0.06);
+  border-color: rgba(124, 106, 239, 0.2);
+}
+
+.event-choice h4 { color: var(--accent-light); }
+
+.event-trap {
+  background: rgba(239, 80, 80, 0.06);
+  border-color: rgba(239, 80, 80, 0.2);
+}
+
+.event-trap h4 { color: #ef6a6a; }
+
+.event-formula {
+  margin: 0.5rem 0;
+}
+
+.event-formula code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-light);
+  background: rgba(124, 106, 239, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+}
+
+.event-outcomes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.outcome-good {
+  font-size: 0.78rem;
+  color: #6aef9a;
+}
+
+.outcome-bad {
+  font-size: 0.78rem;
+  color: #ef6a6a;
+}
+
+.level-formula {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formula-box {
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.formula-box h4 {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.formula-box code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-light);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.formula-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.level-rewards h4 {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.reward-items {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reward-tag {
+  padding: 0.4rem 0.9rem;
+  background: rgba(106, 239, 150, 0.08);
+  border: 1px solid rgba(106, 239, 150, 0.2);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #6aef9a;
+}
+
+/* ============================================================
+   SLIDE 18: Summary
+   ============================================================ */
+.summary-slide {
+  gap: 0;
+}
+
+.summary-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.8s ease 0.15s both;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.summary-stat {
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: var(--transition);
+}
+
+.summary-stat:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-3px);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s ease 0.45s both;
+}
+
+.feature-pill {
+  padding: 0.45rem 1rem;
+  background: rgba(124, 106, 239, 0.08);
+  border: 1px solid rgba(124, 106, 239, 0.2);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  color: var(--accent-light);
+  transition: var(--transition);
+}
+
+.feature-pill:hover {
+  background: rgba(124, 106, 239, 0.15);
+  transform: translateY(-1px);
+}
+
+.summary-footer {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  animation: fadeInUp 0.8s ease 0.75s both;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(10px, -20px); }
+  66% { transform: translate(-10px, 10px); }
+}
+
+/* ============================================================
+   Responsive — Smaller Screens
+   ============================================================ */
+@media (max-width: 1200px) {
+  :root {
+    --slide-padding: 2.5rem;
+  }
+
+  html { font-size: 13px; }
+
+  .title-main { font-size: 3.5rem; }
+  .summary-grid { grid-template-columns: repeat(3, 1fr); }
+  .patterns-grid { grid-template-columns: repeat(2, 1fr); }
+  .save-branches { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --slide-padding: 1.5rem;
+  }
+
+  html { font-size: 11px; }
+
+  .two-column { grid-template-columns: 1fr; }
+  .skill-architecture { grid-template-columns: 1fr; }
+  .formula-layout { grid-template-columns: 1fr; }
+  .town-layout { grid-template-columns: 1fr; }
+  .event-layout { grid-template-columns: 1fr; }
+  .dungeon-layout { grid-template-columns: 1fr; }
+  .boss-section { grid-template-columns: 1fr; }
+  .action-grid { grid-template-columns: repeat(3, 1fr); }
+  .buff-grid { grid-template-columns: repeat(3, 1fr); }
+  .sen-effects { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   Print / Presentation Mode
+   ============================================================ */
+@media print {
+  .slide { 
+    page-break-after: always;
+    position: relative;
+    opacity: 1;
+    transform: none;
+    pointer-events: all;
+    height: 100vh;
+  }
+  .nav-controls, .progress-bar, .slide-counter, .keyboard-hint {
+    display: none;
+  }
+}

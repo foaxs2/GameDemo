@@ -22,6 +22,14 @@ public class UIManager : MonoBehaviour
 
     private Canvas myCanvas;
 
+    // Các biến lưu trữ tiền tố lấy từ Editor
+    private string hpPrefix = "HP: ";
+    private string goldPrefix = "Vàng: ";
+    private string senPrefix = "Sen: ";
+    private string foodPrefix = "Lương Thực: ";
+    private string levelPrefix = "Cấp: ";
+    private string expPrefix = "EXP: ";
+
     void Awake()
     {
         if (Instance == null)
@@ -33,15 +41,14 @@ public class UIManager : MonoBehaviour
         }
         else if (Instance != this)
         {
-            if (gameObject.GetComponent<Canvas>() != null || gameObject.GetComponent<Camera>() != null)
-            {
-                Destroy(this);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            // Huỷ toàn bộ GameObject trùng lặp (kèm theo Canvas phụ) để tránh lỗi chồng chéo UI
+            Destroy(gameObject);
         }
+    }
+
+    void Start()
+    {
+        ExtractPrefixes();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -55,28 +62,55 @@ public class UIManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private void ExtractPrefixes()
+    {
+        hpPrefix = GetTextPrefix(hpText, "HP: ");
+        goldPrefix = GetTextPrefix(goldText, "Vàng: ");
+        senPrefix = GetTextPrefix(senText, "Sen: ");
+        foodPrefix = GetTextPrefix(foodText, "Lương Thực: ");
+        levelPrefix = GetTextPrefix(levelText, "Cấp: ");
+        expPrefix = GetTextPrefix(expText, "EXP: ");
+    }
+
+    private string GetTextPrefix(TextMeshProUGUI tmpText, string defaultPrefix)
+    {
+        if (tmpText == null || string.IsNullOrEmpty(tmpText.text)) return defaultPrefix;
+
+        // Tìm vị trí chữ số đầu tiên trong chuỗi và cắt chuỗi lấy phần tiền tố phía trước
+        System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(tmpText.text, @"\d");
+        if (match.Success)
+        {
+            string prefix = tmpText.text.Substring(0, match.Index);
+            // Loại bỏ các ký tự xuống dòng (nếu có) để ép text hiển thị trên cùng 1 hàng ngang
+            prefix = prefix.Replace("\r", "").Replace("\n", "");
+            return prefix;
+        }
+
+        return tmpText.text.Replace("\r", "").Replace("\n", "");
+    }
+
     void Update()
     {
         if (PlayerManager.Instance == null) return;
         var p = PlayerManager.Instance;
 
         if (hpText != null)
-            hpText.text = "HP: " + p.currentHP + "/" + p.maxHP;
+            hpText.text = hpPrefix + p.currentHP + "/" + p.maxHP;
 
         if (goldText != null)
-            goldText.text = "Vàng: " + p.gold;
+            goldText.text = goldPrefix + p.gold;
 
         if (senText != null)
-            senText.text = "Sen: " + p.sen + "/" + p.maxSen;
+            senText.text = senPrefix + p.sen + "/" + p.maxSen;
 
         if (foodText != null)
-            foodText.text = "Lương Thực: " + p.food + "/" + p.maxFood;
+            foodText.text = foodPrefix + p.food + "/" + p.maxFood;
 
         if (levelText != null)
-            levelText.text = "Cấp: " + p.level;
+            levelText.text = levelPrefix + p.level;
 
         if (expText != null)
-            expText.text = "EXP: " + p.currentExp + " / " + p.expToNextLevel;
+            expText.text = expPrefix + p.currentExp + " / " + p.expToNextLevel;
 
         if (expSlider != null)
         {

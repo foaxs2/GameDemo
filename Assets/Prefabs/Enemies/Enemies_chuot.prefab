@@ -69,10 +69,10 @@ MonoBehaviour:
   skillName: "Chu\u1ED9t"
   skillDescription: "M\u1ED9t con chu\u1ED9t to x\xE1c v\xF4 h\u1EA1i kh\xF4ng \u0111\u1EE7
     kh\u1EA3 n\u0103ng \u0111\u1EC3 c\xF3 b\u1EA5t k\xEC k\u0129 n\u0103ng n\xE0o."
+  skillIcon: {fileID: 0}
   maxCooldown: 0
-  initialCooldown: 2
   currentCooldown: 0
-  healAmount: 15
+  healAmount: 0
   goldDrop: 4
   expDrop: 10
   hasSpawnOnAllyDeath: 0
@@ -109,4 +109,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   hpBar: {fileID: 0}
   apBar: {fileID: 0}
+  warningBubble: {fileID: 0}
   unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

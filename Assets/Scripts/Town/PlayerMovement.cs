@@ -55,19 +55,23 @@ public class PlayerMovement : MonoBehaviour
     public static System.Collections.Generic.HashSet<Vector3Int> clearedFogTiles = new System.Collections.Generic.HashSet<Vector3Int>();
     public static System.Collections.Generic.HashSet<Vector3Int> defeatedEnemiesTiles = new System.Collections.Generic.HashSet<Vector3Int>();
     public static System.Collections.Generic.HashSet<Vector3Int> activatedEventTiles = new System.Collections.Generic.HashSet<Vector3Int>();
-    public static Vector3Int combatEnemyPosition; // Vị trí quái đang đánh
+    public static Vector3Int combatEnemyPosition;  // Vị trí quái đang đánh
     public static bool isBossFight = false;        // Đánh dấu lượt chiến này là boss
+    public static bool isEliteFight = false;       // Đánh dấu lượt chiến này là quái tinh anh
+    public static bool wasBossFight = false;       // Đánh dấu vừa đánh bại boss để rơi chìa khóa khi về lại Dungeon
 
-    // ── THEO DÕI VÀNG / EXP KIẾM ĐƯỢC TRONG TẦNG HIỆN TẠI ──────────────────
-    // Reset khi vượt tầng thành công. Dùng để tính phạt khi chết/phát điên.
+    // ── THEO DÕI VÀNG / EXP / QUÁI KIẾM ĐƯỢC TRONG TẦNG HIỆN TẠI ──────────
+    // Reset khi vượt tầng thành công. Dùng để hiển thị HUD và tính phạt khi chết.
     public static int floorGoldEarned = 0;
     public static int floorExpEarned  = 0;
+    public static int floorMonstersKilled = 0;
 
     /// <summary>Reset bộ đếm khi bắt đầu tầng mới.</summary>
     public static void ResetFloorTracking()
     {
         floorGoldEarned = 0;
         floorExpEarned  = 0;
+        floorMonstersKilled = 0;
     }
 
     /// <summary>
@@ -141,11 +145,26 @@ public class PlayerMovement : MonoBehaviour
                 foreach (Vector3Int cell in defeatedEnemiesTiles)
                     enemyMap.SetTile(cell, null);
             }
-            //3. Xóa các sự kiện đã kích hoạt khỏi Map
+            // 3. Xóa các sự kiện đã kích hoạt khỏi Map
             if (eventMap != null)
             {
                 foreach (Vector3Int cell in activatedEventTiles)
                     eventMap.SetTile(cell, null);
+            }
+
+            // 4. NẾU VỪA ĐÁNH BẠI BOSS -> RƠI CHÌA KHÓA TẠI VỊ TRÍ BOSS
+            if (wasBossFight)
+            {
+                wasBossFight = false;
+                TileBase keyTileToDrop = (DungeonGenerator.Instance != null && DungeonGenerator.Instance.keyTileGen != null)
+                                        ? DungeonGenerator.Instance.keyTileGen
+                                        : keyTile;
+
+                if (eventMap != null && keyTileToDrop != null)
+                {
+                    eventMap.SetTile(combatEnemyPosition, keyTileToDrop);
+                    Debug.Log($"[PlayerMovement] Đã tạo Chìa Khóa rơi ra từ Boss tại vị trí {combatEnemyPosition}!");
+                }
             }
         }
         else
@@ -173,6 +192,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (exitDialog != null) exitDialog.SetActive(false);
         if (leftMessage != null) leftMessage.SetActive(false);
+
+        DungeonUIManager.Instance?.UpdateDungeonHUD();
     }
 
     void Update()
@@ -223,6 +244,10 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMouse()
     {
+        // Nếu đang dùng hệ thống Dungeon Viewport (RenderTexture + RawImage) thì HandleHoverAndClickFromViewport đã phụ trách
+        if (DungeonCameraController.Instance != null && DungeonCameraController.Instance.rawImageRect != null)
+            return;
+
         Mouse mouse = Mouse.current;
         if (mouse == null) { ClearHighlight(); return; }
 
@@ -273,7 +298,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void ClearHighlight()
+    public void ClearHighlight()
     {
         if (hoverHighlight != null) hoverHighlight.SetActive(false);
     }
@@ -281,33 +306,6 @@ public class PlayerMovement : MonoBehaviour
     void MovePlayer(Vector3Int direction)
     {
         Vector3Int targetPosition = currentCellPosition + direction;
-
-        // 1. KIỂM TRA VẬT CẢN TRƯỚC KHI BƯỚC VÀO
-        if (eventMap != null && eventMap.HasTile(targetPosition))
-        {
-            TileBase targetEvent = eventMap.GetTile(targetPosition);
-
-            // ĐỤNG CỮA KHÓA
-            if (targetEvent == lockedDoorTile)
-            {
-                if (currentKeys <= 0)
-                {
-                    // KHÔNG CÓ CHÌA -> Chỉ hiện text, không di chuyển vào
-                    if (FloatingTextManager.Instance != null)
-                        FloatingTextManager.Instance.SpawnText(targetPosition, "🔑 Cần Chìa Khóa!", Color.red);
-                    return; 
-                }
-                else
-                {
-                    // CÓ CHÌA KHÓA -> Hiện bảng xác nhận, không tiêu chìa hay xóa cửa ngay
-                    isAtLockedDoor = true;
-                    isAtExitDoor = true;
-                    pendingDoorPosition = targetPosition; // Lưu vị trí cửa để xử lý khi xác nhận
-                    TriggerDoorEvent();
-                    return;
-                }
-            }
-        }
 
         if (groundMap.HasTile(targetPosition))
         {
@@ -341,13 +339,17 @@ public class PlayerMovement : MonoBehaviour
                         return;
                     }
 
-                    // Lỗi đói: Tỷ lệ mất 1 SEN tăng lên 16%
-                    if (UnityEngine.Random.Range(0f, 100f) < 16f) PlayerManager.Instance.ReduceSanity(1);
+                    // Lỗi đói: Tỷ lệ mất 1 SEN (16% giảm theo equipmentSenLossReduction)
+                    float senReduction = PlayerManager.Instance != null ? PlayerManager.Instance.equipmentSenLossReduction : 0f;
+                    float hungerChance = Mathf.Max(0f, 16f - senReduction);
+                    if (UnityEngine.Random.Range(0f, 100f) < hungerChance) PlayerManager.Instance.ReduceSanity(1);
                 }
                 else
                 {
-                    // Bình thường: Tỷ lệ mất 1 SEN là 5%
-                    if (UnityEngine.Random.Range(0f, 100f) < 5f) PlayerManager.Instance.ReduceSanity(1);
+                    // Bình thường: Tỷ lệ mất 1 SEN (5% giảm theo equipmentSenLossReduction)
+                    float senReduction = PlayerManager.Instance != null ? PlayerManager.Instance.equipmentSenLossReduction : 0f;
+                    float normalChance = Mathf.Max(0f, 5f - senReduction);
+                    if (UnityEngine.Random.Range(0f, 100f) < normalChance) PlayerManager.Instance.ReduceSanity(1);
                 }
             }
 
@@ -358,22 +360,41 @@ public class PlayerMovement : MonoBehaviour
                 return; // Ngừng kiểm tra các sự kiện khác
             }
 
-            // 2. KIỂM TRA CỬA RA (EventMap)
+            // 2. KIỂM TRA CỬA RA / SỰ KIỆN (EventMap)
             if (eventMap != null && eventMap.HasTile(currentCellPosition))
             {
                 TileBase steppedEvent = eventMap.GetTile(currentCellPosition);
 
-                if (steppedEvent == exitTile || steppedEvent == lockedDoorTile)
+                if (IsLockedDoorTile(steppedEvent))
                 {
-                    isAtExitDoor = true; // Đang đứng ở cửa ra
+                    if (currentKeys <= 0)
+                    {
+                        // Chưa có chìa: Xóa sương mù để người chơi nhìn thấy cửa, hiện thông báo nhỏ và cho phép đi tiếp/xuyên qua
+                        isAtLockedDoor = false;
+                        isAtExitDoor = false;
+                        if (FloatingTextManager.Instance != null)
+                            FloatingTextManager.Instance.SpawnText(transform.position, "🔑 Cần Chìa Khóa!", Color.yellow);
+                    }
+                    else
+                    {
+                        // Đã có chìa: Mở bảng xác nhận tiến tầng / mở cửa
+                        isAtLockedDoor = true;
+                        isAtExitDoor = true;
+                        pendingDoorPosition = currentCellPosition;
+                        TriggerDoorEvent();
+                    }
+                }
+                else if (IsExitTile(steppedEvent))
+                {
+                    isAtExitDoor = true; // Đang đứng ở cửa ra mặc định
                     TriggerDoorEvent();
                 }
-                else if (steppedEvent == entryTile)
+                else if (IsEntryTile(steppedEvent))
                 {
                     isAtExitDoor = false; // Đang đứng ở cửa vào 
                     TriggerDoorEvent();
                 }
-                else if (steppedEvent == keyTile)
+                else if (IsKeyTile(steppedEvent))
                 {
                     currentKeys++;
                     eventMap.SetTile(currentCellPosition, null); // Xóa chìa khóa khỏi map
@@ -411,7 +432,7 @@ public class PlayerMovement : MonoBehaviour
 
                         if (mapping != null && mapping.eventData != null)
                         {
-                            // Gọi đúng sự kiện đã được ghép cặp với hình ảnh gạch đó
+                            SetEventLock(true); // Khóa toàn bộ di chuyển ngay lập tức cho đến khi xử lý xong!
                             if (EventManager.Instance != null)
                                 EventManager.Instance.TriggerEvent(mapping.eventData);
 
@@ -424,11 +445,93 @@ public class PlayerMovement : MonoBehaviour
 
             }
         }
+
+        DungeonUIManager.Instance?.UpdateDungeonHUD();
+    }
+
+    /// <summary>
+    /// Tiếp nhận sự kiện hover và click chọn ô từ UI RawImage (RenderTexture Viewport).
+    /// </summary>
+    public void HandleHoverAndClickFromViewport(Vector3Int hoveredCell, bool isClicked)
+    {
+        if (isInteracting || hasLeftDungeon || isEventLocked || isDeathLocked)
+        {
+            ClearHighlight();
+            return;
+        }
+
+        Vector3Int diff = hoveredCell - currentCellPosition;
+        bool isAdj = (Mathf.Abs(diff.x) + Mathf.Abs(diff.y) == 1) && groundMap != null && groundMap.HasTile(hoveredCell);
+
+        if (isAdj)
+        {
+            if (hoverHighlight != null && groundMap != null)
+            {
+                Vector3 cellCenter = groundMap.GetCellCenterWorld(hoveredCell);
+                hoverHighlight.transform.position = new Vector3(cellCenter.x, cellCenter.y, hoverHighlight.transform.position.z);
+                hoverHighlight.SetActive(true);
+            }
+
+            if (isClicked)
+            {
+                MovePlayer(diff);
+            }
+        }
+        else
+        {
+            ClearHighlight();
+        }
+    }
+
+    /// <summary>
+    /// Tiếp nhận sự kiện click chọn ô từ UI RawImage (RenderTexture Viewport).
+    /// Nếu ô được click là ô kề cạnh (4 hướng), nhân vật sẽ bước vào ô đó.
+    /// </summary>
+    public void OnRawImageTileClicked(Vector3Int clickedCell)
+    {
+        HandleHoverAndClickFromViewport(clickedCell, true);
+    }
+
+    private bool IsLockedDoorTile(TileBase tile)
+    {
+        if (tile == null) return false;
+        if (tile == lockedDoorTile) return true;
+        if (DungeonGenerator.Instance != null && tile == DungeonGenerator.Instance.lockedDoorTileGen) return true;
+        return false;
+    }
+
+    private bool IsKeyTile(TileBase tile)
+    {
+        if (tile == null) return false;
+        if (tile == keyTile) return true;
+        if (DungeonGenerator.Instance != null && tile == DungeonGenerator.Instance.keyTileGen) return true;
+        return false;
+    }
+
+    private bool IsExitTile(TileBase tile)
+    {
+        if (tile == null) return false;
+        if (tile == exitTile) return true;
+        if (DungeonGenerator.Instance != null && tile == DungeonGenerator.Instance.exitTile) return true;
+        return false;
+    }
+
+    private bool IsEntryTile(TileBase tile)
+    {
+        if (tile == null) return false;
+        if (tile == entryTile) return true;
+        if (DungeonGenerator.Instance != null && tile == DungeonGenerator.Instance.entryTileGen) return true;
+        return false;
     }
 
     void SnapToGrid()
     {
-        transform.position = fogMap.GetCellCenterWorld(currentCellPosition);
+        if (groundMap != null)
+            transform.position = groundMap.GetCellCenterWorld(currentCellPosition);
+        else if (fogMap != null)
+            transform.position = fogMap.GetCellCenterWorld(currentCellPosition);
+
+        DungeonCameraController.Instance?.FocusOnPlayer(transform.position);
     }
 
     void ClearFog(Vector3Int cellPos)
@@ -446,15 +549,43 @@ public class PlayerMovement : MonoBehaviour
         combatEnemyPosition  = currentCellPosition;
         isReturningFromCombat = true;
 
-        // Kiểm tra xem tile đang đứng có phải boss tile không
+        // Kiểm tra xem tile đang đứng có phải boss tile hoặc elite tile không
         if (DungeonGenerator.Instance != null && enemyMap != null)
         {
             TileBase tileHere = enemyMap.GetTile(currentCellPosition);
-            isBossFight = DungeonGenerator.Instance.bossTiles.Contains(tileHere);
+            isBossFight  = DungeonGenerator.Instance.IsBossTile(tileHere);
+            isEliteFight = DungeonGenerator.Instance.IsEliteTile(tileHere);
         }
-        else isBossFight = false;
+        else
+        {
+            isBossFight  = false;
+            isEliteFight = false;
+        }
 
-        SceneManager.LoadScene("Combat");
+        string currentScene = SceneManager.GetActiveScene().name;
+        string combatScene = (currentScene == "TestDungeon") ? "TestCombat" : "Combat";
+        SceneManager.LoadScene(combatScene);
+    }
+
+    /// <summary>
+    /// Đồng bộ lại vị trí ô lưới, mở sương mù và giải phóng tương tác khi tầng được sinh lại runtime.
+    /// </summary>
+    public void ResetPositionToCurrentCell()
+    {
+        if (fogMap != null)
+        {
+            currentCellPosition = fogMap.WorldToCell(transform.position);
+            SnapToGrid();
+            ClearFog(currentCellPosition);
+            isInteracting = false;
+            isEventLocked = false;
+            isDeathLocked = false;
+            isAtExitDoor = false;
+            isAtLockedDoor = false;
+            if (exitDialog != null) exitDialog.SetActive(false);
+            if (leftMessage != null) leftMessage.SetActive(false);
+            Debug.Log($"[PlayerMovement] Đã đồng bộ lại vị trí nhân vật tại ô lưới {currentCellPosition}");
+        }
     }
     private void TriggerDoorEvent()
     {
@@ -494,12 +625,46 @@ public class PlayerMovement : MonoBehaviour
             isAtLockedDoor = false;
         }
 
+        string activeScene = SceneManager.GetActiveScene().name;
+        if (activeScene == "TestDungeon")
+        {
+            // Trong scene TestDungeon: Tăng tầng hiện tại và tiếp tục trong TestDungeon
+            if (currentFloor < 20)
+            {
+                currentFloor++;
+                Debug.Log($"[TestDungeon] Tiến tới tầng {currentFloor}!");
+            }
+            else
+            {
+                currentFloor = 1;
+                Debug.Log("[TestDungeon] Đã hoàn thành 20 tầng, quay lại tầng 1!");
+            }
+
+            ResetFloorTracking();
+            isInteracting = false;
+            isAtExitDoor = false;
+            isAtLockedDoor = false;
+            isReturningFromCombat = false;
+
+            SaveSystem.Instance?.Save(); // Tự động lưu tiến trình tầng trong TestDungeon
+            if (UIManager.Instance != null) UIManager.Instance.SetHUDVisible(true);
+            SceneManager.LoadScene("TestDungeon");
+            return;
+        }
+
         // NẾU LÀ CỬA RA MẶC ĐỊNH THÌ MỚI TĂNG TẦNG
         if (isAtExitDoor)
         {
-            if (currentFloor < 10) currentFloor++;
-            else currentFloor = 1;
-            Debug.Log("Tiến tới tầng tiếp theo!");
+            if (currentFloor < 20)
+            {
+                currentFloor++;
+                Debug.Log($"Tiến tới tầng {currentFloor}!");
+            }
+            else
+            {
+                currentFloor = 1;
+                Debug.Log("CHÚC MỪNG! BẠN ĐÃ CHINH PHỤC THÀNH CÔNG 20 TẦNG DUNGEON!");
+            }
             ResetFloorTracking(); // Vượt tầng thành công → xóa bộ đếm, không bị phạt
             
             // Roll sự kiện Town mới

@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1611573764929447969
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2708230865196240990}
+  - component: {fileID: 8956435626122505591}
+  - component: {fileID: -8066137676633717236}
+  m_Layer: 0
+  m_Name: Enemies_Tete
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2708230865196240990
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1753.5039, y: 1566.0249, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8956435626122505591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667dda240857d844e912b8e1e83f4fd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  maxHP: 50
+  currentHP: 50
+  baseDefense: 3
+  currentDefense: 0
+  baseSpeed: 10
+  currentSpeed: 0
+  currentAP: 0
+  debuffs: []
+  buffs: []
+  isImmuneToStun: 0
+  immuneToBleed: 0
+  weakToPoison: 1
+  weakToBurn: 0
+  weakToBleed: 1
+  enemyName: "T\xEA t\xEA"
+  enemySprite: {fileID: 6649375695552559675, guid: 79edbc975340ab2418ee3fb585205e1f, type: 3}
+  enemyType: 1
+  attack: 4
+  critChance: 5
+  evasion: 5
+  skillID: 10
+  skillName: "B\u1ECDc gi\xE1p"
+  skillDescription: "T\u0103ng 50% gi\u1EA3m s\xE1t th\u01B0\u01A1ng nh\u1EADn v\xE0o
+    v\xE0 ph\u1EA3n s\xE1t th\u01B0\u01A1ng l\u1EA1i k\u1EBB t\u1EA5n c\xF4ng trong
+    2 l\u01B0\u1EE3t."
+  skillIcon: {fileID: 2389193319765324094, guid: 08cab1396eef8ca46b2842004dee3bce, type: 3}
+  maxCooldown: 2
+  currentCooldown: 0
+  healAmount: 0
+  goldDrop: 32
+  expDrop: 100
+  hasSpawnOnAllyDeath: 0
+  hasEnrageOnLowHP: 0
+  enrageHPThreshold: 0.4
+  enrageATKBonus: 3
+  enrageSPDBonus: 5
+  hasPassivePoison: 0
+  passivePoisonChance: 20
+  passivePoisonDuration: 4
+  hasCrackScales: 0
+  hasRoarPassive: 0
+  roarEveryNTurns: 5
+  hasWeakToFire: 0
+  fireWeakDEFReduction: 0.2
+  roarTurnCounter: 0
+  isEnraged: 0
+  spawnedOnAllyDeath: 0
+  poisonDamageMultiplier: 1
+  bossSkillWarningText: 
+--- !u!114 &-8066137676633717236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611573764929447969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b854f5f9fd7304bb6e7bf87856354f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUI
+  stats: {fileID: 0}
+  icon: {fileID: 0}
+  hpBar: {fileID: 0}
+  apBar: {fileID: 0}
+  warningBubble: {fileID: 0}
+  unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

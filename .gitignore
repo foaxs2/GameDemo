@@ -5,3 +5,7 @@ Obj/
 Build/
 Builds/
 .vs/
+.idea/
+.vscode/
+UserSettings/
+.codegraph/

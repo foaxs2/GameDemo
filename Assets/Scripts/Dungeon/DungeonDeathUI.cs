@@ -67,6 +67,22 @@ public class DungeonDeathUI : MonoBehaviour
     // Nút "Trở Về Thị Trấn" trong bảng chết
     private void OnDeathReturnTown()
     {
+        if (SceneManager.GetActiveScene().name == "TestDungeon")
+        {
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.UpdateMaxHP();
+                PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+                PlayerManager.Instance.sen = PlayerManager.Instance.maxSen;
+                PlayerManager.Instance.food = PlayerManager.Instance.maxFood;
+                PlayerManager.Instance.RestoreSanityCollapse();
+            }
+            if (PlayerMovement.Instance != null)
+                PlayerMovement.Instance.SetDeathLock(false);
+            SceneManager.LoadScene("TestDungeon");
+            return;
+        }
+
         // Áp hình phạt: mất nửa vàng & EXP kiếm được trong tầng
         PlayerMovement.ApplyDeathPenalty();
         PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP; // hồi full HP
@@ -78,6 +94,22 @@ public class DungeonDeathUI : MonoBehaviour
     // Nút "Trở Về Thị Trấn" trong bảng phát điên
     private void OnMadnessReturnTown()
     {
+        if (SceneManager.GetActiveScene().name == "TestDungeon")
+        {
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.UpdateMaxHP();
+                PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+                PlayerManager.Instance.sen = PlayerManager.Instance.maxSen;
+                PlayerManager.Instance.food = PlayerManager.Instance.maxFood;
+                PlayerManager.Instance.RestoreSanityCollapse();
+            }
+            if (PlayerMovement.Instance != null)
+                PlayerMovement.Instance.SetDeathLock(false);
+            SceneManager.LoadScene("TestDungeon");
+            return;
+        }
+
         // Áp hình phạt: mất nửa vàng & EXP kiếm được trong tầng
         PlayerMovement.ApplyDeathPenalty();
         PlayerManager.Instance.sen = 2;        // SEN = 2, HP giữ nguyên

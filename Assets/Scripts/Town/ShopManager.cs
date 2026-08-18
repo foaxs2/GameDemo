@@ -49,25 +49,44 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
+        // Lọc danh sách item hợp lệ để bán trong Shop:
+        // - Không null
+        // - buyPrice > 0 (không xuất hiện vật phẩm 0G)
+        // - canBeSold == true
+        // - Không phải Bình máu HP (Shop không bán bình máu theo thiết kế)
+        List<ItemData> validItems = new List<ItemData>();
+        foreach (var item in allPossibleItems)
+        {
+            if (item != null && item.buyPrice > 0 && item.canBeSold)
+            {
+                if (item.itemType == ItemType.Consumable && item.consumableType == ConsumableType.HP)
+                    continue;
+
+                validItems.Add(item);
+            }
+        }
+
+        if (validItems.Count == 0)
+        {
+            Debug.LogWarning("[ShopManager] Không tìm thấy vật phẩm nào hợp lệ (buyPrice > 0) trong kho dữ liệu!");
+            return;
+        }
+
         for (int i = 0; i < 12; i++)
         {
-            ItemData randomItem = allPossibleItems[Random.Range(0, allPossibleItems.Count)];
-            
-            // Theo ý người chơi: Shop không bán bình máu (HP)
-            if (randomItem.itemType == ItemType.Consumable && randomItem.consumableType == ConsumableType.HP)
-            {
-                // Bốc lại món khác
-                for (int retry = 0; retry < 10; retry++)
-                {
-                    randomItem = allPossibleItems[Random.Range(0, allPossibleItems.Count)];
-                    if (!(randomItem.itemType == ItemType.Consumable && randomItem.consumableType == ConsumableType.HP))
-                        break;
-                }
-            }
+            // Vật phẩm ngoài loại Consumable không được trùng nhau trong shop
+            List<ItemData> availableCandidates = validItems.FindAll(item => 
+                item.itemType == ItemType.Consumable || !currentShopItems.Contains(item)
+            );
 
+            // Nếu không còn vật phẩm duy nhất nào khả dụng, dùng lại validItems làm fallback
+            if (availableCandidates.Count == 0)
+                availableCandidates = validItems;
+
+            ItemData randomItem = availableCandidates[Random.Range(0, availableCandidates.Count)];
             currentShopItems.Add(randomItem);
         }
 
-        Debug.Log($"[SHOP] Đã làm mới cửa hàng. Vàng chủ shop: {shopGold}");
+        Debug.Log($"[SHOP] Đã làm mới cửa hàng ({currentShopItems.Count} món). Vàng chủ shop: {shopGold}");
     }
 }

@@ -68,11 +68,11 @@ MonoBehaviour:
   skillID: 2
   skillName: "H\xFAt M\xE1u"
   skillDescription: "C\u0103n m\u1EE5c ti\xEAu c\xF3 th\u1EC3 g\xE2y ch\u1EA3y m\xE1u"
-  maxCooldown: 4
-  initialCooldown: 2
+  skillIcon: {fileID: 7430001092763480458, guid: 1202f36916f00d44ab6e74722dc70dae, type: 3}
+  maxCooldown: 2
   currentCooldown: 0
   healAmount: 15
-  goldDrop: 6
+  goldDrop: 9
   expDrop: 15
   hasSpawnOnAllyDeath: 0
   hasEnrageOnLowHP: 0
@@ -108,4 +108,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   hpBar: {fileID: 0}
   apBar: {fileID: 0}
+  warningBubble: {fileID: 0}
   unknownSprite: {fileID: -1049344125066232858, guid: ff33dcbffd0ba9f4787cb686d3b0c513, type: 3}

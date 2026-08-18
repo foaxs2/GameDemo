@@ -222,6 +222,11 @@ public class GuildUI : MonoBehaviour
         }
     }
 
+    public void RefreshBoard()
+    {
+        PopulateQuestBoard();
+    }
+
     private void RefreshQuestBoard()
     {
         GuildManager.Instance.RefreshBoard();

@@ -40,6 +40,7 @@ public class IconLibrary : ScriptableObject
             BuffType.SPD_Up        => spdUpIcon,
             BuffType.CRIT_Up       => critUpIcon,
             BuffType.EVA_Up        => evaUpIcon,
+            BuffType.BocGiap       => defUpIcon,
             BuffType.WeaponCoating => coating switch
             {
                 WeaponCoatingType.Bleed  => coatingBleedIcon,

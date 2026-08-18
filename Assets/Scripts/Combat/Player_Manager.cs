@@ -50,6 +50,8 @@ public class PlayerManager : Unit
     public float equipmentStunChance;
     public float equipmentBonusDamageVsHuman;
     public float equipmentBonusDamageVsNonHuman;
+    public float equipmentSenLossReduction;
+    public float equipmentExtraDamageTakenPercent;
 
     [HideInInspector] public bool isDefending = false;
     public Dictionary<string, int> killedMonsters = new Dictionary<string, int>();
@@ -88,9 +90,19 @@ public class PlayerManager : Unit
 
     private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        // Reset flag khi vào Town để lần sau ReduceSanity hoạt động bình thường
         if (scene.name == "Town")
+        {
             _isSanityCollapsing = false;
+
+            // Khi về Town: HP tự động hồi phục về mức đầy (maxHP)
+            currentHP = maxHP;
+
+            // Reset toàn bộ trạng thái Buff & Debuff (Độc, Bỏng, Chảy máu, Choáng, Rạn...)
+            BuffManager.Instance?.ClearAllBuffs(this);
+            DebuffManager.Instance?.ClearAllDebuffs(this);
+
+            // Ghi chú: Chỉ số Lý Trí (SEN) giữ nguyên không bị reset!
+        }
     }
 
     void Start()
@@ -143,9 +155,9 @@ public class PlayerManager : Unit
     public override float GetTotalEvasion()
     {
         float eva  = baseEvasion + (dex * 0.1f) + equipmentEvasionBonus;
-        float buff = BuffManager.Instance != null ? BuffManager.Instance.GetBuffValue(this, BuffType.EVA_Up) : 0f;
-        if (isDefending) eva += 25f;
-        return eva + buff;
+        bool hasEvaBuff = BuffManager.Instance != null && BuffManager.Instance.HasBuff(this, BuffType.EVA_Up);
+        if (isDefending || hasEvaBuff) eva += 25f;
+        return eva;
     }
 
     public void UpdateEquipmentStats()
@@ -163,6 +175,8 @@ public class PlayerManager : Unit
         equipmentStunChance = 0;
         equipmentBonusDamageVsHuman = 0;
         equipmentBonusDamageVsNonHuman = 0;
+        equipmentSenLossReduction = 0;
+        equipmentExtraDamageTakenPercent = 0;
 
         AddEquipmentStats(InventoryManager.Instance.equippedWeapon);
         AddEquipmentStats(InventoryManager.Instance.equippedArmor);
@@ -186,6 +200,8 @@ public class PlayerManager : Unit
         equipmentStunChance        += eq.stunChance;
         equipmentBonusDamageVsHuman    += eq.bonusDamageVsHuman;
         equipmentBonusDamageVsNonHuman += eq.bonusDamageVsNonHuman;
+        equipmentSenLossReduction      += eq.senLossReduction;
+        equipmentExtraDamageTakenPercent += eq.extraDamageTakenPercent;
     }
 
     public void AddSanity(int amount)
@@ -254,9 +270,15 @@ public class PlayerManager : Unit
         if (!ignoreFracture && DebuffManager.Instance != null)
             damage *= DebuffManager.Instance.GetDamageTakenMultiplier(this);
 
+        bool hasDefBuff = BuffManager.Instance != null && BuffManager.Instance.HasBuff(this, BuffType.DEF_Up);
+        if ((hasDefBuff || isDefending) && !isTrueDamage)
+        {
+            damage *= 0.5f; // 50% giảm sát thương nhận vào
+        }
+
         float defToUse = currentDefense + equipmentDefenseBonus;
-        if (isDefending)
-            defToUse += 1f + Mathf.FloorToInt((baseDefense + equipmentDefenseBonus) * 0.5f);
+        if (hasDefBuff || isDefending)
+            defToUse += 1f; // + 1 DEF
 
         float finalDamage = isTrueDamage ? damage : Mathf.Max(1, damage - defToUse);
 

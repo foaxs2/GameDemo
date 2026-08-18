@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: skull-ring
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: skull-ring
+  description: "Nh\u1EABn x\u01B0\u01A1ng b\u1ECB nguy\u1EC1n r\u1EE7a khi\u1EBFn
+    ng\u01B0\u1EDDi \u0111eo d\u1EC5 b\u1ECB t\u1ED5n th\u01B0\u01A1ng h\u01A1n nh\u01B0ng
+    l\u1EA1i khi\u1EBFn s\u1EE9c m\u1EA1ng t\u0103ng v\u1ECDt"
+  itemType: 1
+  icon: {fileID: -779521299289714952, guid: 3eb1c295901a7714a82541a85005176b, type: 3}
+  buyPrice: 400
+  sellPrice: 80
+  canBeSold: 1
+  consumableType: 0
+  healAmount: 0
+  foodRestoreAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  coatingType: 0
+  coatingChance: 0
+  equipmentSlot: 2
+  damageBonus: 10
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  senLossReduction: 0
+  extraDamageTakenPercent: 36
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

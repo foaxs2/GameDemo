@@ -20,6 +20,7 @@ public class CombatUIManager : MonoBehaviour
     //  UI NGƯỜI CHƠI
     // ─────────────────────────────────────────────────────────────────────────
     [Header("UI Người chơi")]
+    public Image playerIcon;
     public TextMeshProUGUI playerHPText;
     public TextMeshProUGUI playerAPText;
     public TextMeshProUGUI playerSanityText;
@@ -244,6 +245,46 @@ public class CombatUIManager : MonoBehaviour
 
     /// <summary>Trả về Transform của HP bar player (dùng để neo floating text phía player).</summary>
     public Transform GetPlayerHPBarTransform() => playerHPBar != null ? playerHPBar.transform : null;
+
+    /// <summary>Trả về Transform của PlayerIcon (dùng để phát Aura buff hoặc hiệu ứng bao quanh Player).</summary>
+    public Transform GetPlayerIconTransform()
+    {
+        if (playerIcon != null) return playerIcon.transform;
+        // Tự tìm con tên PlayerIcon trong PlayerStatus nếu chưa gán Inspector
+        if (playerHPBar != null && playerHPBar.transform.parent != null)
+        {
+            Transform iconTf = playerHPBar.transform.parent.Find("PlayerIcon");
+            if (iconTf != null) return iconTf;
+        }
+        return GetPlayerHPBarTransform();
+    }
+
+    private Coroutine _playerFlashRoutine = null;
+
+    /// <summary>
+    /// Hiệu ứng nháy đỏ PlayerIcon khi người chơi bị quái đánh trúng (tương tự FlashHit của quái).
+    /// </summary>
+    public void FlashPlayerHit(float duration = 0.4f)
+    {
+        Image icon = playerIcon;
+        if (icon == null)
+        {
+            Transform t = GetPlayerIconTransform();
+            if (t != null) icon = t.GetComponent<Image>();
+        }
+        if (icon == null) return;
+
+        if (_playerFlashRoutine != null) StopCoroutine(_playerFlashRoutine);
+        _playerFlashRoutine = StartCoroutine(PlayerHitRoutine(icon, duration));
+    }
+
+    private IEnumerator PlayerHitRoutine(Image icon, float duration)
+    {
+        icon.color = new Color(1f, 0.05f, 0.05f, 1f);
+        yield return new WaitForSeconds(duration);
+        if (icon != null) icon.color = Color.white;
+        _playerFlashRoutine = null;
+    }
 
     /// <summary>Trả về Transform icon của một EnemyStats trong Hierarchy UI.</summary>
     public Transform GetEnemyUITransform(EnemyStats target)

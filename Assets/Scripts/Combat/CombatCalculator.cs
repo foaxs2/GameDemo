@@ -134,9 +134,17 @@ public static class CombatCalculator
         result.rawDamage = attacker.GetTotalAttack();
         if (result.isCrit) result.rawDamage *= 1.5f;
 
-        float defToUse = target.currentDefense;
-        if (target.isDefending)
-            defToUse += 1f + Mathf.FloorToInt(target.baseDefense * 0.5f);
+        // Áp dụng extraDamageTakenPercent từ trang bị (ví dụ Skull Ring)
+        if (target != null && target.equipmentExtraDamageTakenPercent > 0f)
+            result.rawDamage *= (1f + target.equipmentExtraDamageTakenPercent / 100f);
+
+        bool hasDefBuff = BuffManager.Instance != null && BuffManager.Instance.HasBuff(target, BuffType.DEF_Up);
+        if (hasDefBuff || target.isDefending)
+            result.rawDamage *= 0.5f; // 50% giảm sát thương nhận vào khi Phòng Thủ
+
+        float defToUse = target.currentDefense + target.equipmentDefenseBonus;
+        if (hasDefBuff || target.isDefending)
+            defToUse += 1f; // + 1 DEF
 
         result.displayDamage = Mathf.FloorToInt(Mathf.Max(1f, result.rawDamage - defToUse));
         return result;
@@ -173,9 +181,17 @@ public static class CombatCalculator
             ? target.maxHP * 0.32f   // Crit = 32% maxHP
             : target.maxHP * 0.20f;  // Bình thường = 20% maxHP
 
-        float defToUse = target.currentDefense;
-        if (target.isDefending)
-            defToUse += 1f + Mathf.FloorToInt(target.baseDefense * 0.5f);
+        // Áp dụng extraDamageTakenPercent từ trang bị (ví dụ Skull Ring)
+        if (target != null && target.equipmentExtraDamageTakenPercent > 0f)
+            result.rawDamage *= (1f + target.equipmentExtraDamageTakenPercent / 100f);
+
+        bool hasDefBuff = BuffManager.Instance != null && BuffManager.Instance.HasBuff(target, BuffType.DEF_Up);
+        if (hasDefBuff || target.isDefending)
+            result.rawDamage *= 0.5f; // 50% giảm sát thương nhận vào khi Phòng Thủ
+
+        float defToUse = target.currentDefense + target.equipmentDefenseBonus;
+        if (hasDefBuff || target.isDefending)
+            defToUse += 1f; // + 1 DEF
 
         result.displayDamage = Mathf.FloorToInt(Mathf.Max(1f, result.rawDamage - defToUse));
         return result;

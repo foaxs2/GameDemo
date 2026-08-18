@@ -409,8 +409,5 @@
 &#x20; - \*Nội tại 2:\* `HP < 40%` (theo HP cơ bản, không phải max) → Hóa điên, tăng `? ATK \& ? SPD` (biến riêng).
 
 &#x20; - \*Nội tại 3 (Vảy Rạn Nứt):\* Khi bị Crit → Rồng giảm `10% DEF` trong 2 turn (stack). Nếu dính Độc → Sát thương độc nhận `+300%`.
-
-
-
 \---
 

@@ -7,10 +7,15 @@ public class EventManager : MonoBehaviour
     public static EventManager Instance { get; private set; }
 
     [Header("Tham chiếu Giao diện (UI)")]
+    public GameObject canvasEvent;
     public GameObject panelEvent; 
     public Image iconEvent;       
     public TextMeshProUGUI nameEvent; 
     public TextMeshProUGUI descriptionEvent; 
+
+    [Header("Tùy Chọn Bố Cục")]
+    [Tooltip("Nếu bật, code sẽ tự động ép kích thước các nút/chữ theo mẫu. Nếu tắt, sẽ dùng 100% kích thước và vị trí bạn tự chỉnh trong Prefab.")]
+    public bool autoFormatLayout = false;
 
     [Header("Các Nút Lựa Chọn")]
     public Button[] choiceButtons; 
@@ -22,41 +27,335 @@ public class EventManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        AutoFindReferences();
     }
 
     private void Start()
     {
+        AutoFindReferences();
+        FormatEventPanelLayout();
         if (panelEvent != null) panelEvent.SetActive(false);
+        if (canvasEvent != null) canvasEvent.SetActive(false);
         if (btnContinue != null)
         {
+            btnContinue.onClick.RemoveAllListeners();
             btnContinue.onClick.AddListener(ClosePanel);
             btnContinue.gameObject.SetActive(false); 
         }
     }
 
+    /// <summary>
+    /// Tự động tìm kiếm và gắn lại toàn bộ các tham chiếu UI của EventManager nếu bị thiếu/mất liên kết.
+    /// </summary>
+    public void AutoFindReferences()
+    {
+        if (canvasEvent == null)
+        {
+            Transform ceTrans = transform.Find("Canvas_Event");
+            if (ceTrans != null) canvasEvent = ceTrans.gameObject;
+            else
+            {
+                Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
+                foreach (var c in canvases)
+                {
+                    if (c.gameObject.name == "Canvas_Event")
+                    {
+                        canvasEvent = c.gameObject;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (panelEvent == null)
+        {
+            if (canvasEvent != null)
+            {
+                Transform peTrans = canvasEvent.transform.Find("PanelEvent");
+                if (peTrans != null) panelEvent = peTrans.gameObject;
+            }
+            if (panelEvent == null)
+            {
+                GameObject peObj = GameObject.Find("PanelEvent");
+                if (peObj != null) panelEvent = peObj;
+            }
+        }
+
+        if (panelEvent != null)
+        {
+            if (iconEvent == null)
+            {
+                Transform t = panelEvent.transform.Find("IconEvent");
+                if (t != null) iconEvent = t.GetComponent<Image>();
+            }
+
+            if (nameEvent == null)
+            {
+                Transform t = panelEvent.transform.Find("NameEvent");
+                if (t != null) nameEvent = t.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (descriptionEvent == null)
+            {
+                Transform t = panelEvent.transform.Find("Description");
+                if (t != null) descriptionEvent = t.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (choiceButtons == null || choiceButtons.Length < 3 || choiceButtons[0] == null)
+            {
+                choiceButtons = new Button[3];
+                choiceTexts = new TextMeshProUGUI[3];
+
+                for (int i = 0; i < 3; i++)
+                {
+                    Transform btnTrans = panelEvent.transform.Find($"btnLuaChon{i + 1}");
+                    if (btnTrans != null)
+                    {
+                        choiceButtons[i] = btnTrans.GetComponent<Button>();
+                        choiceTexts[i] = btnTrans.GetComponentInChildren<TextMeshProUGUI>();
+                    }
+                }
+            }
+
+            if (btnContinue == null)
+            {
+                Transform contTrans = panelEvent.transform.Find("btnTiepTuc");
+                if (contTrans != null)
+                {
+                    btnContinue = contTrans.GetComponent<Button>();
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Đồng bộ vị trí và độ nổi của PanelEvent để che phủ Dungeon, 
+    /// đồng thời tôn trọng toàn bộ kích thước chữ/nút bạn tùy biến trong Prefab.
+    /// </summary>
+    public void FormatEventPanelLayout()
+    {
+        if (panelEvent == null) return;
+
+        // 1. Đảm bảo Canvas chứa Event luôn có SortOrder cao hơn Canvas Dungeon để không bị che
+        Canvas eventCanvas = panelEvent.GetComponentInParent<Canvas>();
+        if (eventCanvas != null)
+        {
+            eventCanvas.overrideSorting = true;
+            eventCanvas.sortingOrder = 50;
+        }
+        panelEvent.transform.SetAsLastSibling();
+
+        // 2. Tìm vị trí & kích thước của RawImage_DungeonViewport để đặt PanelEvent khớp 700x700 ngay trên Dungeon
+        GameObject rawImgObj = GameObject.Find("RawImage_DungeonViewport");
+        RectTransform rawRect = rawImgObj != null ? rawImgObj.GetComponent<RectTransform>() : null;
+        RectTransform panelRect = panelEvent.GetComponent<RectTransform>();
+
+        if (panelRect != null)
+        {
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+
+            if (rawRect != null)
+            {
+                panelRect.anchoredPosition = rawRect.anchoredPosition;
+                panelRect.sizeDelta = rawRect.sizeDelta; // 700 x 700
+            }
+            else
+            {
+                panelRect.anchoredPosition = new Vector2(0f, 40f);
+                panelRect.sizeDelta = new Vector2(700f, 700f);
+            }
+        }
+
+        // 3. Đảm bảo nền tối đặc (Alpha = 1) để che sạch dungeon và chặn chuột
+        Image bgImg = panelEvent.GetComponent<Image>();
+        if (bgImg != null)
+        {
+            bgImg.color = new Color(0.08f, 0.08f, 0.10f, 1.0f); // Nền đen đục 100%
+            bgImg.raycastTarget = true;
+        }
+
+        // 4. Đảm bảo khung viền trang trí "Khung" trải kín 100% PanelEvent
+        Transform khungTrans = panelEvent.transform.Find("Khung");
+        if (khungTrans != null)
+        {
+            RectTransform khungRect = khungTrans.GetComponent<RectTransform>();
+            if (khungRect != null)
+            {
+                khungRect.anchorMin = Vector2.zero;
+                khungRect.anchorMax = Vector2.one;
+                khungRect.pivot = new Vector2(0.5f, 0.5f);
+                khungRect.anchoredPosition = Vector2.zero;
+                khungRect.sizeDelta = Vector2.zero;
+            }
+        }
+
+        // Nếu KHÔNG bật autoFormatLayout thì dừng tại đây, giữ nguyên 100% thiết kế nút và chữ trong Prefab của bạn
+        if (!autoFormatLayout) return;
+
+        // 5. Căn chỉnh Icon sự kiện (ở đỉnh)
+        if (iconEvent != null)
+        {
+            RectTransform iconRect = iconEvent.GetComponent<RectTransform>();
+            if (iconRect != null)
+            {
+                iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+                iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+                iconRect.pivot = new Vector2(0.5f, 0.5f);
+                iconRect.anchoredPosition = new Vector2(0f, 220f);
+                iconRect.sizeDelta = new Vector2(90f, 90f);
+            }
+            iconEvent.preserveAspect = true;
+        }
+
+        // 6. Căn chỉnh Tên sự kiện
+        if (nameEvent != null)
+        {
+            RectTransform nameRect = nameEvent.GetComponent<RectTransform>();
+            if (nameRect != null)
+            {
+                nameRect.anchorMin = new Vector2(0.5f, 0.5f);
+                nameRect.anchorMax = new Vector2(0.5f, 0.5f);
+                nameRect.pivot = new Vector2(0.5f, 0.5f);
+                nameRect.anchoredPosition = new Vector2(0f, 155f);
+                nameRect.sizeDelta = new Vector2(620f, 40f);
+            }
+            nameEvent.alignment = TextAlignmentOptions.Center;
+            nameEvent.fontSize = 22;
+            nameEvent.color = new Color(1.0f, 0.85f, 0.4f); // Vàng gold
+        }
+
+        // 7. Căn chỉnh Mô tả sự kiện
+        if (descriptionEvent != null)
+        {
+            RectTransform descRect = descriptionEvent.GetComponent<RectTransform>();
+            if (descRect != null)
+            {
+                descRect.anchorMin = new Vector2(0.5f, 0.5f);
+                descRect.anchorMax = new Vector2(0.5f, 0.5f);
+                descRect.pivot = new Vector2(0.5f, 0.5f);
+                descRect.anchoredPosition = new Vector2(0f, 45f);
+                descRect.sizeDelta = new Vector2(620f, 160f);
+            }
+            descriptionEvent.alignment = TextAlignmentOptions.Center;
+            descriptionEvent.fontSize = 17;
+            descriptionEvent.textWrappingMode = TextWrappingModes.Normal;
+            descriptionEvent.color = new Color(0.9f, 0.9f, 0.95f);
+        }
+
+        // 8. Căn chỉnh các Nút Lựa Chọn (xếp dọc ở nửa dưới)
+        float startY = -85f;
+        float spacing = 58f;
+        if (choiceButtons != null)
+        {
+            for (int i = 0; i < choiceButtons.Length; i++)
+            {
+                if (choiceButtons[i] != null)
+                {
+                    RectTransform btnRect = choiceButtons[i].GetComponent<RectTransform>();
+                    if (btnRect != null)
+                    {
+                        btnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                        btnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                        btnRect.pivot = new Vector2(0.5f, 0.5f);
+                        btnRect.anchoredPosition = new Vector2(0f, startY - (i * spacing));
+                        btnRect.sizeDelta = new Vector2(540f, 48f);
+                    }
+                }
+            }
+        }
+
+        // 9. Căn chỉnh Nút Tiếp Tục (nếu là bẫy hoặc xem xong kết quả)
+        if (btnContinue != null)
+        {
+            RectTransform contRect = btnContinue.GetComponent<RectTransform>();
+            if (contRect != null)
+            {
+                contRect.anchorMin = new Vector2(0.5f, 0.5f);
+                contRect.anchorMax = new Vector2(0.5f, 0.5f);
+                contRect.pivot = new Vector2(0.5f, 0.5f);
+                contRect.anchoredPosition = new Vector2(0f, -170f);
+                contRect.sizeDelta = new Vector2(540f, 50f);
+            }
+        }
+
+        // Đảm bảo PanelEvent luôn nổi lên trên cùng màn hình
+        panelEvent.transform.SetAsLastSibling();
+    }
+
     private void ClosePanel()
     {
         panelEvent.SetActive(false);
+        if (canvasEvent != null) canvasEvent.SetActive(false);
+
         if (PlayerMovement.Instance != null)
             PlayerMovement.Instance.SetEventLock(false);
-        if (UIManager.Instance != null)
+        if (UIManager.Instance != null && DungeonUIManager.Instance == null)
             UIManager.Instance.SetHUDVisible(true);
+        if (DungeonUIManager.Instance != null)
+            DungeonUIManager.Instance.UpdateDungeonHUD();
+    }
+
+    private void ApplyTrapPenaltyAndClose(EventData eventData)
+    {
+        if (eventData != null && PlayerManager.Instance != null)
+        {
+            if (eventData.trapPenaltyHP > 0) PlayerManager.Instance.TakeDamage(eventData.trapPenaltyHP, true, true);
+            if (eventData.trapPenaltyFood > 0)
+            {
+                PlayerManager.Instance.food -= eventData.trapPenaltyFood;
+                if (PlayerManager.Instance.food < 0) PlayerManager.Instance.food = 0;
+            }
+            if (eventData.trapPenaltySanity > 0) PlayerManager.Instance.ReduceSanity(eventData.trapPenaltySanity);
+            if (eventData.trapPenaltyGold > 0)
+            {
+                PlayerManager.Instance.gold -= eventData.trapPenaltyGold;
+                if (PlayerManager.Instance.gold < 0) PlayerManager.Instance.gold = 0;
+            }
+
+            // Kiểm tra chết sau bẫy: HP = 0 → Dungeon Death
+            if (PlayerManager.Instance.currentHP <= 0)
+            {
+                panelEvent.SetActive(false);
+                if (canvasEvent != null) canvasEvent.SetActive(false);
+
+                if (DungeonDeathUI.Instance != null)
+                    DungeonDeathUI.Instance.ShowDeathPanel();
+                else
+                {
+                    PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
+                    DeathContext.Pending = DeathContext.DeathType.DungeonDeath;
+                    SaveSystem.Instance?.Save();
+                    UnityEngine.SceneManagement.SceneManager.LoadScene("Town");
+                }
+                return;
+            }
+        }
+
+        ClosePanel();
     }
 
     public void TriggerEvent(EventData eventData)
     {
-        if (eventData == null || panelEvent == null) return;
+        if (eventData == null) return;
+
+        AutoFindReferences();
+        if (panelEvent == null) return;
 
         currentEvent = eventData;
+        if (canvasEvent != null) canvasEvent.SetActive(true);
+        FormatEventPanelLayout();
         panelEvent.SetActive(true);
+        panelEvent.transform.SetAsLastSibling();
 
         if (PlayerMovement.Instance != null)
             PlayerMovement.Instance.SetEventLock(true);
-        if (UIManager.Instance != null)
+        if (UIManager.Instance != null && DungeonUIManager.Instance == null)
             UIManager.Instance.SetHUDVisible(false);
 
-        nameEvent.text = eventData.eventName;
-        if (eventData.eventIcon != null) iconEvent.sprite = eventData.eventIcon;
+        if (nameEvent != null) nameEvent.text = eventData.eventName;
+        if (eventData.eventIcon != null && iconEvent != null) iconEvent.sprite = eventData.eventIcon;
 
         // PHÂN LOẠI: LÀ BẪY HAY LÀ SỰ KIỆN LỰA CHỌN?
         if (eventData.choices == null || eventData.choices.Length == 0)
@@ -78,36 +377,9 @@ public class EventManager : MonoBehaviour
 
             descriptionEvent.text = eventData.description + penaltyLine;
 
-            // 3. Trừ thẳng chỉ số người chơi
-            if (eventData.trapPenaltyHP > 0) PlayerManager.Instance.TakeDamage(eventData.trapPenaltyHP, true, true);
-            if (eventData.trapPenaltyFood > 0)
-            {
-                PlayerManager.Instance.food -= eventData.trapPenaltyFood;
-                if (PlayerManager.Instance.food < 0) PlayerManager.Instance.food = 0;
-            }
-            if (eventData.trapPenaltySanity > 0) PlayerManager.Instance.ReduceSanity(eventData.trapPenaltySanity);
-            if (eventData.trapPenaltyGold > 0)
-            {
-                PlayerManager.Instance.gold -= eventData.trapPenaltyGold;
-                if (PlayerManager.Instance.gold < 0) PlayerManager.Instance.gold = 0;
-            }
-
-            // Kiểm tra chết sau bẫy: HP = 0 → Dungeon Death
-            if (PlayerManager.Instance.currentHP <= 0)
-            {
-                if (DungeonDeathUI.Instance != null)
-                    DungeonDeathUI.Instance.ShowDeathPanel();
-                else
-                {
-                    // Fallback nếu không có DungeonDeathUI trong scene
-                    PlayerManager.Instance.currentHP = PlayerManager.Instance.maxHP;
-                    DeathContext.Pending = DeathContext.DeathType.DungeonDeath;
-                    SaveSystem.Instance?.Save();
-                    UnityEngine.SceneManagement.SceneManager.LoadScene("Town");
-                }
-                return;
-            }
-
+            // 3. Hoãn việc trừ chỉ số — chỉ trừ khi người chơi bấm nút Tiếp Tục / Xác Nhận
+            btnContinue.onClick.RemoveAllListeners();
+            btnContinue.onClick.AddListener(() => ApplyTrapPenaltyAndClose(eventData));
         }
         else
         {

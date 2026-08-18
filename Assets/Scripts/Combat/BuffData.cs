@@ -10,6 +10,7 @@ public enum BuffType
     CRIT_Up,        // Tăng chí mạng
     EVA_Up,         // Tăng né tránh
     WeaponCoating,  // Tẩm vũ khí — độc nhất, ghi đè nếu đổi loại
+    BocGiap,        // Bọc giáp (Tê Tê): Giảm 50% DMG + Phản sát thương
 }
 
 public enum WeaponCoatingType

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3d42b481b6306445adbae62592edec3, type: 3}
+  m_Name: tribal-pendent
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemName: tribal-pendent
+  description: "V\xF2ng c\u1ED5 t\u1EEB m\u1ED9t nh\xF3m di c\u01B0 thi\u1EC3u s\u1ED1
+    gi\xFAp gi\u1EA3m t\u1EC9 l\u1EC7 sen b\u1ECB m\u1EA5t \u0111i"
+  itemType: 1
+  icon: {fileID: 1683712650664445162, guid: 8c8193435d3d6c849a22369f52dc17f5, type: 3}
+  buyPrice: 150
+  sellPrice: 30
+  canBeSold: 1
+  consumableType: 0
+  healAmount: 0
+  foodRestoreAmount: 0
+  healPercentage: 0
+  buffValue: 0
+  buffPercentage: 0
+  buffDuration: 0
+  maxStacks: 0
+  coatingType: 0
+  coatingChance: 0
+  equipmentSlot: 2
+  damageBonus: 0
+  defenseBonus: 0
+  speedBonus: 0
+  hpBonus: 0
+  critBonus: 0
+  evasionBonus: 0
+  armorPenetration: 0
+  bleedChance: 0
+  stunChance: 0
+  bonusDamageVsHuman: 0
+  bonusDamageVsNonHuman: 0
+  senLossReduction: 5
+  extraDamageTakenPercent: 0
+  isStackable: 0
+  maxStackSize: 99
+  usableInCombat: 0

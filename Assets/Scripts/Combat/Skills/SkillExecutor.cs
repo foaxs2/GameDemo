@@ -50,6 +50,7 @@ public class SkillExecutor : MonoBehaviour
         RegisterEnemy(EnemySkillID.HealEnemy,           new ESkill_HealEnemy());
         RegisterEnemy(EnemySkillID.NhenNuVuong_ClawRip, new ESkill_ClawRip());
         RegisterEnemy(EnemySkillID.Dragon_FlameBreath,  new ESkill_FlameBreath());
+        RegisterEnemy(EnemySkillID.BocGiap,             new ESkill_BocGiap());
     }
 
     private void Register(string id, SkillAction skill)

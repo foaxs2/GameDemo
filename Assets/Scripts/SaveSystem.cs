@@ -101,14 +101,23 @@ public class SaveSystem : MonoBehaviour
     public ItemData[] allItems;
 
     [Header("Save Slot System")]
-    public static int CurrentSlot = 1; // 1, 2, 3 mặc định
+    public static int CurrentSlot = 1; // 1, 2, 3 mặc định cho game chính
+
+    /// <summary>Kiểm tra xem hiện tại có đang trong môi trường Test (TestDungeon, TestCombat) hay không.</summary>
+    public static bool IsTestSceneActive()
+    {
+        string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        return scene == "TestDungeon" || scene == "TestCombat" || scene == "Combat_Test" || CombatManager.returnSceneName == "TestDungeon";
+    }
+
+    public static string TestSavePath => Path.Combine(Application.persistentDataPath, "save_test_mode.json");
 
     public static string GetSavePath(int slot)
     {
         return Path.Combine(Application.persistentDataPath, $"save_slot_{slot}.json");
     }
 
-    private static string SavePath => GetSavePath(CurrentSlot);
+    private static string SavePath => IsTestSceneActive() ? TestSavePath : GetSavePath(CurrentSlot);
 
     private void Awake()
     {
@@ -141,8 +150,9 @@ public class SaveSystem : MonoBehaviour
             yield return new WaitForSeconds(60f);
 
             string activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            // Chỉ tự động lưu nếu KHÔNG ở scene Dungeon, Combat hoặc Start
-            if (activeScene != "Dungeon" && activeScene != "Combat" && activeScene != "Start")
+            // Chỉ tự động lưu nếu KHÔNG ở scene Dungeon, Combat hoặc Start, và không ở Test Scenes
+            if (activeScene != "Dungeon" && activeScene != "Combat" && activeScene != "Start" 
+                && activeScene != "TestCombat" && activeScene != "TestDungeon")
             {
                 Save();
                 Debug.Log($"[AUTOSAVE] Đã tự động lưu game thành công vào slot {CurrentSlot}");
@@ -168,7 +178,10 @@ public class SaveSystem : MonoBehaviour
         string json = JsonUtility.ToJson(data, true);
         string path = SavePath;
         File.WriteAllText(path, json);
-        Debug.Log($"[SAVE] Đã lưu game vào slot {CurrentSlot}: {path}");
+        if (IsTestSceneActive())
+            Debug.Log($"[SAVE TEST] Đã tự động lưu dữ liệu riêng cho TEST MODE: {path}");
+        else
+            Debug.Log($"[SAVE] Đã lưu game vào slot {CurrentSlot}: {path}");
     }
 
     // ─── LOAD ────────────────────────────────────────────────────
@@ -178,7 +191,10 @@ public class SaveSystem : MonoBehaviour
         string path = SavePath;
         if (!File.Exists(path))
         {
-            Debug.Log($"[SAVE] Không tìm thấy file save tại slot {CurrentSlot}.");
+            if (IsTestSceneActive())
+                Debug.Log($"[SAVE TEST] Chưa có file save_test_mode.json. Khởi tạo phiên test mới.");
+            else
+                Debug.Log($"[SAVE] Không tìm thấy file save tại slot {CurrentSlot}.");
             return false;
         }
 
@@ -207,7 +223,10 @@ public class SaveSystem : MonoBehaviour
                 }
             }
 
-            Debug.Log($"[SAVE] Đã load game thành công từ slot {CurrentSlot}.");
+            if (IsTestSceneActive())
+                Debug.Log($"[SAVE TEST] Đã load dữ liệu riêng cho TEST MODE thành công từ: {path}");
+            else
+                Debug.Log($"[SAVE] Đã load game thành công từ slot {CurrentSlot}.");
             return true;
         }
         catch (Exception e)
@@ -232,6 +251,9 @@ public class SaveSystem : MonoBehaviour
             PlayerManager.Instance.dex = 10;
             PlayerManager.Instance.vit = 10;
             PlayerManager.Instance.agl = 10;
+            PlayerManager.Instance.sen = 10;  // Reset Sanity về mặc định
+            PlayerManager.Instance.food = 50; // Reset Lương thực về mặc định
+            PlayerManager.Instance.characterIconIndex = 0; // Reset Icon nhân vật về mặc định
             PlayerManager.Instance.playTime = 0f;
             PlayerManager.Instance.playerName = "Slot " + CurrentSlot;
             PlayerManager.Instance.UpdateMaxHP();
@@ -272,6 +294,8 @@ public class SaveSystem : MonoBehaviour
         {
             PlayerManager.Instance.killedMonsters.Clear();
             PlayerManager.Instance.RestoreSanityCollapse();
+            PlayerManager.Instance.buffs.Clear();   // Xóa sạch các buff thừa
+            PlayerManager.Instance.debuffs.Clear(); // Xóa sạch các debuff thừa
         }
 
         if (InventoryManager.Instance != null)

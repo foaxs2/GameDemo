@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashbound — Kiến Trúc Hệ Thống & Tính Năng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Slide Counter -->
+  <div class="slide-counter" id="slideCounter">1 / 18</div>
+
+  <!-- Navigation -->
+  <nav class="nav-controls">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Previous">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Next">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </nav>
+
+  <!-- Slides Container -->
+  <div class="slides-container" id="slidesContainer">
+
+    <!-- ==================== SLIDE 1: Title ==================== -->
+    <section class="slide slide-active" data-slide="1">
+      <div class="slide-content title-slide">
+        <div class="title-badge">ĐỒ ÁN CƠ SỞ</div>
+        <h1 class="title-main">
+          <span class="title-accent">ASH</span><span class="title-light">BOUND</span>
+        </h1>
+        <p class="title-subtitle">2D Turn-Based RPG — Unity Engine</p>
+        <div class="title-divider"></div>
+        <p class="title-desc">Kiến trúc hệ thống & các tính năng chính</p>
+        <div class="title-meta">
+          <span class="meta-tag">C#</span>
+          <span class="meta-tag">Unity 6000</span>
+          <span class="meta-tag">ScriptableObject</span>
+          <span class="meta-tag">2D Tilemap</span>
+        </div>
+      </div>
+      <div class="slide-decoration">
+        <div class="deco-circle deco-circle-1"></div>
+        <div class="deco-circle deco-circle-2"></div>
+        <div class="deco-circle deco-circle-3"></div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 2: Overview ==================== -->
+    <section class="slide" data-slide="2">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">01</span>
+          <h2>Tổng Quan Dự Án</h2>
+        </div>
+        <div class="two-column">
+          <div class="col">
+            <div class="info-card">
+              <div class="info-icon">🎮</div>
+              <h3>Thể loại</h3>
+              <p>2D Turn-Based RPG dungeon crawler với cơ chế sanity, chiến đấu theo lượt ATB, và hệ thống dungeon thủ tục</p>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">🛠️</div>
+              <h3>Công nghệ</h3>
+              <p>Unity Engine (6000.x), C# scripting, TextMesh Pro, 2D Tilemap, ScriptableObject data-driven</p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="info-card">
+              <div class="info-icon">📐</div>
+              <h3>Phạm vi</h3>
+              <p>10 tầng dungeon, 10 loại quái, 2 Boss, 4 kỹ năng kiếm, hệ thống trang bị / shop / guild / quest</p>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">📦</div>
+              <h3>Tài nguyên</h3>
+              <p>Free assets + AI-generated sprites. 30+ ScriptableObject data assets. 50+ C# scripts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 3: Architecture ==================== -->
+    <section class="slide" data-slide="3">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">02</span>
+          <h2>Kiến Trúc Tổng Quan</h2>
+        </div>
+        <div class="architecture-diagram">
+          <div class="arch-layer arch-manager">
+            <div class="arch-label">Persistent Layer</div>
+            <div class="arch-nodes">
+              <div class="arch-node node-primary">GameManager<br><small>DontDestroyOnLoad</small></div>
+              <div class="arch-node node-primary">PlayerManager<br><small>Singleton</small></div>
+              <div class="arch-node node-primary">SaveSystem<br><small>JSON Persistence</small></div>
+              <div class="arch-node node-primary">UIManager<br><small>HUD Overlay</small></div>
+            </div>
+          </div>
+          <div class="arch-arrow">▼</div>
+          <div class="arch-layer arch-scenes">
+            <div class="arch-label">Scene Layer — 4 Scenes</div>
+            <div class="arch-nodes">
+              <div class="arch-node node-scene node-gm">GameManager<br><small>Bootstrap</small></div>
+              <div class="arch-node node-scene node-town">Town<br><small>Hub World</small></div>
+              <div class="arch-node node-scene node-dungeon">Dungeon<br><small>Exploration</small></div>
+              <div class="arch-node node-scene node-combat">Combat<br><small>ATB Battle</small></div>
+            </div>
+          </div>
+          <div class="arch-arrow">▼</div>
+          <div class="arch-layer arch-data">
+            <div class="arch-label">Data Layer — ScriptableObjects</div>
+            <div class="arch-nodes">
+              <div class="arch-node node-data">SkillData</div>
+              <div class="arch-node node-data">ItemData</div>
+              <div class="arch-node node-data">EventData</div>
+              <div class="arch-node node-data">IconLibrary</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 4: Scene Flow ==================== -->
+    <section class="slide" data-slide="4">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">03</span>
+          <h2>Luồng Chuyển Scene</h2>
+        </div>
+        <div class="flow-diagram">
+          <div class="flow-row">
+            <div class="flow-node flow-bootstrap">
+              <div class="flow-icon">⚡</div>
+              <strong>GameBootstrap</strong>
+              <small>Load Save / New Game</small>
+            </div>
+            <div class="flow-connector">→</div>
+            <div class="flow-node flow-town">
+              <div class="flow-icon">🏘️</div>
+              <strong>Town</strong>
+              <small>Hub — Shop, Guild, Training</small>
+            </div>
+            <div class="flow-connector flow-connector-bi">⇄</div>
+            <div class="flow-node flow-dungeon">
+              <div class="flow-icon">🗺️</div>
+              <strong>Dungeon</strong>
+              <small>Grid Exploration</small>
+            </div>
+            <div class="flow-connector flow-connector-bi">⇄</div>
+            <div class="flow-node flow-combat">
+              <div class="flow-icon">⚔️</div>
+              <strong>Combat</strong>
+              <small>ATB Battle</small>
+            </div>
+          </div>
+          <div class="flow-details">
+            <div class="flow-detail">
+              <div class="detail-arrow town-arrow">↗</div>
+              <div class="detail-text">
+                <strong>Town → Dungeon</strong>
+                <span>Click "Bản đồ" → LoadScene</span>
+              </div>
+            </div>
+            <div class="flow-detail">
+              <div class="detail-arrow dungeon-arrow">↗</div>
+              <div class="detail-text">
+                <strong>Dungeon → Combat</strong>
+                <span>Bước vào ô quái → Lưu trạng thái map → Load Combat</span>
+              </div>
+            </div>
+            <div class="flow-detail">
+              <div class="detail-arrow combat-arrow">↗</div>
+              <div class="detail-text">
+                <strong>Combat → Dungeon</strong>
+                <span>Thắng → Khôi phục map (cùng seed) → Tiếp tục</span>
+              </div>
+            </div>
+            <div class="flow-detail">
+              <div class="detail-arrow death-arrow">↗</div>
+              <div class="detail-text">
+                <strong>Death / Madness</strong>
+                <span>DeathContext → Town → Mất 50% gold & EXP tầng hiện tại</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 5: Singleton & Design Patterns ==================== -->
+    <section class="slide" data-slide="5">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">04</span>
+          <h2>Design Patterns</h2>
+        </div>
+        <div class="patterns-grid">
+          <div class="pattern-card">
+            <div class="pattern-icon">🔁</div>
+            <h3>Singleton</h3>
+            <p>Tất cả manager sử dụng Singleton + DontDestroyOnLoad để tồn tại xuyên scene</p>
+            <code>PlayerManager, CombatManager, SaveSystem, UIManager, InventoryManager...</code>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon">🎯</div>
+            <h3>Strategy + Registry</h3>
+            <p>SkillExecutor đăng ký và dispatch skill qua Dictionary, không cần sửa CombatManager</p>
+            <code>SkillAction → SwordSkill1..4<br>EnemySkillAction → ESkill_*</code>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon">📡</div>
+            <h3>Observer / Event</h3>
+            <p>Buff/Debuff Manager phát event cho UI cập nhật icon mà không coupling trực tiếp</p>
+            <code>OnBuffApplied, OnBuffRemoved, OnDebuffTick, OnInventoryChanged</code>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon">📊</div>
+            <h3>ScriptableObject Data</h3>
+            <p>Data-driven design — skill, item, event, icon đều là SO, dễ thêm content mà không code</p>
+            <code>SkillData, ItemData, EventData, IconLibrary</code>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon">♻️</div>
+            <h3>Object Pooling</h3>
+            <p>FloatingTextManager tạo sẵn pool 10 text object, tái sử dụng thay vì Instantiate liên tục</p>
+            <code>FloatingTextManager.ShowText()</code>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-icon">🧬</div>
+            <h3>Template Method</h3>
+            <p>Unit.TakeDamage() là base, PlayerManager và EnemyStats override với logic riêng</p>
+            <code>Unit (abstract) → PlayerManager / EnemyStats</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 6: Combat System ==================== -->
+    <section class="slide" data-slide="6">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">05</span>
+          <h2>Hệ Thống Chiến Đấu — ATB</h2>
+        </div>
+        <div class="combat-layout">
+          <div class="combat-main">
+            <div class="atb-diagram">
+              <h3>Active Time Battle (ATB)</h3>
+              <div class="atb-flow">
+                <div class="atb-step">
+                  <div class="atb-num">1</div>
+                  <div class="atb-text">Mỗi tick, mọi unit:<br><code>AP += Speed × Δt × 5</code></div>
+                </div>
+                <div class="atb-arrow">→</div>
+                <div class="atb-step">
+                  <div class="atb-num">2</div>
+                  <div class="atb-text">AP ≥ 100<br><strong>Pause & Act</strong></div>
+                </div>
+                <div class="atb-arrow">→</div>
+                <div class="atb-step">
+                  <div class="atb-num">3</div>
+                  <div class="atb-text">Sau hành động:<br><code>AP -= 100</code></div>
+                </div>
+                <div class="atb-arrow">→</div>
+                <div class="atb-step">
+                  <div class="atb-num">4</div>
+                  <div class="atb-text">Tick Buff/Debuff<br>Resume ATB</div>
+                </div>
+              </div>
+            </div>
+            <div class="combat-actions">
+              <h3>Hành Động Người Chơi</h3>
+              <div class="action-grid">
+                <div class="action-item"><span class="action-key">⚔️</span> Tấn công</div>
+                <div class="action-item"><span class="action-key">✨</span> Kỹ năng</div>
+                <div class="action-item"><span class="action-key">🛡️</span> Phòng thủ</div>
+                <div class="action-item"><span class="action-key">🎒</span> Vật phẩm</div>
+                <div class="action-item"><span class="action-key">👟</span> Bỏ chạy</div>
+                <div class="action-item"><span class="action-key">⚙️</span> Trang bị</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 7: Damage Formula ==================== -->
+    <section class="slide" data-slide="7">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">06</span>
+          <h2>Công Thức Sát Thương</h2>
+        </div>
+        <div class="formula-layout">
+          <div class="formula-card formula-main">
+            <h3>Player → Enemy</h3>
+            <div class="formula-steps">
+              <div class="formula-step">
+                <span class="step-label">1. Evasion</span>
+                <code>Random(0,100) ≤ target.evasion → MISS</code>
+              </div>
+              <div class="formula-step">
+                <span class="step-label">2. Crit</span>
+                <code>Random(0,100) ≤ totalCrit + extraCrit → CRIT ×1.5</code>
+              </div>
+              <div class="formula-step">
+                <span class="step-label">3. Raw DMG</span>
+                <code>totalAttack × multiplier + flatBonus + typeBonus</code>
+              </div>
+              <div class="formula-step">
+                <span class="step-label">4. Final</span>
+                <code>max(1, rawDamage − target.DEF)</code>
+              </div>
+            </div>
+          </div>
+          <div class="formula-side">
+            <div class="formula-card formula-small">
+              <h3>Stat Derivation</h3>
+              <div class="stat-formula"><span>ATK</span> = base + STR × 0.2 + equip</div>
+              <div class="stat-formula"><span>CRIT</span> = base + DEX × 0.15 + equip</div>
+              <div class="stat-formula"><span>EVA</span> = base + DEX × 0.1 + equip</div>
+              <div class="stat-formula"><span>SPD</span> = base + AGL × 0.5 + equip</div>
+              <div class="stat-formula"><span>HP</span> = 5 + VIT × 1.0 + equip</div>
+            </div>
+            <div class="formula-card formula-small">
+              <h3>Phòng Thủ</h3>
+              <div class="stat-formula"><span>DEF</span> = baseDEF + equipDEF</div>
+              <div class="stat-formula"><span>Guard</span> = DEF + 1 + ⌊baseDEF × 0.5⌋</div>
+              <div class="stat-formula"><span>Fracture</span> = dmg × 1.30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 8: Skill System ==================== -->
+    <section class="slide" data-slide="8">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">07</span>
+          <h2>Hệ Thống Kỹ Năng</h2>
+        </div>
+        <div class="skill-architecture">
+          <div class="skill-hierarchy">
+            <h3>OOP Skill Architecture</h3>
+            <div class="class-tree">
+              <div class="class-node class-abstract">
+                <code>SkillAction</code> <small>(abstract)</small>
+              </div>
+              <div class="class-children">
+                <div class="class-node class-concrete">SwordSkill1<br><small>4 nhát chém ngẫu nhiên</small></div>
+                <div class="class-node class-concrete">SwordSkill2<br><small>1 nhát mạnh + crit</small></div>
+                <div class="class-node class-concrete">SwordSkill3<br><small>2 nhát liên tiếp</small></div>
+                <div class="class-node class-concrete">SwordSkill4<br><small>Tráng kiếm Bleed</small></div>
+              </div>
+            </div>
+            <div class="class-tree">
+              <div class="class-node class-abstract">
+                <code>EnemySkillAction</code> <small>(abstract)</small>
+              </div>
+              <div class="class-children">
+                <div class="class-node class-enemy">ESkill_FlameBreath</div>
+                <div class="class-node class-enemy">ESkill_ClawRip</div>
+                <div class="class-node class-enemy">ESkill_Venom</div>
+                <div class="class-node class-enemy">+6 skills khác</div>
+              </div>
+            </div>
+          </div>
+          <div class="skill-executor">
+            <h3>SkillExecutor — Registry Pattern</h3>
+            <div class="executor-flow">
+              <div class="exec-step">
+                <code>RegisterAllSkills()</code>
+                <small>Đăng ký tất cả skill vào Dictionary</small>
+              </div>
+              <div class="exec-arrow">↓</div>
+              <div class="exec-step">
+                <code>RunPlayerSkill(skillID, ...)</code>
+                <small>Lookup → Execute → Return IsAsync</small>
+              </div>
+              <div class="exec-arrow">↓</div>
+              <div class="exec-step highlight-step">
+                <code>Thêm skill mới = 0 thay đổi CombatManager</code>
+                <small>Hoàn toàn decoupled</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 9: Buff / Debuff ==================== -->
+    <section class="slide" data-slide="9">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">08</span>
+          <h2>Buff & Debuff System</h2>
+        </div>
+        <div class="buff-layout">
+          <div class="buff-section">
+            <h3 class="buff-title">✨ Buffs</h3>
+            <div class="buff-grid">
+              <div class="buff-card buff-positive">
+                <span class="buff-icon">⚔️</span>
+                <strong>ATK Up</strong>
+                <small>+ Sát thương</small>
+              </div>
+              <div class="buff-card buff-positive">
+                <span class="buff-icon">🛡️</span>
+                <strong>DEF Up</strong>
+                <small>+ Phòng thủ</small>
+              </div>
+              <div class="buff-card buff-positive">
+                <span class="buff-icon">💨</span>
+                <strong>SPD Up</strong>
+                <small>+ Tốc độ ATB</small>
+              </div>
+              <div class="buff-card buff-positive">
+                <span class="buff-icon">🎯</span>
+                <strong>CRIT Up</strong>
+                <small>+ Tỉ lệ crit</small>
+              </div>
+              <div class="buff-card buff-positive">
+                <span class="buff-icon">👁️</span>
+                <strong>EVA Up</strong>
+                <small>+ Né tránh</small>
+              </div>
+              <div class="buff-card buff-coating">
+                <span class="buff-icon">🗡️</span>
+                <strong>Coating</strong>
+                <small>Bleed / Fire / Poison</small>
+              </div>
+            </div>
+          </div>
+          <div class="buff-section">
+            <h3 class="debuff-title">💀 Debuffs</h3>
+            <table class="debuff-table">
+              <thead>
+                <tr><th>Debuff</th><th>Hiệu ứng</th><th>Stack</th><th>Đặc biệt</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="debuff-dot dot-stun"></span> Stun</td><td>Mất lượt</td><td>Refresh</td><td>Poison ×2 dmg khi stun</td></tr>
+                <tr><td><span class="debuff-dot dot-poison"></span> Poison</td><td>3/5/8 dmg</td><td>Max 3</td><td>+5% HP nếu weak</td></tr>
+                <tr><td><span class="debuff-dot dot-burn"></span> Burn</td><td>1/3/5 dmg</td><td>Max 3</td><td>Giảm DEF 1/2/4</td></tr>
+                <tr><td><span class="debuff-dot dot-bleed"></span> Bleed</td><td>8% maxHP</td><td>Refresh</td><td>12% nếu weak</td></tr>
+                <tr><td><span class="debuff-dot dot-fracture"></span> Fracture</td><td>+30% dmg taken</td><td>Refresh</td><td>−20% SPD/stack</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 10: SEN System ==================== -->
+    <section class="slide" data-slide="10">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">09</span>
+          <h2>SEN — Hệ Thống Tinh Thần</h2>
+        </div>
+        <div class="sen-layout">
+          <div class="sen-meter">
+            <h3>Thanh SEN (0 — 10)</h3>
+            <div class="sen-bar">
+              <div class="sen-zone sen-safe" style="width:60%">
+                <span>10 — 5</span>
+                <small>An toàn</small>
+              </div>
+              <div class="sen-zone sen-danger" style="width:25%">
+                <span>4 — 1</span>
+                <small>Nguy hiểm</small>
+              </div>
+              <div class="sen-zone sen-madness" style="width:15%">
+                <span>0</span>
+                <small>Điên</small>
+              </div>
+            </div>
+          </div>
+          <div class="sen-effects">
+            <div class="sen-card sen-card-normal">
+              <h4>SEN 5 — 10</h4>
+              <ul>
+                <li>Hiển thị đầy đủ thông tin quái</li>
+                <li>Sự kiện: Base% + SEN × 3%</li>
+                <li>Bỏ chạy: 80% − senLost × 4%</li>
+              </ul>
+            </div>
+            <div class="sen-card sen-card-danger">
+              <h4>SEN ≤ 4</h4>
+              <ul>
+                <li>Icon quái → "???" không rõ</li>
+                <li>Thông tin enemy bị ẩn</li>
+                <li>NPC có thể tấn công / quest thất bại</li>
+              </ul>
+            </div>
+            <div class="sen-card sen-card-madness">
+              <h4>SEN = 0 — Điên Loạn</h4>
+              <ul>
+                <li>Madness Panel hiện lên</li>
+                <li>Quay về Town, SEN = 2</li>
+                <li>Mất 50% gold & EXP tầng</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sen-triggers">
+            <div class="trigger-item trigger-loss">
+              <strong>Giảm SEN:</strong> Mỗi ô dungeon (5%), hết food (16%), bị enemy crit (12%)
+            </div>
+            <div class="trigger-item trigger-gain">
+              <strong>Hồi SEN:</strong> Thuốc an thần, rượu tại quán, sự kiện đặc biệt
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 11: Dungeon System ==================== -->
+    <section class="slide" data-slide="11">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">10</span>
+          <h2>Dungeon — Sinh Thủ Tục</h2>
+        </div>
+        <div class="dungeon-layout">
+          <div class="dungeon-gen">
+            <h3>DungeonGenerator</h3>
+            <div class="gen-features">
+              <div class="gen-item">
+                <span class="gen-icon">🌱</span>
+                <div>
+                  <strong>Seeded Random</strong>
+                  <p>Map xác định theo seed → khôi phục trạng thái sau Combat</p>
+                </div>
+              </div>
+              <div class="gen-item">
+                <span class="gen-icon">🗺️</span>
+                <div>
+                  <strong>4 Tilemap Layer</strong>
+                  <p>Ground, Fog, Enemy, Event — overlay lên nhau</p>
+                </div>
+              </div>
+              <div class="gen-item">
+                <span class="gen-icon">🎲</span>
+                <div>
+                  <strong>Dynamic Scaling</strong>
+                  <p>Floor 1-3: 5-7 tiles | Floor 4+: 6-9 | Boss: 9×9</p>
+                </div>
+              </div>
+              <div class="gen-item">
+                <span class="gen-icon">🔑</span>
+                <div>
+                  <strong>Locked Door</strong>
+                  <p>40% cơ hội cần key để mở exit — thêm khám phá</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dungeon-floors">
+            <h3>Cấu Trúc 10 Tầng</h3>
+            <div class="floor-grid">
+              <div class="floor-item">F1</div>
+              <div class="floor-item">F2</div>
+              <div class="floor-item">F3</div>
+              <div class="floor-item">F4</div>
+              <div class="floor-item floor-boss">F5<br><small>🕷️ Boss</small></div>
+              <div class="floor-item">F6</div>
+              <div class="floor-item">F7</div>
+              <div class="floor-item">F8</div>
+              <div class="floor-item">F9</div>
+              <div class="floor-item floor-boss floor-final">F10<br><small>🐉 Boss</small></div>
+            </div>
+            <div class="floor-legend">
+              <span>💰 Gold tile (5%)</span>
+              <span>🍖 −1 Food/ô</span>
+              <span>📜 2-3 Event/tầng</span>
+              <span>👾 3-4 Quái/tầng</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 12: Enemies & Bosses ==================== -->
+    <section class="slide" data-slide="12">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">11</span>
+          <h2>Quái Vật & Boss</h2>
+        </div>
+        <div class="enemy-layout">
+          <div class="enemy-grid">
+            <h3>10 Loại Quái (7 thường + 2 Boss + 1 Summon)</h3>
+            <div class="enemy-list">
+              <div class="enemy-card"><span>🐀</span> Chuột<br><small>Basic melee</small></div>
+              <div class="enemy-card"><span>🐀</span> Chuột Nhảy<br><small>SpeedDash</small></div>
+              <div class="enemy-card"><span>🕷️</span> Nhện<br><small>StickyWeb</small></div>
+              <div class="enemy-card"><span>🕷️</span> Nhện Hang<br><small>PowerBite</small></div>
+              <div class="enemy-card"><span>🕷️</span> Nhện Tinh Anh<br><small>SummonSpider</small></div>
+              <div class="enemy-card"><span>🦎</span> Thằn Lằn Đen<br><small>Venom</small></div>
+              <div class="enemy-card"><span>🧛</span> Đỉa<br><small>Bloodsuck</small></div>
+              <div class="enemy-card"><span>💀</span> Cốt Y<br><small>HealEnemy</small></div>
+            </div>
+          </div>
+          <div class="boss-section">
+            <div class="boss-card boss-spider">
+              <h4>🕷️ Nữ Vương Nhện — Floor 5</h4>
+              <div class="boss-stats">60 HP · 4 ATK · 3 DEF · 16 SPD</div>
+              <ul>
+                <li><strong>Sinh Đàn:</strong> Triệu hồi 2 Nhện Hang khi đồng minh chết hết</li>
+                <li><strong>Hỏa Điền:</strong> HP ≤ 40% → +ATK, +SPD vĩnh viễn</li>
+                <li><strong>Nọc Độc:</strong> 20% Poison mỗi đòn đánh</li>
+                <li><strong>ClawRip:</strong> 20-32% maxHP damage</li>
+              </ul>
+            </div>
+            <div class="boss-card boss-dragon">
+              <h4>🐉 Rồng Cổ Đại — Floor 10</h4>
+              <div class="boss-stats">560 HP · 16 ATK · 5 DEF · 16 SPD</div>
+              <ul>
+                <li><strong>Miễn nhiễm:</strong> Bleed, Stun</li>
+                <li><strong>FlameBreath:</strong> 3 hits × 6 true dmg, 40% Burn/hit</li>
+                <li><strong>Tiếng Rống:</strong> Mỗi 5 lượt → 30% Stun</li>
+                <li><strong>Vảy Nứt:</strong> Player crit → Fracture + Poison ×4</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 13: Enemy AI ==================== -->
+    <section class="slide" data-slide="13">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">12</span>
+          <h2>AI Quái Vật — Decision Tree</h2>
+        </div>
+        <div class="ai-diagram">
+          <div class="ai-tree">
+            <div class="ai-node ai-root">Lượt của Enemy</div>
+            <div class="ai-branch">
+              <div class="ai-check">Đang Stun?</div>
+              <div class="ai-split">
+                <div class="ai-path ai-yes">
+                  <span class="ai-label">Có</span>
+                  <div class="ai-node ai-end ai-skip">Bỏ lượt<br><small>AP vẫn tích</small></div>
+                </div>
+                <div class="ai-path ai-no">
+                  <span class="ai-label">Không</span>
+                  <div class="ai-check">HP < 40% & có heal?</div>
+                  <div class="ai-split">
+                    <div class="ai-path ai-yes">
+                      <span class="ai-label">70%</span>
+                      <div class="ai-node ai-end ai-heal">Hồi máu<br><small>Chữa đồng minh yếu nhất</small></div>
+                    </div>
+                    <div class="ai-path ai-no">
+                      <span class="ai-label">Tiếp</span>
+                      <div class="ai-check">Skill CD = 0?</div>
+                      <div class="ai-split">
+                        <div class="ai-path ai-yes">
+                          <span class="ai-label">70%</span>
+                          <div class="ai-node ai-end ai-skill">Dùng Skill<br><small>Boss: 100%</small></div>
+                        </div>
+                        <div class="ai-path ai-no">
+                          <span class="ai-label">30%</span>
+                          <div class="ai-node ai-end ai-attack">Tấn Công<br><small>Đánh thường</small></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 14: Item & Equipment ==================== -->
+    <section class="slide" data-slide="14">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">13</span>
+          <h2>Vật Phẩm & Trang Bị</h2>
+        </div>
+        <div class="item-layout">
+          <div class="item-section">
+            <h3>Dual Inventory System</h3>
+            <div class="inv-split">
+              <div class="inv-box inv-combat">
+                <h4>🎒 Combat Inventory</h4>
+                <p>Unlimited slots, stackable (max 99)</p>
+                <p>HP Potion: tối đa 3 chai</p>
+                <p>Dùng được trong chiến đấu</p>
+              </div>
+              <div class="inv-box inv-storage">
+                <h4>📦 Storage</h4>
+                <p>20 slots cố định</p>
+                <p>Lưu equipment & vật liệu</p>
+                <p>Chỉ truy cập ở Town</p>
+              </div>
+            </div>
+          </div>
+          <div class="item-section">
+            <h3>Equipment — 4 Slots</h3>
+            <div class="equip-slots">
+              <div class="equip-slot">
+                <div class="slot-icon">⚔️</div>
+                <strong>Weapon</strong>
+                <small>DMG, Pen, Bleed%, Stun%</small>
+              </div>
+              <div class="equip-slot">
+                <div class="slot-icon">🛡️</div>
+                <strong>Armor</strong>
+                <small>DEF, HP, SPD, EVA</small>
+              </div>
+              <div class="equip-slot">
+                <div class="slot-icon">💍</div>
+                <strong>Accessory 1</strong>
+                <small>2 bonus stats</small>
+              </div>
+              <div class="equip-slot">
+                <div class="slot-icon">📿</div>
+                <strong>Accessory 2</strong>
+                <small>2 bonus stats</small>
+              </div>
+            </div>
+          </div>
+          <div class="item-section">
+            <h3>Consumable Types</h3>
+            <div class="consumable-grid">
+              <span class="consumable-tag">❤️ HP Heal</span>
+              <span class="consumable-tag">🧠 SEN Heal</span>
+              <span class="consumable-tag">🍖 Food</span>
+              <span class="consumable-tag">⚔️ Buff ATK</span>
+              <span class="consumable-tag">🛡️ Buff DEF</span>
+              <span class="consumable-tag">💨 Buff SPD</span>
+              <span class="consumable-tag">🎯 Buff CRIT</span>
+              <span class="consumable-tag">👁️ Buff EVA</span>
+              <span class="consumable-tag">🗡️ Coating</span>
+              <span class="consumable-tag">✨ Cleanse</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 15: Town & Guild ==================== -->
+    <section class="slide" data-slide="15">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">14</span>
+          <h2>Town & Guild System</h2>
+        </div>
+        <div class="town-layout">
+          <div class="town-map">
+            <h3>Các Khu Vực Town</h3>
+            <div class="location-grid">
+              <div class="location-card">
+                <div class="loc-icon">🏋️</div>
+                <h4>Khu Vực Huấn Luyện</h4>
+                <p>Phân bổ điểm STR / DEX / VIT / AGL. Preview stat trước khi xác nhận</p>
+              </div>
+              <div class="location-card">
+                <div class="loc-icon">🏪</div>
+                <h4>Cửa Hàng</h4>
+                <p>12 item ngẫu nhiên mỗi lần. Mua/bán double-click. Gold shop: 70-250</p>
+              </div>
+              <div class="location-card">
+                <div class="loc-icon">⚔️</div>
+                <h4>Hội Mạo Hiểm (Guild)</h4>
+                <p>Lương, mua HP/Food, bảng quest, thu thập phần thưởng</p>
+              </div>
+              <div class="location-card">
+                <div class="loc-icon">🗺️</div>
+                <h4>Bản Đồ</h4>
+                <p>Vào Dungeon — bắt đầu hoặc tiếp tục khám phá tầng hiện tại</p>
+              </div>
+            </div>
+          </div>
+          <div class="guild-detail">
+            <h3>Guild — Chi Tiết</h3>
+            <div class="guild-features">
+              <div class="guild-item">
+                <strong>💰 Lương:</strong> 40G/lần, nhận 1 lần mỗi tầng hoàn thành
+              </div>
+              <div class="guild-item">
+                <strong>❤️ HP Potion:</strong> 10G/chai, tối đa 3 chai
+              </div>
+              <div class="guild-item">
+                <strong>🍖 Food:</strong> 30G, hồi 50% maxFood
+              </div>
+              <div class="guild-item">
+                <strong>📋 Quest:</strong> Hunt (tiêu diệt X quái) & Gather (thu thập X item)
+              </div>
+              <div class="guild-item">
+                <strong>🎁 Thưởng:</strong> Gold, EXP, Item, Equipment
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 16: Save System ==================== -->
+    <section class="slide" data-slide="16">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">15</span>
+          <h2>Save System — JSON</h2>
+        </div>
+        <div class="save-layout">
+          <div class="save-diagram">
+            <div class="save-center">
+              <div class="save-hub">
+                <strong>SaveSystem</strong>
+                <small>Singleton · JsonUtility</small>
+              </div>
+            </div>
+            <div class="save-branches">
+              <div class="save-branch">
+                <div class="save-node save-player">
+                  <h4>PlayerSaveData</h4>
+                  <ul>
+                    <li>Level, EXP, Gold</li>
+                    <li>STR, DEX, VIT, AGL</li>
+                    <li>SEN, Food, MaxHP</li>
+                    <li>killedMonsters (Dict)</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="save-branch">
+                <div class="save-node save-inv">
+                  <h4>InventorySaveData</h4>
+                  <ul>
+                    <li>Combat items + stacks</li>
+                    <li>Storage items</li>
+                    <li>4 Equipment slots</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="save-branch">
+                <div class="save-node save-dungeon">
+                  <h4>DungeonSaveData</h4>
+                  <ul>
+                    <li>Floor, Seed</li>
+                    <li>Fog of War tiles</li>
+                    <li>Defeated enemies</li>
+                    <li>Used events</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="save-branch">
+                <div class="save-node save-skill">
+                  <h4>SkillSaveData</h4>
+                  <ul>
+                    <li>Skill ID → Level</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="save-branch">
+                <div class="save-node save-guild">
+                  <h4>GuildSaveData</h4>
+                  <ul>
+                    <li>Salary claims</li>
+                    <li>Active quests</li>
+                    <li>Completed quests</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="save-triggers">
+            <h3>Thời Điểm Auto-Save</h3>
+            <div class="trigger-list">
+              <span class="save-trigger">🚪 Chuyển tầng</span>
+              <span class="save-trigger">🏃 Rút lui</span>
+              <span class="save-trigger">💀 Chết / Điên</span>
+              <span class="save-trigger">🛒 Mua hàng</span>
+              <span class="save-trigger">📋 Nộp quest</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 17: Event System ==================== -->
+    <section class="slide" data-slide="17">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="slide-number">16</span>
+          <h2>Event & Leveling System</h2>
+        </div>
+        <div class="event-layout">
+          <div class="event-section">
+            <h3>Dungeon Events</h3>
+            <div class="event-types">
+              <div class="event-card event-choice">
+                <h4>📜 Choice Event</h4>
+                <p>2-3 lựa chọn, mỗi lựa chọn có xác suất thành công riêng</p>
+                <div class="event-formula">
+                  <code>Success% = Base% + SEN × 3%</code>
+                </div>
+                <div class="event-outcomes">
+                  <span class="outcome-good">✓ Thưởng: Gold, EXP, HP, Food, SEN, Item, +Stat</span>
+                  <span class="outcome-bad">✗ Phạt: −HP, −Food, −SEN, −Gold</span>
+                </div>
+              </div>
+              <div class="event-card event-trap">
+                <h4>⚠️ Trap</h4>
+                <p>Không có lựa chọn — áp dụng phạt ngay lập tức</p>
+                <div class="event-outcomes">
+                  <span class="outcome-bad">Mất HP, Food, SEN, hoặc Gold</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="event-section">
+            <h3>Leveling & Progression</h3>
+            <div class="level-formula">
+              <div class="formula-box">
+                <h4>EXP Cần Thiết</h4>
+                <code>EXP = Base(50) + (L−1) × Linear(20) + (L−1)² × Quad(10)</code>
+                <p class="formula-note">Polynomial: dễ đầu, khó cuối</p>
+              </div>
+              <div class="level-rewards">
+                <h4>Mỗi Level Up</h4>
+                <div class="reward-items">
+                  <span class="reward-tag">+3 Stat Points</span>
+                  <span class="reward-tag">+3 Max Food</span>
+                  <span class="reward-tag">Food refilled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 18: Summary ==================== -->
+    <section class="slide" data-slide="18">
+      <div class="slide-content title-slide summary-slide">
+        <div class="title-badge">TỔNG KẾT</div>
+        <h1 class="summary-title">Ashbound</h1>
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">C# Scripts</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-number">4</div>
+            <div class="stat-label">Unity Scenes</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-number">30+</div>
+            <div class="stat-label">ScriptableObjects</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-number">10</div>
+            <div class="stat-label">Loại Quái</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Design Patterns</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-number">20+</div>
+            <div class="stat-label">Tính Năng</div>
+          </div>
+        </div>
+        <div class="summary-features">
+          <span class="feature-pill">ATB Combat</span>
+          <span class="feature-pill">Sanity System</span>
+          <span class="feature-pill">Procedural Dungeon</span>
+          <span class="feature-pill">OOP Skill Tree</span>
+          <span class="feature-pill">Buff/Debuff</span>
+          <span class="feature-pill">Boss Passives</span>
+          <span class="feature-pill">Dual Inventory</span>
+          <span class="feature-pill">Quest System</span>
+          <span class="feature-pill">JSON Save/Load</span>
+          <span class="feature-pill">Event System</span>
+          <span class="feature-pill">Enemy AI</span>
+          <span class="feature-pill">Data-Driven</span>
+        </div>
+        <div class="title-divider"></div>
+        <p class="summary-footer">Cảm ơn đã lắng nghe!</p>
+      </div>
+      <div class="slide-decoration">
+        <div class="deco-circle deco-circle-1"></div>
+        <div class="deco-circle deco-circle-2"></div>
+        <div class="deco-circle deco-circle-3"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Keyboard Hint -->
+  <div class="keyboard-hint" id="keyHint">
+    Sử dụng ← → hoặc click để chuyển slide
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
